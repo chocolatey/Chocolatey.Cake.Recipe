@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>Chocolatey.Cake.Recipe</id>
+    <version>0.1.0</version>
+    <authors>Chocolatey</authors>
+    <owners>Chocolatey Software, Inc.</owners>
+    <summary>Opinionated set of scripts for use with Cake Builds for Chocolatey products.</summary>
+    <description>
+This NuGet package contains a set of re-usable scripts that is intended for use to build Chocolatey products by adding a single load pre-processor directive to your main Cake Script.  As a result, it is possible to use the same set of build scripts across multiple projects, without having to duplicate the scripts.  All that is required is a small recipe build script, which sets the project specific information.  It is not intneded that the scripts within this package will be usable by everyone, as there will be decisions/conventions that are specific to how we build things at Chocolatey Software, Inc.
+    </description>
+    <copyright>2022-Present Chocolatey Software, Inc.</copyright>
+    <iconUrl>https://chocolatey.org/assets/images/nupkg/chocolateyicon.png</iconUrl>
+    <projectUrl>https://github.com/chocolatey/Chocolatey.Cake.Recipe</projectUrl>
+    <repository type="git" url="https://github.com/chocolatey/Chocolatey.Cake.Recipe.git"/>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <tags>Chocolatey, Cake, Build, Automation, Recipe</tags>
+  </metadata>
+</package>
