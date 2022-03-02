@@ -12,6 +12,7 @@ public static class ToolSettings
     public static MSBuildToolVersion BuildMSBuildToolVersion { get; private set; }
     public static int MaxCpuCount { get; private set; }
     public static DirectoryPath OutputDirectory { get; private set; }
+    public static FilePath EazfuscatorToolLocation { get; private set; }
 
     public static string GitVersionTool { get; private set; }
     public static string GitReleaseManagerTool { get; private set; }
@@ -68,7 +69,8 @@ public static class ToolSettings
         PlatformTarget? buildPlatformTarget = null,
         MSBuildToolVersion buildMSBuildToolVersion = MSBuildToolVersion.Default,
         int? maxCpuCount = null,
-        DirectoryPath outputDirectory = null
+        DirectoryPath outputDirectory = null,
+        FilePath eazfuscatorToolLocation = null
     )
     {
         context.Information("Setting up tools...");
@@ -82,5 +84,6 @@ public static class ToolSettings
         BuildMSBuildToolVersion = buildMSBuildToolVersion;
         MaxCpuCount = maxCpuCount ?? 0;
         OutputDirectory = outputDirectory;
+        EazfuscatorToolLocation = eazfuscatorToolLocation ?? "./lib/Eazfuscator.NET/Eazfuscator.NET.exe";
     }
 }
