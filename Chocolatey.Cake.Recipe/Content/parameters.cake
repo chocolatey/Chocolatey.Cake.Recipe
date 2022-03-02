@@ -31,6 +31,7 @@ public static class BuildParameters
     public static string MasterBranchName { get; private set; }
     public static string DevelopBranchName { get; private set; }
     public static bool PrepareLocalRelease { get; set; }
+    public static bool TransifexEnabled { get; set; }
     public static BranchType BranchType { get; private set; }
     public static bool IsTagged { get; private set; }
     public static bool IsDotNetCoreBuild { get; set; }
@@ -93,6 +94,10 @@ public static class BuildParameters
     public static FilePath FullReleaseNotesFilePath { get; private set; }
 
     public static GitHubCredentials GitHub { get; private set; }
+    public static TransifexCredentials Transifex { get; private set; }
+
+    public static TransifexMode TransifexPullMode { get; private set; }
+    public static int TransifexPullPercentage { get; private set; }
 
     static BuildParameters()
     {
@@ -104,6 +109,26 @@ public static class BuildParameters
         get
         {
             return !string.IsNullOrEmpty(BuildParameters.GitHub.Token);
+        }
+    }
+
+    public static bool CanPullTranslations
+    {
+        get
+        {
+            return TransifexEnabled &&
+                    !IsPullRequest &&
+                    (!IsLocalBuild || string.Equals(BuildParameters.Target, "Transifex-Pull-Translations", StringComparison.OrdinalIgnoreCase));
+        }
+    }
+
+    public static bool CanPushTranslations
+    {
+        get
+        {
+            return TransifexEnabled &&
+                    !IsPullRequest &&
+                    (!IsLocalBuild || string.Equals(BuildParameters.Target, "Transifex-Push-SourceFiles", StringComparison.OrdinalIgnoreCase));
         }
     }
 
@@ -165,6 +190,15 @@ public static class BuildParameters
         context.Information("AssemblyNamesRegexPattern: {0}", AssemblyNamesRegexPattern);
         context.Information("UseChocolateyGuiStrongNameKey: {0}", UseChocolateyGuiStrongNameKey);
         context.Information("AllowedAssemblyName: {0}", string.Join(", ", AllowedAssemblyNames));
+        context.Information("TransifexEnabled: {0}", TransifexEnabled);
+        context.Information("CanPullTranslations: {0}", CanPullTranslations);
+        context.Information("CanPushTranslations: {0}", CanPushTranslations);
+
+        if (TransifexEnabled)
+        {
+            context.Information("TransifexPullMode: {0}", TransifexPullMode);
+            context.Information("TransifexPullPercentage: {0}", TransifexPullPercentage);
+        }
 
         if (ProductCustomAttributes != null)
         {
@@ -230,7 +264,10 @@ public static class BuildParameters
         bool shouldDownloadMilestoneReleaseNotes = false,
         bool shouldDownloadFullReleaseNotes = false,
         FilePath milestoneReleaseNotesFilePath = null,
-        FilePath fullReleaseNotesFilePath = null
+        FilePath fullReleaseNotesFilePath = null,
+        bool? transifexEnabled = null,
+        TransifexMode transifexPullMode = TransifexMode.OnlyTranslated,
+        int transifexPullPercentage = 60
         )
     {
         if (context == null)
@@ -253,6 +290,10 @@ public static class BuildParameters
 
         MasterBranchName = masterBranchName;
         DevelopBranchName = developBranchName;
+
+        TransifexEnabled = transifexEnabled ?? TransifexIsConfiguredForRepository(context);
+        TransifexPullMode = transifexPullMode;
+        TransifexPullPercentage = transifexPullPercentage;
 
         SourceDirectoryPath = sourceDirectoryPath;
         Title = title;
@@ -417,6 +458,7 @@ public static class BuildParameters
         TreatWarningsAsErrors = treatWarningsAsErrors;
 
         GitHub = GetGitHubCredentials(context);
+        Transifex = GetTransifexCredentials(context);
 
         SetBuildPaths(BuildPaths.GetPaths());
 

@@ -1,13 +1,16 @@
 public static class Environment
 {
-    public static string GitHubTokenVariable { get; private set; }
     public static string DefaultPushSourceUrlVariable { get; private set; }
+    public static string GitHubTokenVariable { get; private set; }
+    public static string TransifexApiTokenVariable { get; private set; }
 
     public static void SetVariableNames(
+        string defaultPushSourceUrlVariable = null,
         string gitHubTokenVariable = null,
-        string defaultPushSourceUrlVariable = null)
+        string transifexApiTokenVariable = null)
     {
-        GitHubTokenVariable = gitHubTokenVariable ?? "GITHUB_PAT";
         DefaultPushSourceUrlVariable = defaultPushSourceUrlVariable ?? "NUGETDEV_SOURCE";
+        GitHubTokenVariable = gitHubTokenVariable ?? "GITHUB_PAT";
+        TransifexApiTokenVariable = transifexApiTokenVariable ?? "TRANSIFEX_API_TOKEN";
     }
 }

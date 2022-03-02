@@ -488,6 +488,11 @@ public class Builder
 
         if (!isDotNetCoreBuild)
         {
+            if (BuildParameters.TransifexEnabled)
+            {
+                BuildParameters.Tasks.BuildTask.IsDependentOn("Transifex-Pull-Translations");
+            }
+
             BuildParameters.Tasks.TestNUnitTask.IsDependentOn(prefix + "Build");
             BuildParameters.Tasks.TestxUnitTask.IsDependentOn(prefix + "Build");
             BuildParameters.Tasks.TestTask.IsDependentOn("Test-NUnit");
@@ -500,6 +505,11 @@ public class Builder
         }
         else
         {
+            if (BuildParameters.TransifexEnabled)
+            {
+                BuildParameters.Tasks.DotNetCoreBuildTask.IsDependentOn("Transifex-Pull-Translations");
+            }
+
             BuildParameters.Tasks.PackageTask.IsDependentOn(prefix + "Pack");
             BuildParameters.Tasks.GenerateLocalCoverageReportTask.IsDependentOn(prefix + "Test");
             BuildParameters.Tasks.TestTask.IsDependentOn("Generate-LocalCoverageReport");

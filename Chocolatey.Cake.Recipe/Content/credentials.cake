@@ -8,6 +8,21 @@ public class GitHubCredentials
     }
 }
 
+public class TransifexCredentials
+{
+    public string ApiToken { get; private set; }
+
+    public bool HasCredentials
+    {
+        get { return !string.IsNullOrEmpty(ApiToken); }
+    }
+
+    public TransifexCredentials(string apiToken)
+    {
+        ApiToken = apiToken;
+    }
+}
+
 public class PackageSourceCredentials
 {
     public string ApiKey { get; private set; }
@@ -37,4 +52,11 @@ public static GitHubCredentials GetGitHubCredentials(ICakeContext context)
     }
 
     return new GitHubCredentials(token);
+}
+
+public static TransifexCredentials GetTransifexCredentials(ICakeContext context)
+{
+    return new TransifexCredentials(
+        context.EnvironmentVariable(Environment.TransifexApiTokenVariable)
+    );
 }

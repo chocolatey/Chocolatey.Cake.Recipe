@@ -21,6 +21,7 @@
 #addin nuget:?package=Cake.ReSharperReports&version=0.10.0
 #addin nuget:?package=Cake.StrongNameSigner&version=0.1.0
 #addin nuget:?package=Cake.StrongNameTool&version=0.0.5
+#addin nuget:?package=Cake.Transifex&version=1.0.1
 #addin nuget:?package=MagicChunks&version=2.0.0.119
 
 // TODO: Conditionally decide whether to install packages or not

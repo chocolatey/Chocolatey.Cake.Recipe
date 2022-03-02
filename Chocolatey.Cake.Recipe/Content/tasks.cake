@@ -49,4 +49,10 @@ public class BuildTasks
     public CakeTaskBuilder PublishGitHubReleaseTask { get; set; }
     public CakeTaskBuilder LabelsTask { get; set; }
     public CakeTaskBuilder CreateDefaultLabelsTask { get; set; }
+
+    // Transifex Tasks
+    public CakeTaskBuilder TransifexPullTranslations { get; set; }
+    public CakeTaskBuilder TransifexPushSourceResource { get; set; }
+    public CakeTaskBuilder TransifexPushTranslations { get; set; }
+    public CakeTaskBuilder TransifexSetupTask { get; set; }
 }
