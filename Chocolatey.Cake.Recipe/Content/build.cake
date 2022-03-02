@@ -403,7 +403,7 @@ BuildParameters.Tasks.UploadArtifactsTask = Task("Upload-Artifacts")
     }
 });
 
-BuildParameters.Tasks.ContinuousIntegrationTask = Task("ContinuousIntegration")
+BuildParameters.Tasks.ContinuousIntegrationTask = Task("CI")
     .IsDependentOn("Upload-Artifacts")
     .IsDependentOn("Publish-PreRelease-Packages")
     .IsDependentOn("Publish-Release-Packages")
