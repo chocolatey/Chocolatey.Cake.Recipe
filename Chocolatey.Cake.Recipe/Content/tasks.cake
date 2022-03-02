@@ -41,4 +41,12 @@ public class BuildTasks
     public CakeTaskBuilder StrongNameSignerTask { get; set; }
     public CakeTaskBuilder InstallSNRemoveTask { get; set; }
     public CakeTaskBuilder ChangeStrongNameSignatures { get; set; }
+
+    // GitReleaseManager Tasks
+    public CakeTaskBuilder ReleaseNotesTask { get; set; }
+    public CakeTaskBuilder CreateReleaseNotesTask { get; set; }
+    public CakeTaskBuilder ExportReleaseNotesTask { get; set; }
+    public CakeTaskBuilder PublishGitHubReleaseTask { get; set; }
+    public CakeTaskBuilder LabelsTask { get; set; }
+    public CakeTaskBuilder CreateDefaultLabelsTask { get; set; }
 }

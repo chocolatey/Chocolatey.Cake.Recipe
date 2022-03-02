@@ -407,6 +407,7 @@ BuildParameters.Tasks.ContinuousIntegrationTask = Task("CI")
     .IsDependentOn("Upload-Artifacts")
     .IsDependentOn("Publish-PreRelease-Packages")
     .IsDependentOn("Publish-Release-Packages")
+    .IsDependentOn("Publish-GitHub-Release")
     .Finally(() =>
 {
     if (publishingError)
@@ -414,6 +415,12 @@ BuildParameters.Tasks.ContinuousIntegrationTask = Task("CI")
         throw new Exception("An error occurred during the publishing of " + BuildParameters.Title + ".  All publishing tasks have been attempted.");
     }
 });
+
+BuildParameters.Tasks.ReleaseNotesTask = Task("ReleaseNotes")
+  .IsDependentOn("Create-Release-Notes");
+
+BuildParameters.Tasks.LabelsTask = Task("Labels")
+  .IsDependentOn("Create-Default-Labels");
 
 ///////////////////////////////////////////////////////////////////////////////
 // EXECUTION

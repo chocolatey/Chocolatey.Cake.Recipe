@@ -22,8 +22,15 @@ public static class BuildParameters
     public static string DeploymentEnvironment { get; private set;}
     public static Cake.Core.Configuration.ICakeConfiguration CakeConfiguration { get; private set; }
     public static bool IsLocalBuild { get; private set; }
+    public static bool IsRunningOnGitHubActions { get; private set; }
+    public static bool IsRunningOnTeamCity { get; private set; }
+    public static bool IsRepositoryHostedOnGitHub { get; private set; }
     public static PlatformFamily BuildAgentOperatingSystem { get; private set; }
     public static bool IsPullRequest { get; private set; }
+    public static bool IsMainRepository { get; private set; }
+    public static string MasterBranchName { get; private set; }
+    public static string DevelopBranchName { get; private set; }
+    public static bool PrepareLocalRelease { get; set; }
     public static BranchType BranchType { get; private set; }
     public static bool IsTagged { get; private set; }
     public static bool IsDotNetCoreBuild { get; set; }
@@ -78,9 +85,26 @@ public static class BuildParameters
     public static List<string> AllowedAssemblyNames { get; private set; }
     public static IBuildProvider BuildProvider { get; private set; }
 
+    public static bool ShouldPublishGitHub { get; private set; }
+    public static bool ShouldDownloadMilestoneReleaseNotes { get; private set;}
+    public static bool ShouldDownloadFullReleaseNotes { get; private set;}
+
+    public static FilePath MilestoneReleaseNotesFilePath { get; private set; }
+    public static FilePath FullReleaseNotesFilePath { get; private set; }
+
+    public static GitHubCredentials GitHub { get; private set; }
+
     static BuildParameters()
     {
         Tasks = new BuildTasks();
+    }
+
+    public static bool CanUseGitReleaseManager
+    {
+        get
+        {
+            return !string.IsNullOrEmpty(BuildParameters.GitHub.Token);
+        }
     }
 
     public static void SetBuildVersion(BuildVersion version)
@@ -107,6 +131,10 @@ public static class BuildParameters
         context.Information("IsLocalBuild: {0}", IsLocalBuild);
         context.Information("IsPullRequest: {0}", IsPullRequest);
         context.Information("IsTagged: {0}", IsTagged);
+        context.Information("IsMainRepository: {0}", IsMainRepository);
+        context.Information("PrepareLocalRelease: {0}", BuildParameters.PrepareLocalRelease);
+        context.Information("ShouldDownloadMilestoneReleaseNotes: {0}", BuildParameters.ShouldDownloadMilestoneReleaseNotes);
+        context.Information("ShouldDownloadFullReleaseNotes: {0}", BuildParameters.ShouldDownloadFullReleaseNotes);
         context.Information("Repository Name: {0}", BuildProvider.Repository.Name);
         context.Information("Branch Type: {0}", BranchType);
         context.Information("Branch Name: {0}", BuildProvider.Repository.Branch);
@@ -195,7 +223,14 @@ public static class BuildParameters
         ICollection<AssemblyInfoCustomAttribute> productCustomAttributes = null,
         List<PackageSourceData> packageSourceDatas = null,
         List<string> allowedAssemblyNames = null,
-        string certificateSubjectName = null
+        string certificateSubjectName = null,
+        bool shouldPublishGitHub = false,
+        string masterBranchName = "master",
+        string developBranchName = "develop",
+        bool shouldDownloadMilestoneReleaseNotes = false,
+        bool shouldDownloadFullReleaseNotes = false,
+        FilePath milestoneReleaseNotesFilePath = null,
+        FilePath fullReleaseNotesFilePath = null
         )
     {
         if (context == null)
@@ -213,6 +248,11 @@ public static class BuildParameters
         BuildProvider = GetBuildProvider(context, buildSystem);
 
         IsTagged = BuildProvider.Repository.Tag.IsTag;
+        IsRunningOnGitHubActions = BuildProvider.Type == BuildProviderType.GitHubActions;
+        IsRunningOnTeamCity = BuildProvider.Type == BuildProviderType.TeamCity;
+
+        MasterBranchName = masterBranchName;
+        DevelopBranchName = developBranchName;
 
         SourceDirectoryPath = sourceDirectoryPath;
         Title = title;
@@ -300,8 +340,12 @@ public static class BuildParameters
         Configuration = context.Argument("configuration", "Release");
         DeploymentEnvironment = context.Argument("environment", "Release");
         ForceContinuousIntegration = context.Argument("forceContinuousIntegration", false);
+        PrepareLocalRelease = context.Argument("prepareLocalRelease", false);
         CakeConfiguration = context.GetConfiguration();
         IsLocalBuild = buildSystem.IsLocalBuild;
+
+        MilestoneReleaseNotesFilePath = milestoneReleaseNotesFilePath ?? RootDirectoryPath.CombineWithFilePath("CHANGELOG.md");
+        FullReleaseNotesFilePath = fullReleaseNotesFilePath ?? RootDirectoryPath.CombineWithFilePath("ReleaseNotes.md");
 
         if (ShouldStrongNameOutputAssemblies || ShouldStrongNameSignDependentAssemblies || ShouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken)
         {
@@ -346,13 +390,14 @@ public static class BuildParameters
         BuildAgentOperatingSystem = context.Environment.Platform.Family;
 
         IsPullRequest = BuildProvider.PullRequest.IsPullRequest;
+        IsMainRepository = StringComparer.OrdinalIgnoreCase.Equals(string.Concat(repositoryOwner, "/", RepositoryName), BuildProvider.Repository.Name);
 
         var branchName = BuildProvider.Repository.Branch;
-        if (StringComparer.OrdinalIgnoreCase.Equals("master", branchName))
+        if (StringComparer.OrdinalIgnoreCase.Equals(masterBranchName, branchName))
         {
             BranchType = BranchType.Master;
         }
-        else if (StringComparer.OrdinalIgnoreCase.Equals("develop", branchName))
+        else if (StringComparer.OrdinalIgnoreCase.Equals(developBranchName, branchName))
         {
             BranchType = BranchType.Develop;
         }
@@ -371,7 +416,19 @@ public static class BuildParameters
 
         TreatWarningsAsErrors = treatWarningsAsErrors;
 
+        GitHub = GetGitHubCredentials(context);
+
         SetBuildPaths(BuildPaths.GetPaths());
+
+        ShouldDownloadFullReleaseNotes = shouldDownloadFullReleaseNotes;
+        ShouldDownloadMilestoneReleaseNotes = shouldDownloadMilestoneReleaseNotes;
+
+        ShouldPublishGitHub = (!IsLocalBuild &&
+                                !IsPullRequest &&
+                                IsMainRepository &&
+                                (BuildParameters.BranchType == BranchType.Master || BuildParameters.BranchType == BranchType.Release || BuildParameters.BranchType == BranchType.HotFix) &&
+                                IsTagged &&
+                                shouldPublishGitHub);
 
         if (packageSourceDatas?.Any() ?? false)
         {
