@@ -66,6 +66,8 @@ public static class BuildParameters
     public static bool ShouldStrongNameOutputAssemblies { get; private set; }
     public static bool ShouldObfuscateOutputAssemblies { get; private set; }
     public static bool ShouldAuthenticodeSignOutputAssemblies { get; private set; }
+    public static bool ShouldAuthenticodeSignMsis { get; private set; }
+    public static bool ShouldBuildMsi { get; private set; }
 
     public static bool ShouldAuthenticodeSignPowerShellScripts { get; private set; }
     public static bool ShouldStrongNameSignDependentAssemblies { get; private set; }
@@ -79,6 +81,7 @@ public static class BuildParameters
     public static DirectoryPath RestorePackagesDirectory { get; private set; }
     public static Func<FilePathCollection> GetFilesToObfuscate { get; private set; }
     public static Func<FilePathCollection> GetFilesToSign { get; private set; }
+    public static Func<FilePathCollection> GetMsisToSign { get; private set; }
     public static Func<FilePathCollection> GetScriptsToSign { get; private set; }
     public static Func<FilePathCollection> GetProjectsToPack { get; private set; }
     public static List<PackageSourceData> PackageSources { get; private set; }
@@ -232,6 +235,8 @@ public static class BuildParameters
         bool shouldStrongNameOutputAssemblies = true,
         bool shouldObfuscateOutputAssemblies = true,
         bool shouldAuthenticodeSignOutputAssemblies = true,
+        bool shouldAuthenticodeSignMsis = true,
+        bool shouldBuildMsi = false,
         bool shouldAuthenticodeSignPowerShellScripts = true,
         bool shouldStrongNameSignDependentAssemblies = true,
         bool useChocolateyGuiStrongNameKey = false,
@@ -244,6 +249,7 @@ public static class BuildParameters
         DirectoryPath restorePackagesDirectory = null,
         Func<FilePathCollection> getFilesToObfuscate = null,
         Func<FilePathCollection> getFilesToSign = null,
+        Func<FilePathCollection> getMsisToSign = null,
         Func<FilePathCollection> getScriptsToSign = null,
         Func<FilePathCollection> getProjectsToPack = null,
         string productName = null,
@@ -314,6 +320,8 @@ public static class BuildParameters
         ShouldStrongNameOutputAssemblies = shouldStrongNameOutputAssemblies;
         ShouldObfuscateOutputAssemblies = shouldObfuscateOutputAssemblies;
         ShouldAuthenticodeSignOutputAssemblies = shouldAuthenticodeSignOutputAssemblies;
+        ShouldAuthenticodeSignMsis = shouldAuthenticodeSignMsis;
+        ShouldBuildMsi = shouldBuildMsi;
         ShouldAuthenticodeSignPowerShellScripts = shouldAuthenticodeSignPowerShellScripts;
         ShouldStrongNameSignDependentAssemblies = shouldStrongNameSignDependentAssemblies;
         StrongNameDependentAssembliesInputPath = strongNameDependentAssembliesInputPath ?? SourceDirectoryPath.Combine("packages").FullPath;
@@ -326,6 +334,7 @@ public static class BuildParameters
         RestorePackagesDirectory = restorePackagesDirectory;
         GetFilesToObfuscate = getFilesToObfuscate;
         GetFilesToSign = getFilesToSign;
+        GetMsisToSign = getMsisToSign;
         GetScriptsToSign = getScriptsToSign;
         GetProjectsToPack = getProjectsToPack;
         ProductName = productName ?? "Name not provided";
