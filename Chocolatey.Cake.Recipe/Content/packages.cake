@@ -1,4 +1,4 @@
-BuildParameters.Tasks.CopyNuspecFolder = Task("Copy-Nuspec-Folders")
+BuildParameters.Tasks.CopyNuspecFolderTask = Task("Copy-Nuspec-Folders")
     .Does(() =>
 {
     if (DirectoryExists("./nuspec/chocolatey"))

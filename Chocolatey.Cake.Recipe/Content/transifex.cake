@@ -31,7 +31,7 @@ BuildParameters.Tasks.TransifexSetupTask = Task("Transifex-Setup")
         System.IO.File.WriteAllText(path, text, encoding);
     });
 
-BuildParameters.Tasks.TransifexPushSourceResource = Task("Transifex-Push-SourceFiles")
+BuildParameters.Tasks.TransifexPushSourceResourceTask = Task("Transifex-Push-SourceFiles")
     .WithCriteria(() => BuildParameters.CanPushTranslations)
     .IsDependentOn("Transifex-Setup")
     .Does(() =>
@@ -42,7 +42,7 @@ BuildParameters.Tasks.TransifexPushSourceResource = Task("Transifex-Push-SourceF
         });
     });
 
-BuildParameters.Tasks.TransifexPullTranslations = Task("Transifex-Pull-Translations")
+BuildParameters.Tasks.TransifexPullTranslationsTask = Task("Transifex-Pull-Translations")
     .WithCriteria(() => BuildParameters.CanPullTranslations)
     .IsDependentOn("Transifex-Push-SourceFiles")
     .Does(() =>
@@ -54,7 +54,7 @@ BuildParameters.Tasks.TransifexPullTranslations = Task("Transifex-Pull-Translati
         });
     });
 
-BuildParameters.Tasks.TransifexPushTranslations = Task("Transifex-Push-Translations")
+BuildParameters.Tasks.TransifexPushTranslationsTask = Task("Transifex-Push-Translations")
     .Does(() =>
     {
         TransifexPush(new TransifexPushSettings {
