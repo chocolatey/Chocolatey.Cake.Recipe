@@ -32,6 +32,10 @@ BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
                     .Append("CertificateAlgorithm", BuildParameters.CertificateAlgorithm);
             });
     }
+    else
+    {
+        Information("There are no PowerShell Scripts defined to be signed.");
+    }
 });
 
 BuildParameters.Tasks.SignAssembliesTask = Task("Sign-Assemblies")
@@ -73,6 +77,6 @@ BuildParameters.Tasks.SignAssembliesTask = Task("Sign-Assemblies")
     }
     else
     {
-        Information("There are no files defined to be signed.");
+        Information("There are no assemblies defined to be signed.");
     }
 });
