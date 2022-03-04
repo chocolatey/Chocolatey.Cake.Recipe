@@ -12,8 +12,10 @@ public static class ToolSettings
     public static MSBuildToolVersion BuildMSBuildToolVersion { get; private set; }
     public static int MaxCpuCount { get; private set; }
     public static DirectoryPath OutputDirectory { get; private set; }
+    public static FilePath EazfuscatorToolLocation { get; private set; }
 
     public static string GitVersionTool { get; private set; }
+    public static string GitReleaseManagerTool { get; private set; }
     public static string MSBuildExtensionPackTool { get; private set; }
     public static string NUnitTool { get; private set; }
     public static string OpenCoverTool { get; private set; }
@@ -25,9 +27,12 @@ public static class ToolSettings
     public static string XUnitTool { get; private set; }
 
     public static string ReportGeneratorGlobalTool { get; private set; }
+    public static string GitReleaseManagerGlobalTool { get; private set; }
 
     public static void SetToolPreprocessorDirectives(
+        // This is specifically pinned to 5.0.1 as later versions break compatibility with Unix.
         string gitVersionTool = "#tool nuget:?package=GitVersion.CommandLine&version=5.0.1",
+        string gitReleaseManagerTool = "#tool nuget:?package=GitReleaseManager&version=0.11.0",
         string msbuildExtensionPackTool = "#tool nuget:?package=MSBuild.Extension.Pack&version=1.9.0",
         string nunitTool = "#tool nuget:?package=NUnit.ConsoleRunner&version=3.10.0",
         string openCoverTool = "#tool nuget:?package=OpenCover&version=4.7.922",
@@ -37,10 +42,12 @@ public static class ToolSettings
         string reSharperTools = "#tool nuget:?package=JetBrains.ReSharper.CommandLineTools&version=2017.2.0",
         string strongNameSignerTool = "#tool nuget:?package=Brutal.Dev.StrongNameSigner&version=2.6.0",
         string xunitTool = "#tool nuget:?package=xunit.runner.console&version=2.4.1",
-        string reportGeneratorGlobalTool = "#tool dotnet:?package=dotnet-reportgenerator-globaltool&version=4.8.5"
+        string reportGeneratorGlobalTool = "#tool dotnet:?package=dotnet-reportgenerator-globaltool&version=4.8.5",
+        string gitReleaseManagerGlobalTool = "#tool dotnet:?package=GitReleaseManager.Tool&version=0.11.0"
     )
     {
         GitVersionTool = gitVersionTool;
+        GitReleaseManagerTool = gitReleaseManagerTool;
         ReSharperTools = reSharperTools;
         ReSharperReportsTool = reSharperReportsTool;
         MSBuildExtensionPackTool = msbuildExtensionPackTool;
@@ -51,6 +58,7 @@ public static class ToolSettings
         ReportUnitTool = reportUnitTool;
         StrongNameSignerTool = strongNameSignerTool;
         ReportGeneratorGlobalTool = reportGeneratorGlobalTool;
+        GitReleaseManagerGlobalTool = gitReleaseManagerGlobalTool;
     }
 
     public static void SetToolSettings(
@@ -61,7 +69,8 @@ public static class ToolSettings
         PlatformTarget? buildPlatformTarget = null,
         MSBuildToolVersion buildMSBuildToolVersion = MSBuildToolVersion.Default,
         int? maxCpuCount = null,
-        DirectoryPath outputDirectory = null
+        DirectoryPath outputDirectory = null,
+        FilePath eazfuscatorToolLocation = null
     )
     {
         context.Information("Setting up tools...");
@@ -75,5 +84,6 @@ public static class ToolSettings
         BuildMSBuildToolVersion = buildMSBuildToolVersion;
         MaxCpuCount = maxCpuCount ?? 0;
         OutputDirectory = outputDirectory;
+        EazfuscatorToolLocation = eazfuscatorToolLocation ?? "./lib/Eazfuscator.NET/Eazfuscator.NET.exe";
     }
 }

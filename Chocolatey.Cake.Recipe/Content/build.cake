@@ -383,6 +383,32 @@ public void CopyBuildOutput()
     }
 }
 
+BuildParameters.Tasks.BuildMsiTask = Task("Build-MSI")
+    .IsDependentOn("Sign-Assemblies")
+    .IsDependeeOf("Sign-Msis")
+    .WithCriteria(() => BuildParameters.ShouldBuildMsi, "Skipping because building of MSI has been disabled")
+    .Does(() => RequireTool(ToolSettings.MSBuildExtensionPackTool, () => {
+        Information("Building MSI from the following solution: {0}", BuildParameters.SolutionFilePath);
+
+        var msbuildSettings = new MSBuildSettings()
+                .SetPlatformTarget(PlatformTarget.x86)
+                .UseToolVersion(ToolSettings.BuildMSBuildToolVersion)
+                .WithProperty("TreatWarningsAsErrors", BuildParameters.TreatWarningsAsErrors.ToString())
+                .WithTarget("Build")
+                .SetMaxCpuCount(ToolSettings.MaxCpuCount)
+                .SetConfiguration("WIX")
+                .WithLogger(
+                    Context.Tools.Resolve("MSBuild.ExtensionPack.Loggers.dll").FullPath,
+                    "XmlFileLogger",
+                    string.Format(
+                        "logfile=\"{0}\";invalidCharReplacement=_;verbosity=Detailed;encoding=UTF-8",
+                            BuildParameters.Paths.Directories.Build + "/MSBuild.msi.log")
+                );
+
+        MSBuild(BuildParameters.SolutionFilePath, msbuildSettings);
+    })
+);
+
 BuildParameters.Tasks.PackageTask = Task("Package");
 BuildParameters.Tasks.DefaultTask = Task("Default")
     .IsDependentOn("Package");
@@ -403,10 +429,11 @@ BuildParameters.Tasks.UploadArtifactsTask = Task("Upload-Artifacts")
     }
 });
 
-BuildParameters.Tasks.ContinuousIntegrationTask = Task("ContinuousIntegration")
+BuildParameters.Tasks.ContinuousIntegrationTask = Task("CI")
     .IsDependentOn("Upload-Artifacts")
     .IsDependentOn("Publish-PreRelease-Packages")
     .IsDependentOn("Publish-Release-Packages")
+    .IsDependentOn("Publish-GitHub-Release")
     .Finally(() =>
 {
     if (publishingError)
@@ -414,6 +441,12 @@ BuildParameters.Tasks.ContinuousIntegrationTask = Task("ContinuousIntegration")
         throw new Exception("An error occurred during the publishing of " + BuildParameters.Title + ".  All publishing tasks have been attempted.");
     }
 });
+
+BuildParameters.Tasks.ReleaseNotesTask = Task("ReleaseNotes")
+  .IsDependentOn("Create-Release-Notes");
+
+BuildParameters.Tasks.LabelsTask = Task("Labels")
+  .IsDependentOn("Create-Default-Labels");
 
 ///////////////////////////////////////////////////////////////////////////////
 // EXECUTION
@@ -468,12 +501,14 @@ public class Builder
         BuildParameters.Tasks.CreateNuGetPackagesTask.IsDependentOn("Sign-PowerShellScripts");
         BuildParameters.Tasks.CreateNuGetPackagesTask.IsDependentOn("Sign-Assemblies");
         BuildParameters.Tasks.CreateChocolateyPackagesTask.IsDependentOn("Sign-PowerShellScripts");
+        BuildParameters.Tasks.CreateChocolateyPackagesTask.IsDependentOn("Sign-Msis");
+        BuildParameters.Tasks.SignMsisTask.IsDependentOn("Sign-Assemblies");
         BuildParameters.Tasks.CreateChocolateyPackagesTask.IsDependentOn(prefix + "Build");
         BuildParameters.Tasks.ObfuscateAssembliesTask.IsDependeeOf("Sign-Assemblies");
         BuildParameters.Tasks.StrongNameSignerTask.IsDependentOn(prefix + "Restore");
         BuildParameters.Tasks.StrongNameSignerTask.IsDependeeOf(prefix + "Build");
-        BuildParameters.Tasks.ChangeStrongNameSignatures.IsDependentOn(prefix + "Restore");
-        BuildParameters.Tasks.ChangeStrongNameSignatures.IsDependeeOf(prefix + "Build");
+        BuildParameters.Tasks.ChangeStrongNameSignaturesTask.IsDependentOn(prefix + "Restore");
+        BuildParameters.Tasks.ChangeStrongNameSignaturesTask.IsDependeeOf(prefix + "Build");
         BuildParameters.Tasks.ObfuscateAssembliesTask.IsDependentOn(prefix + "Build");
         BuildParameters.Tasks.InspectCodeTask.IsDependentOn(prefix + "Build");
         BuildParameters.Tasks.ConfigurationBuilderTask.IsDependentOn(prefix + "Build");
@@ -481,6 +516,11 @@ public class Builder
 
         if (!isDotNetCoreBuild)
         {
+            if (BuildParameters.TransifexEnabled)
+            {
+                BuildParameters.Tasks.BuildTask.IsDependentOn("Transifex-Pull-Translations");
+            }
+
             BuildParameters.Tasks.TestNUnitTask.IsDependentOn(prefix + "Build");
             BuildParameters.Tasks.TestxUnitTask.IsDependentOn(prefix + "Build");
             BuildParameters.Tasks.TestTask.IsDependentOn("Test-NUnit");
@@ -493,6 +533,11 @@ public class Builder
         }
         else
         {
+            if (BuildParameters.TransifexEnabled)
+            {
+                BuildParameters.Tasks.DotNetCoreBuildTask.IsDependentOn("Transifex-Pull-Translations");
+            }
+
             BuildParameters.Tasks.PackageTask.IsDependentOn(prefix + "Pack");
             BuildParameters.Tasks.GenerateLocalCoverageReportTask.IsDependentOn(prefix + "Test");
             BuildParameters.Tasks.TestTask.IsDependentOn("Generate-LocalCoverageReport");

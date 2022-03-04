@@ -153,7 +153,7 @@ Example
 
 ### Force Continuous Integration
 
-By default, the entry task for Chocolatey Cake Recipe is `Package`, meaning that all artifacts will be generated, but not attempt to publish these artifacts will happen.  When running on a CI environment, it is expected that you will run `.\build.ps1 --target=ContinuousIntegration` will will also attempt to publish the artifacts.  While it is possible to also run this target locally, the publishing tasks will be skipped since not running in a CI environment.  To force this, you can run `.\build.ps1 --target=ContinuousIntegration --forceContinuousIntegration=true`
+By default, the entry task for Chocolatey Cake Recipe is `Package`, meaning that all artifacts will be generated, but no attempt to publish these artifacts will happen.  When running on a CI environment, it is expected that you will run `.\build.ps1 --target=CI` which will also attempt to publish the artifacts.  While it is possible to also run this target locally, the publishing tasks will be skipped since not running in a CI environment.  To force this, you can run `.\build.ps1 --target=CI --forceContinuousIntegration=true`
 
 - Type: `boolean`
 - Default Value: `false`
@@ -161,5 +161,5 @@ By default, the entry task for Chocolatey Cake Recipe is `Package`, meaning that
 Example
 
 ```
-.\build.ps1 --target=ContinuousIntegration --forceContinuousIntegration=true
+.\build.ps1 --target=CI --forceContinuousIntegration=true
 ```

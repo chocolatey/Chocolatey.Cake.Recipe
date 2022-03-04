@@ -16,7 +16,17 @@ BuildParameters.Tasks.ObfuscateAssembliesTask = Task("Obfuscate-Assemblies")
                 settings.KeyFile = BuildParameters.StrongNameKeyPath;
             }
 
-            settings.ToolPath = "./lib/Eazfuscator.NET/Eazfuscator.NET.exe";
+            var eazfuscatorToolLocation = Context.Tools.Resolve("Eazfuscator.NET.exe");
+
+            if (eazfuscatorToolLocation == null)
+            {
+                Warning("Couldn't resolve EazFuscator.NET.Exe tool, so using value from ToolSettings: {0}", ToolSettings.EazfuscatorToolLocation);
+                Context.Tools.RegisterFile(ToolSettings.EazfuscatorToolLocation);
+            }
+            else
+            {
+                Information("Using EazFuscator from: {0}", eazfuscatorToolLocation);
+            }
 
             if (FileExists(msbuildPathFilePath))
             {

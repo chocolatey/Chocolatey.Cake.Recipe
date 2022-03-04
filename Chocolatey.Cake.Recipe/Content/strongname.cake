@@ -306,7 +306,7 @@ BuildParameters.Tasks.InstallSNRemoveTask = Task("Install-SNRemove")
         }
     }
 
-BuildParameters.Tasks.ChangeStrongNameSignatures = Task("Change-Strong-Name-Signatures")
+BuildParameters.Tasks.ChangeStrongNameSignaturesTask = Task("Change-Strong-Name-Signatures")
     .IsDependentOn("Install-SNRemove")
     .WithCriteria(() => BuildParameters.ShouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken, "Skipping since strong naming of Chocolatey dependencies has been disabled")
     .Does(() => RequireTool(ToolSettings.StrongNameSignerTool, () => {

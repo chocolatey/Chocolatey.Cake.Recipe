@@ -90,6 +90,20 @@ public class TeamCityBuildProvider : IBuildProvider
 
     public IBuildInfo Build { get; }
 
+    public bool SupportsTokenlessCodecov { get; } = false;
+
+    public BuildProviderType Type { get; } = BuildProviderType.TeamCity;
+
+    public IEnumerable<string> PrintVariables { get; } = new[] {
+        "TEAMCITY_BUILD_BRANCH",
+        "TEAMCITY_BUILD_COMMIT",
+        "TEAMCITY_BUILD_ID",
+        "TEAMCITY_BUILD_REPOSITORY",
+        "TEAMCITY_BUILD_URL",
+        "TEAMCITY_VERSION",
+        "vcsroot.branch",
+    };
+
     private readonly ITeamCityProvider _teamCity;
 
     public void UploadArtifact(FilePath file)

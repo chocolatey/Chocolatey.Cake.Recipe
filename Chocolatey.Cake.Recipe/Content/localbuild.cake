@@ -4,6 +4,12 @@
 
 public class LocalBuildTagInfo : ITagInfo
 {
+    public LocalBuildTagInfo(bool isTag, string name)
+    {
+        IsTag = isTag;
+        Name = name;
+    }
+
     public LocalBuildTagInfo(ICakeContext context)
     {
         // Test to see if current commit is a tag...
@@ -47,33 +53,67 @@ public class LocalBuildRepositoryInfo : IRepositoryInfo
 {
     public LocalBuildRepositoryInfo(ICakeContext context)
     {
-        context.Information("Getting current branch name...");
-        IEnumerable<string> redirectedStandardOutput;
-        IEnumerable<string> redirectedError;
-
-        var exitCode = context.StartProcess(
-            "git",
-            new ProcessSettings {
-                Arguments = "branch --show-current",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true
-            },
-            out redirectedStandardOutput,
-            out redirectedError
-        );
-
-        if (exitCode == 0)
+        try
         {
-            var lines = redirectedStandardOutput.ToList();
-            if (lines.Any())
+            context.Information("Testing to see if valid git repository...");
+
+            // Normally, would use BuildParameters.RootDirectoryPath here, but since
+            // BuildProvider is executed before the Setup Task has executed, this property
+            // is null.  Default to the current working directory for this test.
+            var rootPath = context.GitFindRootFromPath(context.MakeAbsolute(context.Environment.WorkingDirectory));
+
+            var gitTool = context.Tools.Resolve("git");
+            if (gitTool == null)
             {
-                Branch = lines.FirstOrDefault();
-                context.Information("Branch name is {0}", Branch);
+                gitTool = context.Tools.Resolve("git.exe");
+            }
+
+            if (gitTool == null)
+            {
+                context.Warning("Unable to find git, setting default values for repository properties...");
+                Branch = "unknown";
+                Name = "Local";
+                Tag = new LocalBuildTagInfo(false, "unknown");
+            }
+            else
+            {
+                context.Information("Getting current branch name...");
+                IEnumerable<string> redirectedStandardOutput;
+                IEnumerable<string> redirectedError;
+
+                var exitCode = context.StartProcess(
+                    "git",
+                    new ProcessSettings {
+                        Arguments = "branch --show-current",
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true
+                    },
+                    out redirectedStandardOutput,
+                    out redirectedError
+                );
+
+                if (exitCode == 0)
+                {
+                    var lines = redirectedStandardOutput.ToList();
+                    if (lines.Any())
+                    {
+                        Branch = lines.FirstOrDefault();
+                        context.Information("Branch name is {0}", Branch);
+                    }
+                }
+
+                Name = "Local";
+                Tag = new LocalBuildTagInfo(context);
             }
         }
+        catch (LibGit2Sharp.RepositoryNotFoundException)
+        {
+            context.Warning("Unable to locate git repository, setting default values for repository properties...");
 
-        Name = "Local";
-        Tag = new LocalBuildTagInfo(context);
+            Branch = "unknown";
+            Name = "Local";
+            Tag = new LocalBuildTagInfo(false, "unknown");
+        }
     }
 
     public string Branch { get; }
@@ -119,6 +159,12 @@ public class LocalBuildBuildProvider : IBuildProvider
     public IPullRequestInfo PullRequest { get; }
 
     public IBuildInfo Build { get; }
+
+    public bool SupportsTokenlessCodecov { get; } = false;
+
+    public BuildProviderType Type { get; } = BuildProviderType.Local;
+
+    public IEnumerable<string> PrintVariables { get; }
 
     private readonly ICakeContext _context;
 

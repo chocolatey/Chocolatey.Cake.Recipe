@@ -32,7 +32,20 @@ public interface IBuildProvider
 
     IBuildInfo Build { get; }
 
+    bool SupportsTokenlessCodecov { get; }
+
+    IEnumerable<string> PrintVariables { get; }
+
     void UploadArtifact(FilePath file);
+
+    BuildProviderType Type { get; }
+}
+
+public enum BuildProviderType
+{
+    TeamCity,
+    GitHubActions,
+    Local
 }
 
 public static IBuildProvider GetBuildProvider(ICakeContext context, BuildSystem buildSystem)
@@ -41,6 +54,12 @@ public static IBuildProvider GetBuildProvider(ICakeContext context, BuildSystem 
     {
         context.Information("Using TeamCity Provider...");
         return new TeamCityBuildProvider(buildSystem.TeamCity, context);
+    }
+
+    if (buildSystem.IsRunningOnGitHubActions)
+    {
+        context.Information("Using GitHub Action Provider...");
+        return new GitHubActionBuildProvider(context);
     }
 
     // always fallback to Local Build

@@ -1,4 +1,4 @@
-#load nuget:?package=Cake.Recipe&version=1.0.0
+#load nuget:?package=Cake.Recipe&version=2.2.1
 
 Environment.SetVariableNames();
 
@@ -9,30 +9,34 @@ BuildParameters.SetParameters(context: Context,
                             repositoryOwner: "chocolatey",
                             repositoryName: "Chocolatey.Cake.Recipe",
                             appVeyorAccountName: "chocolatey",
-                            shouldRunGitVersion: true,
-                            shouldDeployGraphDocumentation: false,
                             nuspecFilePath: "./Chocolatey.Cake.Recipe/Chocolatey.Cake.Recipe.nuspec");
 
 BuildParameters.PrintParameters(Context);
 
 ToolSettings.SetToolSettings(context: Context);
 
+ToolSettings.SetToolPreprocessorDirectives(
+                                        gitReleaseManagerTool: "#tool nuget:?package=GitReleaseManager&version=0.13.0",
+                                        gitReleaseManagerGlobalTool: "#tool dotnet:?package=GitReleaseManager.Tool&version=0.13.0");
+
 BuildParameters.Tasks.CleanTask
     .IsDependentOn("Generate-Version-File");
 
 Task("Generate-Version-File")
-    .Does(() => {
+    .Does<BuildVersion>((context, buildVersion) => {
         var buildMetaDataCodeGen = TransformText(@"
         public class BuildMetaData
         {
             public static string Date { get; } = ""<%date%>"";
             public static string Version { get; } = ""<%version%>"";
+            public static string CakeVersion { get; } = ""<%cakeversion%>"";
         }",
         "<%",
         "%>"
         )
-   .WithToken("date", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"))
-   .WithToken("version", BuildParameters.Version.SemVersion)
+   .WithToken("date", BuildMetaData.Date)
+   .WithToken("version", buildVersion.SemVersion)
+   .WithToken("cakeversion", BuildMetaData.CakeVersion)
    .ToString();
 
     System.IO.File.WriteAllText(

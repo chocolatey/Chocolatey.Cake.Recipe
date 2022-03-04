@@ -22,8 +22,16 @@ public static class BuildParameters
     public static string DeploymentEnvironment { get; private set;}
     public static Cake.Core.Configuration.ICakeConfiguration CakeConfiguration { get; private set; }
     public static bool IsLocalBuild { get; private set; }
+    public static bool IsRunningOnGitHubActions { get; private set; }
+    public static bool IsRunningOnTeamCity { get; private set; }
+    public static bool IsRepositoryHostedOnGitHub { get; private set; }
     public static PlatformFamily BuildAgentOperatingSystem { get; private set; }
     public static bool IsPullRequest { get; private set; }
+    public static bool IsMainRepository { get; private set; }
+    public static string MasterBranchName { get; private set; }
+    public static string DevelopBranchName { get; private set; }
+    public static bool PrepareLocalRelease { get; set; }
+    public static bool TransifexEnabled { get; set; }
     public static BranchType BranchType { get; private set; }
     public static bool IsTagged { get; private set; }
     public static bool IsDotNetCoreBuild { get; set; }
@@ -58,6 +66,8 @@ public static class BuildParameters
     public static bool ShouldStrongNameOutputAssemblies { get; private set; }
     public static bool ShouldObfuscateOutputAssemblies { get; private set; }
     public static bool ShouldAuthenticodeSignOutputAssemblies { get; private set; }
+    public static bool ShouldAuthenticodeSignMsis { get; private set; }
+    public static bool ShouldBuildMsi { get; private set; }
 
     public static bool ShouldAuthenticodeSignPowerShellScripts { get; private set; }
     public static bool ShouldStrongNameSignDependentAssemblies { get; private set; }
@@ -71,6 +81,7 @@ public static class BuildParameters
     public static DirectoryPath RestorePackagesDirectory { get; private set; }
     public static Func<FilePathCollection> GetFilesToObfuscate { get; private set; }
     public static Func<FilePathCollection> GetFilesToSign { get; private set; }
+    public static Func<FilePathCollection> GetMsisToSign { get; private set; }
     public static Func<FilePathCollection> GetScriptsToSign { get; private set; }
     public static Func<FilePathCollection> GetProjectsToPack { get; private set; }
     public static List<PackageSourceData> PackageSources { get; private set; }
@@ -78,9 +89,50 @@ public static class BuildParameters
     public static List<string> AllowedAssemblyNames { get; private set; }
     public static IBuildProvider BuildProvider { get; private set; }
 
+    public static bool ShouldPublishGitHub { get; private set; }
+    public static bool ShouldDownloadMilestoneReleaseNotes { get; private set;}
+    public static bool ShouldDownloadFullReleaseNotes { get; private set;}
+
+    public static FilePath MilestoneReleaseNotesFilePath { get; private set; }
+    public static FilePath FullReleaseNotesFilePath { get; private set; }
+
+    public static GitHubCredentials GitHub { get; private set; }
+    public static TransifexCredentials Transifex { get; private set; }
+
+    public static TransifexMode TransifexPullMode { get; private set; }
+    public static int TransifexPullPercentage { get; private set; }
+
     static BuildParameters()
     {
         Tasks = new BuildTasks();
+    }
+
+    public static bool CanUseGitReleaseManager
+    {
+        get
+        {
+            return !string.IsNullOrEmpty(BuildParameters.GitHub.Token);
+        }
+    }
+
+    public static bool CanPullTranslations
+    {
+        get
+        {
+            return TransifexEnabled &&
+                    !IsPullRequest &&
+                    (!IsLocalBuild || string.Equals(BuildParameters.Target, "Transifex-Pull-Translations", StringComparison.OrdinalIgnoreCase));
+        }
+    }
+
+    public static bool CanPushTranslations
+    {
+        get
+        {
+            return TransifexEnabled &&
+                    !IsPullRequest &&
+                    (!IsLocalBuild || string.Equals(BuildParameters.Target, "Transifex-Push-SourceFiles", StringComparison.OrdinalIgnoreCase));
+        }
     }
 
     public static void SetBuildVersion(BuildVersion version)
@@ -107,6 +159,10 @@ public static class BuildParameters
         context.Information("IsLocalBuild: {0}", IsLocalBuild);
         context.Information("IsPullRequest: {0}", IsPullRequest);
         context.Information("IsTagged: {0}", IsTagged);
+        context.Information("IsMainRepository: {0}", IsMainRepository);
+        context.Information("PrepareLocalRelease: {0}", BuildParameters.PrepareLocalRelease);
+        context.Information("ShouldDownloadMilestoneReleaseNotes: {0}", BuildParameters.ShouldDownloadMilestoneReleaseNotes);
+        context.Information("ShouldDownloadFullReleaseNotes: {0}", BuildParameters.ShouldDownloadFullReleaseNotes);
         context.Information("Repository Name: {0}", BuildProvider.Repository.Name);
         context.Information("Branch Type: {0}", BranchType);
         context.Information("Branch Name: {0}", BuildProvider.Repository.Branch);
@@ -137,6 +193,15 @@ public static class BuildParameters
         context.Information("AssemblyNamesRegexPattern: {0}", AssemblyNamesRegexPattern);
         context.Information("UseChocolateyGuiStrongNameKey: {0}", UseChocolateyGuiStrongNameKey);
         context.Information("AllowedAssemblyName: {0}", string.Join(", ", AllowedAssemblyNames));
+        context.Information("TransifexEnabled: {0}", TransifexEnabled);
+        context.Information("CanPullTranslations: {0}", CanPullTranslations);
+        context.Information("CanPushTranslations: {0}", CanPushTranslations);
+
+        if (TransifexEnabled)
+        {
+            context.Information("TransifexPullMode: {0}", TransifexPullMode);
+            context.Information("TransifexPullPercentage: {0}", TransifexPullPercentage);
+        }
 
         if (ProductCustomAttributes != null)
         {
@@ -170,6 +235,8 @@ public static class BuildParameters
         bool shouldStrongNameOutputAssemblies = true,
         bool shouldObfuscateOutputAssemblies = true,
         bool shouldAuthenticodeSignOutputAssemblies = true,
+        bool shouldAuthenticodeSignMsis = true,
+        bool shouldBuildMsi = false,
         bool shouldAuthenticodeSignPowerShellScripts = true,
         bool shouldStrongNameSignDependentAssemblies = true,
         bool useChocolateyGuiStrongNameKey = false,
@@ -182,6 +249,7 @@ public static class BuildParameters
         DirectoryPath restorePackagesDirectory = null,
         Func<FilePathCollection> getFilesToObfuscate = null,
         Func<FilePathCollection> getFilesToSign = null,
+        Func<FilePathCollection> getMsisToSign = null,
         Func<FilePathCollection> getScriptsToSign = null,
         Func<FilePathCollection> getProjectsToPack = null,
         string productName = null,
@@ -195,7 +263,17 @@ public static class BuildParameters
         ICollection<AssemblyInfoCustomAttribute> productCustomAttributes = null,
         List<PackageSourceData> packageSourceDatas = null,
         List<string> allowedAssemblyNames = null,
-        string certificateSubjectName = null
+        string certificateSubjectName = null,
+        bool shouldPublishGitHub = false,
+        string masterBranchName = "master",
+        string developBranchName = "develop",
+        bool shouldDownloadMilestoneReleaseNotes = false,
+        bool shouldDownloadFullReleaseNotes = false,
+        FilePath milestoneReleaseNotesFilePath = null,
+        FilePath fullReleaseNotesFilePath = null,
+        bool? transifexEnabled = null,
+        TransifexMode transifexPullMode = TransifexMode.OnlyTranslated,
+        int transifexPullPercentage = 60
         )
     {
         if (context == null)
@@ -213,6 +291,15 @@ public static class BuildParameters
         BuildProvider = GetBuildProvider(context, buildSystem);
 
         IsTagged = BuildProvider.Repository.Tag.IsTag;
+        IsRunningOnGitHubActions = BuildProvider.Type == BuildProviderType.GitHubActions;
+        IsRunningOnTeamCity = BuildProvider.Type == BuildProviderType.TeamCity;
+
+        MasterBranchName = masterBranchName;
+        DevelopBranchName = developBranchName;
+
+        TransifexEnabled = transifexEnabled ?? TransifexIsConfiguredForRepository(context);
+        TransifexPullMode = transifexPullMode;
+        TransifexPullPercentage = transifexPullPercentage;
 
         SourceDirectoryPath = sourceDirectoryPath;
         Title = title;
@@ -233,6 +320,8 @@ public static class BuildParameters
         ShouldStrongNameOutputAssemblies = shouldStrongNameOutputAssemblies;
         ShouldObfuscateOutputAssemblies = shouldObfuscateOutputAssemblies;
         ShouldAuthenticodeSignOutputAssemblies = shouldAuthenticodeSignOutputAssemblies;
+        ShouldAuthenticodeSignMsis = shouldAuthenticodeSignMsis;
+        ShouldBuildMsi = shouldBuildMsi;
         ShouldAuthenticodeSignPowerShellScripts = shouldAuthenticodeSignPowerShellScripts;
         ShouldStrongNameSignDependentAssemblies = shouldStrongNameSignDependentAssemblies;
         StrongNameDependentAssembliesInputPath = strongNameDependentAssembliesInputPath ?? SourceDirectoryPath.Combine("packages").FullPath;
@@ -245,6 +334,7 @@ public static class BuildParameters
         RestorePackagesDirectory = restorePackagesDirectory;
         GetFilesToObfuscate = getFilesToObfuscate;
         GetFilesToSign = getFilesToSign;
+        GetMsisToSign = getMsisToSign;
         GetScriptsToSign = getScriptsToSign;
         GetProjectsToPack = getProjectsToPack;
         ProductName = productName ?? "Name not provided";
@@ -300,8 +390,12 @@ public static class BuildParameters
         Configuration = context.Argument("configuration", "Release");
         DeploymentEnvironment = context.Argument("environment", "Release");
         ForceContinuousIntegration = context.Argument("forceContinuousIntegration", false);
+        PrepareLocalRelease = context.Argument("prepareLocalRelease", false);
         CakeConfiguration = context.GetConfiguration();
         IsLocalBuild = buildSystem.IsLocalBuild;
+
+        MilestoneReleaseNotesFilePath = milestoneReleaseNotesFilePath ?? RootDirectoryPath.CombineWithFilePath("CHANGELOG.md");
+        FullReleaseNotesFilePath = fullReleaseNotesFilePath ?? RootDirectoryPath.CombineWithFilePath("ReleaseNotes.md");
 
         if (ShouldStrongNameOutputAssemblies || ShouldStrongNameSignDependentAssemblies || ShouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken)
         {
@@ -346,13 +440,14 @@ public static class BuildParameters
         BuildAgentOperatingSystem = context.Environment.Platform.Family;
 
         IsPullRequest = BuildProvider.PullRequest.IsPullRequest;
+        IsMainRepository = StringComparer.OrdinalIgnoreCase.Equals(string.Concat(repositoryOwner, "/", RepositoryName), BuildProvider.Repository.Name);
 
         var branchName = BuildProvider.Repository.Branch;
-        if (StringComparer.OrdinalIgnoreCase.Equals("master", branchName))
+        if (StringComparer.OrdinalIgnoreCase.Equals(masterBranchName, branchName))
         {
             BranchType = BranchType.Master;
         }
-        else if (StringComparer.OrdinalIgnoreCase.Equals("develop", branchName))
+        else if (StringComparer.OrdinalIgnoreCase.Equals(developBranchName, branchName))
         {
             BranchType = BranchType.Develop;
         }
@@ -371,7 +466,20 @@ public static class BuildParameters
 
         TreatWarningsAsErrors = treatWarningsAsErrors;
 
+        GitHub = GetGitHubCredentials(context);
+        Transifex = GetTransifexCredentials(context);
+
         SetBuildPaths(BuildPaths.GetPaths());
+
+        ShouldDownloadFullReleaseNotes = shouldDownloadFullReleaseNotes;
+        ShouldDownloadMilestoneReleaseNotes = shouldDownloadMilestoneReleaseNotes;
+
+        ShouldPublishGitHub = (!IsLocalBuild &&
+                                !IsPullRequest &&
+                                IsMainRepository &&
+                                (BuildParameters.BranchType == BranchType.Master || BuildParameters.BranchType == BranchType.Release || BuildParameters.BranchType == BranchType.HotFix) &&
+                                IsTagged &&
+                                shouldPublishGitHub);
 
         if (packageSourceDatas?.Any() ?? false)
         {
