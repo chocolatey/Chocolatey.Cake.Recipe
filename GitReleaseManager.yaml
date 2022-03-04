@@ -1,21 +1,20 @@
 issue-labels-include:
-- Breaking change
-- Bug
+- Breaking Change
 - Feature
-- Enhancement
+- Bug
 - Improvement
 - Documentation
-- security
 issue-labels-exclude:
 - Build
 - Internal / Refactoring
+- NO RELEASE NOTES
 issue-labels-alias:
     - name:    Documentation
       header:  Documentation
       plural:  Documentation
-    - name:    security
-      header:  Security
-      plural:  Security
+    - name:    Bug
+      header:  Bug Fix
+      plural:  Bug Fixes
 create:
   include-sha-section: true
   sha-section-heading: "SHA256 Hashes of the release artifacts"
