@@ -120,6 +120,7 @@ public static class BuildParameters
         get
         {
             return TransifexEnabled &&
+                    Transifex.HasCredentials &&
                     !IsPullRequest &&
                     (!IsLocalBuild || string.Equals(BuildParameters.Target, "Transifex-Pull-Translations", StringComparison.OrdinalIgnoreCase));
         }
@@ -130,6 +131,7 @@ public static class BuildParameters
         get
         {
             return TransifexEnabled &&
+                    Transifex.HasCredentials &&
                     !IsPullRequest &&
                     (!IsLocalBuild || string.Equals(BuildParameters.Target, "Transifex-Push-SourceFiles", StringComparison.OrdinalIgnoreCase));
         }
