@@ -143,10 +143,16 @@ public class BuildVersion
 
         var cakeVersion = typeof(ICakeContext).Assembly.GetName().Version.ToString();
 
-        if (context.BuildSystem().IsRunningOnTeamCity && BuildParameters.Title == "ChocolateySoftware.ChocolateyManagement")
+        if (context.BuildSystem().IsRunningOnTeamCity)
         {
-            // Only set this when it is a CCM Build
-            context.BuildSystem().TeamCity.SetParameter("CCMVersion", packageVersion);
+            // use the asserted package version for the build number in TeamCity
+            context.BuildSystem().TeamCity.SetBuildNumber(packageVersion);
+
+            if (BuildParameters.Title == "ChocolateySoftware.ChocolateyManagement")
+            {
+                // Only set this when it is a CCM Build
+                context.BuildSystem().TeamCity.SetParameter("CCMVersion", packageVersion);
+            }
         }
 
         return new BuildVersion
