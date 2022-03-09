@@ -85,7 +85,7 @@ BuildParameters.Tasks.CreateNuGetPackagesTask = Task("Create-NuGet-Packages")
 
         // Create packages.
         NuGetPack(nuspecFile, new NuGetPackSettings {
-            Version = BuildParameters.Version.SemVersion,
+            Version = BuildParameters.Version.PackageVersion,
             OutputDirectory = BuildParameters.Paths.Directories.NuGetPackages,
             Symbols = false,
             NoPackageAnalysis = true
@@ -112,7 +112,7 @@ BuildParameters.Tasks.DotNetCorePackTask = Task("DotNetCorePack")
     }
 
     var msBuildSettings = new DotNetCoreMSBuildSettings()
-                            .WithProperty("Version", BuildParameters.Version.SemVersion)
+                            .WithProperty("Version", BuildParameters.Version.PackageVersion)
                             .WithProperty("AssemblyVersion", BuildParameters.Version.Version)
                             .WithProperty("FileVersion",  BuildParameters.Version.Version)
                             .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion);
