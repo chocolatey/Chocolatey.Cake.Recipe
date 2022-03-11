@@ -1,5 +1,5 @@
 BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
-    .WithCriteria(() => !string.IsNullOrWhiteSpace(BuildParameters.CertificateFilePath) && FileExists(BuildParameters.CertificateFilePath), "Skipping because unable to find certificate")
+    .WithCriteria(() => (!string.IsNullOrWhiteSpace(BuildParameters.CertificateFilePath) && FileExists(BuildParameters.CertificateFilePath)) || BuildSystem.IsRunningOnTeamCity, "Skipping because unable to find certificate, and not running on TeamCity")
     .WithCriteria(() => BuildParameters.ShouldAuthenticodeSignPowerShellScripts, "Skipping since authenticode signing of PowerShell scripts has been disabled")
     .Does(() =>
 {
@@ -13,24 +13,37 @@ BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
             return;
         }
 
-        var password = System.IO.File.ReadAllText(BuildParameters.CertificatePassword);
-
-        Information("Signing '{0}' with {1}", string.Join(",", BuildParameters.GetScriptsToSign()), BuildParameters.CertificateFilePath);
-
         var scriptsToSign = new List<string>();
         foreach (var filePath in BuildParameters.GetScriptsToSign())
         {
             scriptsToSign.Add(MakeAbsolute(filePath).FullPath);
         }
 
-        StartPowershellFile(MakeAbsolute(powerShellSigningScript), args =>
+        if (BuildSystem.IsRunningOnTeamCity)
+        {
+            StartPowershellFile(MakeAbsolute(powerShellSigningScript), args =>
             {
                 args.AppendArray("ScriptsToSign", scriptsToSign)
                     .Append("TimeStampServer", BuildParameters.CertificateTimestampUrl)
-                    .Append("CertificatePath", BuildParameters.CertificateFilePath)
-                    .AppendSecret("CertificatePassword", password)
+                    .Append("CertificateSubjectName", BuildParameters.CertificateSubjectName)
                     .Append("CertificateAlgorithm", BuildParameters.CertificateAlgorithm);
             });
+        }
+        else
+        {
+            var password = System.IO.File.ReadAllText(BuildParameters.CertificatePassword);
+
+            Information("Signing '{0}' with {1}", string.Join(",", BuildParameters.GetScriptsToSign()), BuildParameters.CertificateFilePath);
+
+            StartPowershellFile(MakeAbsolute(powerShellSigningScript), args =>
+                {
+                    args.AppendArray("ScriptsToSign", scriptsToSign)
+                        .Append("TimeStampServer", BuildParameters.CertificateTimestampUrl)
+                        .Append("CertificatePath", BuildParameters.CertificateFilePath)
+                        .AppendSecret("CertificatePassword", password)
+                        .Append("CertificateAlgorithm", BuildParameters.CertificateAlgorithm);
+                });
+        }
     }
     else
     {
@@ -39,14 +52,12 @@ BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
 });
 
 BuildParameters.Tasks.SignAssembliesTask = Task("Sign-Assemblies")
-    .WithCriteria(() => !string.IsNullOrWhiteSpace(BuildParameters.CertificateFilePath) && FileExists(BuildParameters.CertificateFilePath), "Skipping because unable to find certificate")
+    .WithCriteria(() => (!string.IsNullOrWhiteSpace(BuildParameters.CertificateFilePath) && FileExists(BuildParameters.CertificateFilePath)) || BuildSystem.IsRunningOnTeamCity, "Skipping because unable to find certificate, and not running on TeamCity")
     .WithCriteria(() => BuildParameters.ShouldAuthenticodeSignOutputAssemblies, "Skipping since authenticode signing of output assemblies has been disabled")
     .Does(() =>
 {
     if (BuildParameters.GetFilesToSign != null)
     {
-        var password = System.IO.File.ReadAllText(BuildParameters.CertificatePassword);
-
         foreach (var fileToSign in BuildParameters.GetFilesToSign())
         {
             if (BuildSystem.IsRunningOnTeamCity)
@@ -65,6 +76,8 @@ BuildParameters.Tasks.SignAssembliesTask = Task("Sign-Assemblies")
             {
                 Information("Signing '{0}' with {1}", fileToSign, BuildParameters.CertificateFilePath);
 
+                var password = System.IO.File.ReadAllText(BuildParameters.CertificatePassword);
+
                 Sign(fileToSign, new SignToolSignSettings {
                         TimeStampUri = new Uri(BuildParameters.CertificateTimestampUrl),
                         CertPath = BuildParameters.CertificateFilePath,
@@ -82,15 +95,13 @@ BuildParameters.Tasks.SignAssembliesTask = Task("Sign-Assemblies")
 });
 
 BuildParameters.Tasks.SignMsisTask = Task("Sign-Msis")
-    .WithCriteria(() => !string.IsNullOrWhiteSpace(BuildParameters.CertificateFilePath) && FileExists(BuildParameters.CertificateFilePath), "Skipping because unable to find certificate")
+    .WithCriteria(() => (!string.IsNullOrWhiteSpace(BuildParameters.CertificateFilePath) && FileExists(BuildParameters.CertificateFilePath)) || BuildSystem.IsRunningOnTeamCity, "Skipping because unable to find certificate, and not running on TeamCity")
     .WithCriteria(() => BuildParameters.ShouldAuthenticodeSignMsis, "Skipping since authenticode signing of msi's has been disabled")
     .Does(() =>
 {
     if (BuildParameters.GetMsisToSign != null)
     {
         // dual signing Sha1 and Sha256 for an MSI would require https://github.com/puppetlabs/packaging/blob/8f5c5ff19fa1c495cc82b608464b3bd7e23a2e27/lib/packaging/msi.rb#L14-L63
-        var password = System.IO.File.ReadAllText(BuildParameters.CertificatePassword);
-
         foreach (var msiToSign in BuildParameters.GetMsisToSign())
         {
             if (BuildSystem.IsRunningOnTeamCity)
@@ -108,6 +119,8 @@ BuildParameters.Tasks.SignMsisTask = Task("Sign-Msis")
             else
             {
                 Information("Signing '{0}' with {1}", msiToSign, BuildParameters.CertificateFilePath);
+
+                var password = System.IO.File.ReadAllText(BuildParameters.CertificatePassword);
 
                 Sign(msiToSign, new SignToolSignSettings {
                         TimeStampUri = new Uri(BuildParameters.CertificateTimestampUrl),
