@@ -13,24 +13,37 @@ BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
             return;
         }
 
-        var password = System.IO.File.ReadAllText(BuildParameters.CertificatePassword);
-
-        Information("Signing '{0}' with {1}", string.Join(",", BuildParameters.GetScriptsToSign()), BuildParameters.CertificateFilePath);
-
         var scriptsToSign = new List<string>();
         foreach (var filePath in BuildParameters.GetScriptsToSign())
         {
             scriptsToSign.Add(MakeAbsolute(filePath).FullPath);
         }
 
-        StartPowershellFile(MakeAbsolute(powerShellSigningScript), args =>
+        if (BuildSystem.IsRunningOnTeamCity)
+        {
+            StartPowershellFile(MakeAbsolute(powerShellSigningScript), args =>
             {
                 args.AppendArray("ScriptsToSign", scriptsToSign)
                     .Append("TimeStampServer", BuildParameters.CertificateTimestampUrl)
-                    .Append("CertificatePath", BuildParameters.CertificateFilePath)
-                    .AppendSecret("CertificatePassword", password)
+                    .Append("CertificateSubjectName", BuildParameters.CertificateSubjectName)
                     .Append("CertificateAlgorithm", BuildParameters.CertificateAlgorithm);
             });
+        }
+        else
+        {
+            var password = System.IO.File.ReadAllText(BuildParameters.CertificatePassword);
+
+            Information("Signing '{0}' with {1}", string.Join(",", BuildParameters.GetScriptsToSign()), BuildParameters.CertificateFilePath);
+
+            StartPowershellFile(MakeAbsolute(powerShellSigningScript), args =>
+                {
+                    args.AppendArray("ScriptsToSign", scriptsToSign)
+                        .Append("TimeStampServer", BuildParameters.CertificateTimestampUrl)
+                        .Append("CertificatePath", BuildParameters.CertificateFilePath)
+                        .AppendSecret("CertificatePassword", password)
+                        .Append("CertificateAlgorithm", BuildParameters.CertificateAlgorithm);
+                });
+        }
     }
     else
     {
@@ -45,8 +58,6 @@ BuildParameters.Tasks.SignAssembliesTask = Task("Sign-Assemblies")
 {
     if (BuildParameters.GetFilesToSign != null)
     {
-        var password = System.IO.File.ReadAllText(BuildParameters.CertificatePassword);
-
         foreach (var fileToSign in BuildParameters.GetFilesToSign())
         {
             if (BuildSystem.IsRunningOnTeamCity)
@@ -64,6 +75,8 @@ BuildParameters.Tasks.SignAssembliesTask = Task("Sign-Assemblies")
             else
             {
                 Information("Signing '{0}' with {1}", fileToSign, BuildParameters.CertificateFilePath);
+
+                var password = System.IO.File.ReadAllText(BuildParameters.CertificatePassword);
 
                 Sign(fileToSign, new SignToolSignSettings {
                         TimeStampUri = new Uri(BuildParameters.CertificateTimestampUrl),
@@ -89,8 +102,6 @@ BuildParameters.Tasks.SignMsisTask = Task("Sign-Msis")
     if (BuildParameters.GetMsisToSign != null)
     {
         // dual signing Sha1 and Sha256 for an MSI would require https://github.com/puppetlabs/packaging/blob/8f5c5ff19fa1c495cc82b608464b3bd7e23a2e27/lib/packaging/msi.rb#L14-L63
-        var password = System.IO.File.ReadAllText(BuildParameters.CertificatePassword);
-
         foreach (var msiToSign in BuildParameters.GetMsisToSign())
         {
             if (BuildSystem.IsRunningOnTeamCity)
@@ -108,6 +119,8 @@ BuildParameters.Tasks.SignMsisTask = Task("Sign-Msis")
             else
             {
                 Information("Signing '{0}' with {1}", msiToSign, BuildParameters.CertificateFilePath);
+
+                var password = System.IO.File.ReadAllText(BuildParameters.CertificatePassword);
 
                 Sign(msiToSign, new SignToolSignSettings {
                         TimeStampUri = new Uri(BuildParameters.CertificateTimestampUrl),
