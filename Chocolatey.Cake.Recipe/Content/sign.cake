@@ -1,5 +1,5 @@
 BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
-    .WithCriteria(() => !string.IsNullOrWhiteSpace(BuildParameters.CertificateFilePath) && FileExists(BuildParameters.CertificateFilePath), "Skipping because unable to find certificate")
+    .WithCriteria(() => (!string.IsNullOrWhiteSpace(BuildParameters.CertificateFilePath) && FileExists(BuildParameters.CertificateFilePath)) || BuildSystem.IsRunningOnTeamCity, "Skipping because unable to find certificate, and not running on TeamCity")
     .WithCriteria(() => BuildParameters.ShouldAuthenticodeSignPowerShellScripts, "Skipping since authenticode signing of PowerShell scripts has been disabled")
     .Does(() =>
 {
@@ -39,7 +39,7 @@ BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
 });
 
 BuildParameters.Tasks.SignAssembliesTask = Task("Sign-Assemblies")
-    .WithCriteria(() => !string.IsNullOrWhiteSpace(BuildParameters.CertificateFilePath) && FileExists(BuildParameters.CertificateFilePath), "Skipping because unable to find certificate")
+    .WithCriteria(() => (!string.IsNullOrWhiteSpace(BuildParameters.CertificateFilePath) && FileExists(BuildParameters.CertificateFilePath)) || BuildSystem.IsRunningOnTeamCity, "Skipping because unable to find certificate, and not running on TeamCity")
     .WithCriteria(() => BuildParameters.ShouldAuthenticodeSignOutputAssemblies, "Skipping since authenticode signing of output assemblies has been disabled")
     .Does(() =>
 {
@@ -82,7 +82,7 @@ BuildParameters.Tasks.SignAssembliesTask = Task("Sign-Assemblies")
 });
 
 BuildParameters.Tasks.SignMsisTask = Task("Sign-Msis")
-    .WithCriteria(() => !string.IsNullOrWhiteSpace(BuildParameters.CertificateFilePath) && FileExists(BuildParameters.CertificateFilePath), "Skipping because unable to find certificate")
+    .WithCriteria(() => (!string.IsNullOrWhiteSpace(BuildParameters.CertificateFilePath) && FileExists(BuildParameters.CertificateFilePath)) || BuildSystem.IsRunningOnTeamCity, "Skipping because unable to find certificate, and not running on TeamCity")
     .WithCriteria(() => BuildParameters.ShouldAuthenticodeSignMsis, "Skipping since authenticode signing of msi's has been disabled")
     .Does(() =>
 {
