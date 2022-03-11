@@ -62,6 +62,11 @@ BuildParameters.Tasks.SignAssembliesTask = Task("Sign-Assemblies")
         {
             if (BuildSystem.IsRunningOnTeamCity)
             {
+                Information("Registering SignTool custom location...");
+
+                // TODO: Let's not hard code this...
+                Context.Tools.RegisterFile("C:\\Program Files\\Microsoft SDKs\\Windows\\v7.1\\Bin\\signtool.exe");
+
                 Information("Signing '{0}' using Certificate Subject Name {1}", fileToSign, BuildParameters.CertificateSubjectName);
 
                 Sign(fileToSign, new SignToolSignSettings {
