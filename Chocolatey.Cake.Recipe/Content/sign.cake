@@ -25,7 +25,7 @@ BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
             {
                 args.AppendArray("ScriptsToSign", scriptsToSign)
                     .Append("TimeStampServer", BuildParameters.CertificateTimestampUrl)
-                    .Append("CertificateSubjectName", BuildParameters.CertificateSubjectName)
+                    .AppendQuoted("CertificateSubjectName", BuildParameters.CertificateSubjectName)
                     .Append("CertificateAlgorithm", BuildParameters.CertificateAlgorithm);
             });
         }
