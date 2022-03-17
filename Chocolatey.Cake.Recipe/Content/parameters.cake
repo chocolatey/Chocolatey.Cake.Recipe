@@ -27,7 +27,6 @@ public static class BuildParameters
     public static bool IsRepositoryHostedOnGitHub { get; private set; }
     public static PlatformFamily BuildAgentOperatingSystem { get; private set; }
     public static bool IsPullRequest { get; private set; }
-    public static bool IsMainRepository { get; private set; }
     public static string MasterBranchName { get; private set; }
     public static string DevelopBranchName { get; private set; }
     public static bool PrepareLocalRelease { get; set; }
@@ -161,7 +160,6 @@ public static class BuildParameters
         context.Information("IsLocalBuild: {0}", IsLocalBuild);
         context.Information("IsPullRequest: {0}", IsPullRequest);
         context.Information("IsTagged: {0}", IsTagged);
-        context.Information("IsMainRepository: {0}", IsMainRepository);
         context.Information("PrepareLocalRelease: {0}", BuildParameters.PrepareLocalRelease);
         context.Information("ShouldDownloadMilestoneReleaseNotes: {0}", BuildParameters.ShouldDownloadMilestoneReleaseNotes);
         context.Information("ShouldDownloadFullReleaseNotes: {0}", BuildParameters.ShouldDownloadFullReleaseNotes);
@@ -442,7 +440,6 @@ public static class BuildParameters
         BuildAgentOperatingSystem = context.Environment.Platform.Family;
 
         IsPullRequest = BuildProvider.PullRequest.IsPullRequest;
-        IsMainRepository = StringComparer.OrdinalIgnoreCase.Equals(string.Concat(repositoryOwner, "/", RepositoryName), BuildProvider.Repository.Name);
 
         var branchName = BuildProvider.Repository.Branch;
         if (StringComparer.OrdinalIgnoreCase.Equals(masterBranchName, branchName))
@@ -478,7 +475,6 @@ public static class BuildParameters
 
         ShouldPublishGitHub = (!IsLocalBuild &&
                                 !IsPullRequest &&
-                                IsMainRepository &&
                                 (BuildParameters.BranchType == BranchType.Master || BuildParameters.BranchType == BranchType.Release || BuildParameters.BranchType == BranchType.HotFix) &&
                                 IsTagged &&
                                 shouldPublishGitHub);
