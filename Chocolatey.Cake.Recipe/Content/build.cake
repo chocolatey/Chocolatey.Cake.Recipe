@@ -80,8 +80,8 @@ BuildParameters.Tasks.DotNetCoreRestoreTask = Task("DotNetCoreRestore")
 {
     var msBuildSettings = new DotNetCoreMSBuildSettings()
                             .WithProperty("Version", BuildParameters.Version.SemVersion)
-                            .WithProperty("AssemblyVersion", BuildParameters.Version.Version)
-                            .WithProperty("FileVersion",  BuildParameters.Version.Version)
+                            .WithProperty("AssemblyVersion", BuildParameters.Version.FileVersion)
+                            .WithProperty("FileVersion",  BuildParameters.Version.FileVersion)
                             .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion);
 
     if (BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
@@ -157,8 +157,8 @@ BuildParameters.Tasks.DotNetCoreBuildTask = Task("DotNetCoreBuild")
 
         var msBuildSettings = new DotNetCoreMSBuildSettings()
                             .WithProperty("Version", BuildParameters.Version.SemVersion)
-                            .WithProperty("AssemblyVersion", BuildParameters.Version.Version)
-                            .WithProperty("FileVersion",  BuildParameters.Version.Version)
+                            .WithProperty("AssemblyVersion", BuildParameters.Version.FileVersion)
+                            .WithProperty("FileVersion",  BuildParameters.Version.FileVersion)
                             .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion);
 
         if (BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
@@ -282,8 +282,8 @@ public void CopyBuildOutput()
             {
                 var msBuildSettings = new DotNetCoreMSBuildSettings()
                             .WithProperty("Version", BuildParameters.Version.SemVersion)
-                            .WithProperty("AssemblyVersion", BuildParameters.Version.Version)
-                            .WithProperty("FileVersion",  BuildParameters.Version.Version)
+                            .WithProperty("AssemblyVersion", BuildParameters.Version.FileVersion)
+                            .WithProperty("FileVersion",  BuildParameters.Version.FileVersion)
                             .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion);
 
                 if (BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
@@ -344,8 +344,8 @@ public void CopyBuildOutput()
             {
                 var msBuildSettings = new DotNetCoreMSBuildSettings()
                             .WithProperty("Version", BuildParameters.Version.SemVersion)
-                            .WithProperty("AssemblyVersion", BuildParameters.Version.Version)
-                            .WithProperty("FileVersion",  BuildParameters.Version.Version)
+                            .WithProperty("AssemblyVersion", BuildParameters.Version.FileVersion)
+                            .WithProperty("FileVersion",  BuildParameters.Version.FileVersion)
                             .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion);
 
                 if (BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
