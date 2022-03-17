@@ -17,6 +17,7 @@ BuildParameters.Tasks.CopyNuspecFolderTask = Task("Copy-Nuspec-Folders")
 BuildParameters.Tasks.CreateChocolateyPackagesTask = Task("Create-Chocolatey-Packages")
     .IsDependentOn("Clean")
     .IsDependentOn("Copy-Nuspec-Folders")
+    .WithCriteria(() => BuildParameters.ShouldRunChocolatey, "Skipping because execution of Chocolatey has been disabled")
     .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping because not running on Windows")
     .WithCriteria(() => DirectoryExists(BuildParameters.Paths.Directories.ChocolateyNuspecDirectory), "Skipping because Chocolatey nuspec directory is missing")
     .Does(() =>
@@ -43,6 +44,7 @@ BuildParameters.Tasks.CreateChocolateyPackagesTask = Task("Create-Chocolatey-Pac
 BuildParameters.Tasks.CreateNuGetPackagesTask = Task("Create-NuGet-Packages")
     .IsDependentOn("Clean")
     .IsDependentOn("Copy-Nuspec-Folders")
+    .WithCriteria(() => BuildParameters.ShouldRunNuGet, "Skipping because execution of NuGet has been disabled")
     .WithCriteria(() => DirectoryExists(BuildParameters.Paths.Directories.NuGetNuspecDirectory), "NuGet nuspec directory does not exist")
     .Does(() =>
 {
@@ -140,6 +142,8 @@ BuildParameters.Tasks.DotNetCorePackTask = Task("DotNetCorePack")
 
 BuildParameters.Tasks.PublishPreReleasePackagesTask = Task("Publish-PreRelease-Packages")
     .WithCriteria(() => !BuildParameters.IsLocalBuild || BuildParameters.ForceContinuousIntegration, "Skipping because this is a local build, and force isn't being applied")
+    .WithCriteria(() => !BuildParameters.IsPullRequest, "Skipping because current build is from a Pull Request")
+    .WithCriteria(() => !BuildParameters.IsTagged, "Skipping because current commit is tagged")
     .IsDependentOn("Package")
     .Does(() =>
 {
@@ -159,6 +163,7 @@ BuildParameters.Tasks.PublishPreReleasePackagesTask = Task("Publish-PreRelease-P
 
 BuildParameters.Tasks.PublishReleasePackagesTask = Task("Publish-Release-Packages")
     .WithCriteria(() => !BuildParameters.IsLocalBuild || BuildParameters.ForceContinuousIntegration, "Skipping because this is a local build, and force isn't being applied")
+    .WithCriteria(() => !BuildParameters.IsPullRequest, "Skipping because current build is from a Pull Request")
     .WithCriteria(() => BuildParameters.IsTagged, "Skipping because current commit is not tagged")
     .IsDependentOn("Package")
     .Does(() =>
