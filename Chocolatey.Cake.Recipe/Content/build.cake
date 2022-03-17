@@ -409,7 +409,9 @@ BuildParameters.Tasks.BuildMsiTask = Task("Build-MSI")
     })
 );
 
-BuildParameters.Tasks.PackageTask = Task("Package");
+BuildParameters.Tasks.PackageTask = Task("Package")
+    .IsDependentOn("Export-Release-Notes");
+
 BuildParameters.Tasks.DefaultTask = Task("Default")
     .IsDependentOn("Package");
 
