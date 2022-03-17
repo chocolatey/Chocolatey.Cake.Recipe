@@ -113,8 +113,8 @@ BuildParameters.Tasks.DotNetCorePackTask = Task("DotNetCorePack")
 
     var msBuildSettings = new DotNetCoreMSBuildSettings()
                             .WithProperty("Version", BuildParameters.Version.PackageVersion)
-                            .WithProperty("AssemblyVersion", BuildParameters.Version.Version)
-                            .WithProperty("FileVersion",  BuildParameters.Version.Version)
+                            .WithProperty("AssemblyVersion", BuildParameters.Version.FileVersion)
+                            .WithProperty("FileVersion",  BuildParameters.Version.FileVersion)
                             .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion);
 
     if (BuildParameters.ShouldBuildNugetSourcePackage)
