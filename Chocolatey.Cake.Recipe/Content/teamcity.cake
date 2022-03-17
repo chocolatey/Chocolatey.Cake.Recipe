@@ -41,8 +41,71 @@ public class TeamCityRepositoryInfo : IRepositoryInfo
 {
     public TeamCityRepositoryInfo(ITeamCityProvider teamCity, ICakeContext context)
     {
-        Branch = context.Environment.GetEnvironmentVariable("vcsroot.branch");
         Name = teamCity.Environment.Build.BuildConfName;
+
+        var baseRef = context.BuildSystem().GitHubActions.Environment.Workflow.BaseRef;
+        if (!string.IsNullOrEmpty(baseRef))
+        {
+            Branch = baseRef;
+        }
+        else
+        {
+            // This trimming is not perfect, as it will remove part of a
+            // branch name if the branch name itself contains a '/'
+            var tempName = context.Environment.GetEnvironmentVariable("Git_Branch");
+
+            const string headPrefix = "refs/heads/";
+            const string tagPrefix = "refs/tags/";
+
+            if (!string.IsNullOrEmpty(tempName))
+            {
+                if (tempName.StartsWith(headPrefix))
+                {
+                    tempName = tempName.Substring(headPrefix.Length);
+                }
+                else if (tempName.StartsWith(tagPrefix))
+                {
+                    var gitTool = context.Tools.Resolve("git");
+                    if (gitTool == null)
+                    {
+                        gitTool = context.Tools.Resolve("git.exe");
+                    }
+
+                    if (gitTool != null)
+                    {
+                        IEnumerable<string> redirectedStandardOutput;
+                        IEnumerable<string> redirectedError;
+
+                        var exitCode = context.StartProcess(
+                            gitTool,
+                            new ProcessSettings {
+                                Arguments = "branch -r --contains " + tempName,
+                                RedirectStandardOutput = true,
+                                RedirectStandardError = true,
+                            },
+                            out redirectedStandardOutput,
+                            out redirectedError
+                        );
+
+                        if (exitCode == 0)
+                        {
+                            var lines = redirectedStandardOutput.ToList();
+                            if (lines.Count != 0)
+                            {
+                                tempName = lines[0].TrimStart(new []{ ' ', '*' }).Replace("origin/", string.Empty);
+                            }
+                        }
+                    }
+                }
+                else if (tempName.IndexOf('/') >= 0)
+                {
+                    tempName = tempName.Substring(tempName.LastIndexOf('/') + 1);
+                }
+            }
+
+            Branch = tempName;
+        }
+
         Tag = new TeamCityTagInfo(context);
     }
 
