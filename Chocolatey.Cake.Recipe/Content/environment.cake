@@ -9,7 +9,7 @@ public static class Environment
         string gitHubTokenVariable = null,
         string transifexApiTokenVariable = null)
     {
-        DefaultPushSourceUrlVariable = defaultPushSourceUrlVariable ?? "NUGETDEV_SOURCE";
+        DefaultPushSourceUrlVariable = defaultPushSourceUrlVariable ?? "NUGETDEVPUSH_SOURCE";
         GitHubTokenVariable = gitHubTokenVariable ?? "GITHUB_PAT";
         TransifexApiTokenVariable = transifexApiTokenVariable ?? "TRANSIFEX_API_TOKEN";
     }
