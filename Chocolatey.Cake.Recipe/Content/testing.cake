@@ -72,8 +72,8 @@ BuildParameters.Tasks.DotNetCoreTestTask = Task("DotNetCoreTest")
 
     var msBuildSettings = new DotNetCoreMSBuildSettings()
                             .WithProperty("Version", BuildParameters.Version.SemVersion)
-                            .WithProperty("AssemblyVersion", BuildParameters.Version.Version)
-                            .WithProperty("FileVersion",  BuildParameters.Version.Version)
+                            .WithProperty("AssemblyVersion", BuildParameters.Version.FileVersion)
+                            .WithProperty("FileVersion",  BuildParameters.Version.FileVersion)
                             .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion);
 
     if (BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
