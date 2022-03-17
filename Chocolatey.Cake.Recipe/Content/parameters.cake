@@ -60,6 +60,8 @@ public static class BuildParameters
     public static bool ObfuscateAssembly { get; private set; }
     public static bool ShouldRunInspectCode { get; private set; }
     public static bool ShouldRunDotNetCorePack { get; private set; }
+    public static bool ShouldRunChocolatey { get; private set; }
+    public static bool ShouldRunNuGet { get; private set; }
     public static bool ShouldBuildNugetSourcePackage { get; private set; }
 
     public static bool ShouldStrongNameOutputAssemblies { get; private set; }
@@ -231,6 +233,8 @@ public static class BuildParameters
         string repositoryName = null,
         bool shouldRunInspectCode = true,
         bool shouldRunDotNetCorePack = false,
+        bool shouldRunChocolatey = true,
+        bool shouldRunNuGet = true,
         bool shouldBuildNugetSourcePackage = false,
         bool shouldStrongNameOutputAssemblies = true,
         bool shouldObfuscateOutputAssemblies = true,
@@ -315,6 +319,8 @@ public static class BuildParameters
 
         ShouldRunInspectCode = shouldRunInspectCode;
         ShouldRunDotNetCorePack = shouldRunDotNetCorePack;
+        ShouldRunChocolatey = shouldRunChocolatey;
+        ShouldRunNuGet = shouldRunNuGet;
         ShouldBuildNugetSourcePackage = shouldBuildNugetSourcePackage;
 
         ShouldStrongNameOutputAssemblies = shouldStrongNameOutputAssemblies;
