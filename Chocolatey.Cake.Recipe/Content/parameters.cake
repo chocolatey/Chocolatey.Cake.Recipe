@@ -375,10 +375,18 @@ public static class BuildParameters
                 }
                 else
                 {
-                    NuGetSources = new []{
+                    var devNuGetSources = new List<string>
+                    {
                         "https://www.nuget.org/api/v2/",
                         "https://api.nuget.org/v3/index.json"
                     };
+
+                    if (context.HasEnvironmentVariable("NUGETDEVRESTORE_SOURCE"))
+                    {
+                        devNuGetSources.Add(context.EnvironmentVariable("NUGETDEVRESTORE_SOURCE"));
+                    }
+
+                    NuGetSources = devNuGetSources;
 
                     context.Information("NuGet Sources configured using default values.");
                 }

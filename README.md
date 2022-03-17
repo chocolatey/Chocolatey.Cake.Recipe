@@ -50,12 +50,12 @@ whenever the commit that is currently being built also has a tag.
 By default, the Chocolatey Cake Recipe configures the same defined source as the
 destination for both NuGet and Chocolatey packages, for both pre-release and
 release packages.  This configuration starts with the definition of the
-`DefaultPushSourceUrlVariable` which by default is equal to `NUGETDEV_SOURCE`.
+`DefaultPushSourceUrlVariable` which by default is equal to `NUGETDEVPUSH_SOURCE`.
 This name of this environment variable can be changed to anything you want by
 calling the `Environment.SetVariableNames` method in your recipe.cake file, and
 setting the `defaultPushSourceUrlVariable` parameter.  This environment variable
 name follows a convention of `<SOURCENAME>_SOURCE`.  i.e. in the case of the
-default value, the name of the source is NUGETDEV.
+default value, the name of the source is NUGETDEVPUSH.
 
 With this environment variable set, the default package sources are configured
 as follows:
@@ -89,8 +89,8 @@ So, using the default setup as an example, where an api key is being used to pus
 the package, it would be expected that there are two environment variables setup
 for the build configuration:
 
-* NUGETDEV_SOURCE - contains to the URL to the feed to push packages to
-* NUGETDEV_API_KEY - contains the api key for pushing packages to the feed
+* NUGETDEVPUSH_SOURCE - contains to the URL to the feed to push packages to
+* NUGETDEVPUSH_API_KEY - contains the api key for pushing packages to the feed
 
 If the necessary credentials aren't provided for a source, then no attempt is
 made to push packages to that source.
