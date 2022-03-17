@@ -51,6 +51,7 @@ Teardown(context =>
 ///////////////////////////////////////////////////////////////////////////////
 
 BuildParameters.Tasks.CleanTask = Task("Clean")
+    .IsDependentOn("Print-CI-Provider-Environment-Variables")
     .Does(() =>
 {
     Information("Cleaning...");

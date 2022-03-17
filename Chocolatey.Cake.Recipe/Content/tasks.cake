@@ -4,6 +4,9 @@ public class BuildTasks
     // Configuration Builder Tasks
     public CakeTaskBuilder ConfigurationBuilderTask { get; set; }
 
+    // Build Provider Tasks
+    public CakeTaskBuilder PrintCiProviderEnvironmentVariablesTask { get; set; }
+
     // Build Tasks
     public CakeTaskBuilder CleanTask { get; set; }
     public CakeTaskBuilder RestoreTask { get; set; }
