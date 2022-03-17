@@ -51,6 +51,7 @@ Teardown(context =>
 ///////////////////////////////////////////////////////////////////////////////
 
 BuildParameters.Tasks.CleanTask = Task("Clean")
+    .IsDependentOn("Print-CI-Provider-Environment-Variables")
     .Does(() =>
 {
     Information("Cleaning...");
@@ -409,7 +410,9 @@ BuildParameters.Tasks.BuildMsiTask = Task("Build-MSI")
     })
 );
 
-BuildParameters.Tasks.PackageTask = Task("Package");
+BuildParameters.Tasks.PackageTask = Task("Package")
+    .IsDependentOn("Export-Release-Notes");
+
 BuildParameters.Tasks.DefaultTask = Task("Default")
     .IsDependentOn("Package");
 
