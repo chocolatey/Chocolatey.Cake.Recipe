@@ -81,6 +81,7 @@ public static class BuildParameters
     public static ICollection<string> NuGetSources { get; private set; }
     public static DirectoryPath RestorePackagesDirectory { get; private set; }
     public static Func<FilePathCollection> GetFilesToObfuscate { get; private set; }
+    public static Func<List<ILMergeConfig>> GetILMergeConfigs { get; private set; }
     public static Func<FilePathCollection> GetFilesToSign { get; private set; }
     public static Func<FilePathCollection> GetMsisToSign { get; private set; }
     public static Func<FilePathCollection> GetScriptsToSign { get; private set; }
@@ -252,6 +253,7 @@ public static class BuildParameters
         bool treatWarningsAsErrors = true,
         DirectoryPath restorePackagesDirectory = null,
         Func<FilePathCollection> getFilesToObfuscate = null,
+        Func<List<ILMergeConfig>> getILMergeConfigs = null,
         Func<FilePathCollection> getFilesToSign = null,
         Func<FilePathCollection> getMsisToSign = null,
         Func<FilePathCollection> getScriptsToSign = null,
@@ -339,6 +341,7 @@ public static class BuildParameters
         NuGetSources = nuGetSources;
         RestorePackagesDirectory = restorePackagesDirectory;
         GetFilesToObfuscate = getFilesToObfuscate;
+        GetILMergeConfigs = getILMergeConfigs;
         GetFilesToSign = getFilesToSign;
         GetMsisToSign = getMsisToSign;
         GetScriptsToSign = getScriptsToSign;
