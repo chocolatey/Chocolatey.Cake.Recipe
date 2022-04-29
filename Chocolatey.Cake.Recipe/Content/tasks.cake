@@ -68,4 +68,7 @@ public class BuildTasks
     public CakeTaskBuilder TransifexPushSourceResourceTask { get; set; }
     public CakeTaskBuilder TransifexPushTranslationsTask { get; set; }
     public CakeTaskBuilder TransifexSetupTask { get; set; }
+
+    // ILMerge Tasks
+    public CakeTaskBuilder ILMergeTask { get; set; }
 }
