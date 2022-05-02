@@ -141,7 +141,7 @@ BuildParameters.Tasks.BuildTask = Task("Build")
             var xbuildSettings = new XBuildSettings()
                 .SetConfiguration(BuildParameters.Configuration)
                 .WithTarget("Build")
-                .WithProperty("TreatWarningsAsErrors", "true");
+                .WithProperty("TreatWarningsAsErrors", BuildParameters.TreatWarningsAsErrors.ToString());
 
             XBuild(BuildParameters.SolutionFilePath, xbuildSettings);
         }
