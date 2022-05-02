@@ -109,19 +109,23 @@ public class BuildVersion
 
         sha = assertedVersions.Sha.Substring(0,8);
 
-        var preReleaseLabel = string.Empty;
-
         if (context.FileExists(preReleaseLabelFilePath))
         {
-            preReleaseLabel = System.IO.File.ReadAllText(preReleaseLabelFilePath);
+            prerelease = System.IO.File.ReadAllText(preReleaseLabelFilePath);
         }
 
-        var buildDate = DateTime.Now.ToString("yyyyMMdd");
+        var buildDate = string.Format("-{0}", DateTime.Now.ToString("yyyyMMdd"));
 
+        // Don't include the build date in the package version number, if not on an alpha or beta branch.
+        // This should allow packaging of Chocolatey package to work without erroring.
         if (!BuildParameters.IsTagged)
         {
-            packageVersion = string.Format("{0}-{1}-{2}{3}", majorMinorPatch, string.IsNullOrWhiteSpace(preReleaseLabel) ? prerelease : preReleaseLabel, buildDate, BuildParameters.BuildCounter != "-1" ? string.Format("-{0}", BuildParameters.BuildCounter) : string.Empty);
-            informationalVersion = string.Format("{0}-{1}-{2}-{3}", majorMinorPatch, string.IsNullOrWhiteSpace(preReleaseLabel) ? prerelease : preReleaseLabel, buildDate, sha);
+            packageVersion = string.Format("{0}-{1}{2}{3}",
+                                majorMinorPatch,
+                                prerelease,
+                                prerelease == "alpha" || prerelease == "beta" ? buildDate : string.Empty,
+                                BuildParameters.BuildCounter != "-1" ? string.Format("-{0}", BuildParameters.BuildCounter) : string.Empty);
+            informationalVersion = string.Format("{0}-{1}-{2}-{3}", majorMinorPatch, prerelease, buildDate, sha);
             context.Information("There is no tag.");
         }
         else
@@ -158,7 +162,7 @@ public class BuildVersion
                 var assemblyKeyFileAttribute = new AssemblyInfoCustomAttribute
                 {
                     Name = "AssemblyKeyFile",
-                    Value = BuildParameters.StrongNameKeyPath.Replace("\\", "\\\\").Replace("/", "\\\\"),
+                    Value = BuildParameters.StrongNameKeyPath.Replace("\\", "\\\\"),
                     NameSpace = "System.Reflection"
                 };
 
