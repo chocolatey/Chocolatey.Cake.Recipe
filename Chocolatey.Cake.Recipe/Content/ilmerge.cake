@@ -1,5 +1,6 @@
 BuildParameters.Tasks.ILMergeTask = Task("Run-ILMerge")
     .IsDependeeOf("Copy-Nuspec-Folders")
+    .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping because not running on Windows")
     .Does(() => RequireTool(ToolSettings.ILMergeTool, () =>
 {
     if (BuildParameters.GetILMergeConfigs != null)
