@@ -158,7 +158,7 @@ public class BuildVersion
                 var assemblyKeyFileAttribute = new AssemblyInfoCustomAttribute
                 {
                     Name = "AssemblyKeyFile",
-                    Value = BuildParameters.StrongNameKeyPath.Replace("\\", "\\\\").Replace("/", "\\\\"),
+                    Value = BuildParameters.StrongNameKeyPath.Replace("\\", "\\\\"),
                     NameSpace = "System.Reflection"
                 };
 
