@@ -125,7 +125,7 @@ public class BuildVersion
                                 prerelease,
                                 prerelease == "alpha" || prerelease == "beta" ? buildDate : string.Empty,
                                 BuildParameters.BuildCounter != "-1" ? string.Format("-{0}", BuildParameters.BuildCounter) : string.Empty);
-            informationalVersion = string.Format("{0}-{1}-{2}-{3}", majorMinorPatch, prerelease, buildDate, sha);
+            informationalVersion = string.Format("{0}-{1}{2}-{3}", majorMinorPatch, prerelease, buildDate, sha);
             context.Information("There is no tag.");
         }
         else
