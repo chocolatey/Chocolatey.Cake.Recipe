@@ -77,6 +77,9 @@ public class LocalBuildRepositoryInfo : IRepositoryInfo
             }
             else
             {
+                context.Information("What version of git are we using...");
+                context.StartProcess("git", new ProcessSettings { Arguments = "--version" });
+
                 context.Information("Getting current branch name...");
                 IEnumerable<string> redirectedStandardOutput;
                 IEnumerable<string> redirectedError;
@@ -100,6 +103,25 @@ public class LocalBuildRepositoryInfo : IRepositoryInfo
                         Branch = lines.FirstOrDefault();
                         context.Information("Branch name is {0}", Branch);
                     }
+                }
+                else
+                {
+                    context.Error("Unable to find branch name!");
+                    context.Information("Writing out standard out...");
+                    var standardOutLines = redirectedStandardOutput.ToList();
+                    foreach (var standardOutLine in standardOutLines)
+                    {
+                        context.Information(standardOutLine);
+                    }
+
+                    context.Information("Writing out standard error...");
+                    var standardErrorLines = redirectedError.ToList();
+                    foreach (var standardErrorLine in standardErrorLines)
+                    {
+                        context.Information(standardErrorLine);
+                    }
+
+                    Branch = "unknown";
                 }
 
                 Name = "Local";
