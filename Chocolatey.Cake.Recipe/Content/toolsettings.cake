@@ -33,7 +33,7 @@ public static class ToolSettings
     public static void SetToolPreprocessorDirectives(
         // This is specifically pinned to 5.0.1 as later versions break compatibility with Unix.
         string gitVersionTool = "#tool nuget:?package=GitVersion.CommandLine&version=5.0.1",
-        string gitReleaseManagerTool = "#tool nuget:?package=GitReleaseManager&version=0.11.0",
+        string gitReleaseManagerTool = "#tool nuget:?package=GitReleaseManager&version=0.13.0",
         string msbuildExtensionPackTool = "#tool nuget:?package=MSBuild.Extension.Pack&version=1.9.0",
         string nunitTool = "#tool nuget:?package=NUnit.ConsoleRunner&version=3.10.0",
         string openCoverTool = "#tool nuget:?package=OpenCover&version=4.7.922",
