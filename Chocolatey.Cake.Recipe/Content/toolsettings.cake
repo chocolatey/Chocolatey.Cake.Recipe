@@ -29,6 +29,7 @@ public static class ToolSettings
 
     public static string ReportGeneratorGlobalTool { get; private set; }
     public static string GitReleaseManagerGlobalTool { get; private set; }
+    public static string GitVersionGlobalTool { get; private set; }
 
     public static void SetToolPreprocessorDirectives(
         // This is specifically pinned to 5.0.1 as later versions break compatibility with Unix.
@@ -45,7 +46,8 @@ public static class ToolSettings
         string xunitTool = "#tool nuget:?package=xunit.runner.console&version=2.4.1",
         string ilMergeTool = "#tool nuget:?package=ilmerge&version=3.0.41",
         string reportGeneratorGlobalTool = "#tool dotnet:?package=dotnet-reportgenerator-globaltool&version=4.8.5",
-        string gitReleaseManagerGlobalTool = "#tool dotnet:?package=GitReleaseManager.Tool&version=0.11.0"
+        string gitReleaseManagerGlobalTool = "#tool dotnet:?package=GitReleaseManager.Tool&version=0.13.0",
+        string gitVersionGlobalTool = "#tool dotnet:?package=GitVersion.Tool&version=5.10.1"
     )
     {
         GitVersionTool = gitVersionTool;
@@ -62,6 +64,7 @@ public static class ToolSettings
         ILMergeTool = ilMergeTool;
         ReportGeneratorGlobalTool = reportGeneratorGlobalTool;
         GitReleaseManagerGlobalTool = gitReleaseManagerGlobalTool;
+        GitVersionGlobalTool = gitVersionGlobalTool;
     }
 
     public static void SetToolSettings(
