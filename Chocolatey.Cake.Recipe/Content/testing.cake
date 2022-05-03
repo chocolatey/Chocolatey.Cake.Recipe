@@ -285,7 +285,7 @@ private void ReportCoverageMetric(
 BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Generate-LocalCoverageReport")
     .WithCriteria(() => BuildParameters.Configuration != "ReleaseOfficial", "Skipping since build configuration is ReleaseOfficial")
     .WithCriteria(() => BuildParameters.IsLocalBuild, "Skipping due to not running a local build")
-    .Does(() => RequireTool(BuildParameters.IsDotNetCoreBuild ? ToolSettings.ReportGeneratorGlobalTool : ToolSettings.ReportGeneratorTool, () => {
+    .Does(() => RequireTool(BuildParameters.IsDotNetCoreBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.ReportGeneratorGlobalTool : ToolSettings.ReportGeneratorTool, () => {
         var coverageFiles = GetFiles(BuildParameters.Paths.Directories.TestCoverage + "/coverlet/*.xml");
         if (FileExists(BuildParameters.Paths.Files.TestCoverageOutputFilePath))
         {
