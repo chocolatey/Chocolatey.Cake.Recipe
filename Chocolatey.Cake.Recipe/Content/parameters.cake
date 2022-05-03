@@ -104,6 +104,8 @@ public static class BuildParameters
     public static TransifexMode TransifexPullMode { get; private set; }
     public static int TransifexPullPercentage { get; private set; }
 
+    public static bool PreferDotNetGlobalToolUsage { get; private set; }
+
     static BuildParameters()
     {
         Tasks = new BuildTasks();
@@ -199,6 +201,7 @@ public static class BuildParameters
         context.Information("TransifexEnabled: {0}", TransifexEnabled);
         context.Information("CanPullTranslations: {0}", CanPullTranslations);
         context.Information("CanPushTranslations: {0}", CanPushTranslations);
+        context.Information("PreferDotNetGlobalToolUsage: {0}", PreferDotNetGlobalToolUsage);
 
         if (TransifexEnabled)
         {
@@ -279,7 +282,8 @@ public static class BuildParameters
         FilePath fullReleaseNotesFilePath = null,
         bool? transifexEnabled = null,
         TransifexMode transifexPullMode = TransifexMode.OnlyTranslated,
-        int transifexPullPercentage = 60
+        int transifexPullPercentage = 60,
+        bool preferDotNetGlobalToolUsage = false
         )
     {
         if (context == null)
@@ -355,6 +359,8 @@ public static class BuildParameters
         ProductTrademark = productTrademark ?? "Chocolatey - Chocolatey Software, Inc.";
         ObfuscateAssembly = obfuscateAssembly;
         ProductCustomAttributes = productCustomAttributes;
+
+        PreferDotNetGlobalToolUsage = preferDotNetGlobalToolUsage;
 
         if (nuGetSources == null)
         {
