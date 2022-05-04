@@ -22,7 +22,7 @@ BuildParameters.Tasks.TestNUnitTask = Task("Test-NUnit")
         {
             OpenCover(tool => {
                 tool.NUnit3(GetFiles(BuildParameters.Paths.Directories.PublishedNUnitTests + (BuildParameters.TestFilePattern ?? "/**/*Tests.dll")), new NUnit3Settings {
-                    NoResults = true
+                    Work = BuildParameters.Paths.Directories.NUnitTestResults
                 });
             },
             BuildParameters.Paths.Files.TestCoverageOutputFilePath,
