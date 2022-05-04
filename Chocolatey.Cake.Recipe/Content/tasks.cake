@@ -41,6 +41,7 @@ public class BuildTasks
     public CakeTaskBuilder TestxUnitTask { get; set; }
     public CakeTaskBuilder DotNetCoreTestTask { get; set; }
     public CakeTaskBuilder GenerateFriendlyTestReportTask { get; set; }
+    public CakeTaskBuilder ReportUnitTestResultsTask { get; set; }
     public CakeTaskBuilder ReportCodeCoverageMetricsTask { get; set; }
     public CakeTaskBuilder GenerateLocalCoverageReportTask { get; set; }
     public CakeTaskBuilder TestTask { get; set; }

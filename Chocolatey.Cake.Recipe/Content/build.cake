@@ -532,6 +532,7 @@ public class Builder
             BuildParameters.Tasks.GenerateLocalCoverageReportTask.IsDependentOn("Test-xUnit");
             BuildParameters.Tasks.TestTask.IsDependentOn("Generate-FriendlyTestReport");
             BuildParameters.Tasks.TestTask.IsDependentOn("Generate-LocalCoverageReport");
+            BuildParameters.Tasks.TestTask.IsDependentOn("Report-UnitTestResults");
             BuildParameters.Tasks.TestTask.IsDependentOn("Report-Code-Coverage-Metrics");
         }
         else
@@ -544,6 +545,7 @@ public class Builder
             BuildParameters.Tasks.PackageTask.IsDependentOn(prefix + "Pack");
             BuildParameters.Tasks.GenerateLocalCoverageReportTask.IsDependentOn(prefix + "Test");
             BuildParameters.Tasks.TestTask.IsDependentOn("Generate-LocalCoverageReport");
+            BuildParameters.Tasks.TestTask.IsDependentOn("Report-UnitTestResults");
             BuildParameters.Tasks.TestTask.IsDependentOn("Report-Code-Coverage-Metrics");
         }
     }

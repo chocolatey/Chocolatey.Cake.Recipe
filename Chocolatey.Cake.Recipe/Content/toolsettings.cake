@@ -83,7 +83,7 @@ public static class ToolSettings
 
         var absoluteTestDirectory = context.MakeAbsolute(BuildParameters.TestDirectoryPath);
         var absoluteSourceDirectory = context.MakeAbsolute(BuildParameters.SolutionDirectoryPath);
-        TestCoverageFilter = testCoverageFilter ?? string.Format("+[{0}*]* -[*.Tests]*", BuildParameters.Title);
+        TestCoverageFilter = testCoverageFilter ?? string.Format("+[{0}*]* +[{1}*]* -[*.tests]* -[*.Tests]*", BuildParameters.Title, BuildParameters.Title.ToLowerInvariant());
         TestCoverageExcludeByAttribute = testCoverageExcludeByAttribute ?? "*.ExcludeFromCodeCoverage*";
         TestCoverageExcludeByFile = testCoverageExcludeByFile ?? "*/*Designer.cs;*/*.g.cs;*/*.g.i.cs";
         BuildPlatformTarget = buildPlatformTarget ?? PlatformTarget.MSIL;
