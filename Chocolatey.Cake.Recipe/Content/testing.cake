@@ -199,6 +199,24 @@ BuildParameters.Tasks.GenerateFriendlyTestReportTask = Task("Generate-FriendlyTe
     })
 );
 
+BuildParameters.Tasks.ReportUnitTestResultsTask = Task("Report-UnitTestResults")
+    .WithCriteria(() => BuildParameters.Configuration != "ReleaseOfficial", "Skipping since build configuration is ReleaseOfficial")
+    .WithCriteria(() => BuildSystem.IsRunningOnTeamCity, "Skipping due to not running on TeamCity")
+    .Does(() => {
+        Information("Reporting Unit Test results to TeamCity if any exist...");
+        foreach (var xUnitResultFile in GetFiles(BuildParameters.Paths.Directories.xUnitTestResults + "/*.xml"))
+        {
+            Information("Reporting XUnit file: {0}", xUnitResultFile);
+            TeamCity.ImportData("xunit", xUnitResultFile);
+        }
+
+        foreach (var nUnitResultFile in GetFiles(BuildParameters.Paths.Directories.NUnitTestResults + "/*.xml"))
+        {
+            Information("Reporting NUnit file: {0}", nUnitResultFile);
+            TeamCity.ImportData("nunit", nUnitResultFile);
+        }
+});
+
 BuildParameters.Tasks.ReportCodeCoverageMetricsTask = Task("Report-Code-Coverage-Metrics")
     .WithCriteria(() => BuildParameters.Configuration != "ReleaseOfficial", "Skipping since build configuration is ReleaseOfficial")
     .WithCriteria(() => BuildSystem.IsRunningOnTeamCity, "Skipping due to not running on TeamCity")
