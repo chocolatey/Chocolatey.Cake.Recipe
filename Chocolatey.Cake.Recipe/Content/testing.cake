@@ -6,15 +6,13 @@ using System.Xml.XPath;
 ///////////////////////////////////////////////////////////////////////////////
 
 BuildParameters.Tasks.InstallOpenCoverTask = Task("Install-OpenCover")
-    .WithCriteria(() => BuildParameters.Configuration != "ReleaseOfficial", "Skipping since build configuration is ReleaseOfficial")
-    .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Not running on windows")
+    .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping because not running on windows")
     .Does(() => RequireTool(ToolSettings.OpenCoverTool, () => {
     }));
 
 BuildParameters.Tasks.TestNUnitTask = Task("Test-NUnit")
     .IsDependentOn("Install-OpenCover")
-    .WithCriteria(() => BuildParameters.Configuration != "ReleaseOfficial", "Skipping since build configuration is ReleaseOfficial")
-    .WithCriteria(() => DirectoryExists(BuildParameters.Paths.Directories.PublishedNUnitTests), "No published NUnit tests")
+    .WithCriteria(() => DirectoryExists(BuildParameters.Paths.Directories.PublishedNUnitTests), "Skipping because there are no published NUnit tests")
     .Does(() => RequireTool(ToolSettings.NUnitTool, () => {
         EnsureDirectoryExists(BuildParameters.Paths.Directories.NUnitTestResults);
 
@@ -40,8 +38,7 @@ BuildParameters.Tasks.TestNUnitTask = Task("Test-NUnit")
 
 BuildParameters.Tasks.TestxUnitTask = Task("Test-xUnit")
     .IsDependentOn("Install-OpenCover")
-    .WithCriteria(() => BuildParameters.Configuration != "ReleaseOfficial", "Skipping since build configuration is ReleaseOfficial")
-    .WithCriteria(() => DirectoryExists(BuildParameters.Paths.Directories.PublishedxUnitTests), "No published xUnit tests")
+    .WithCriteria(() => DirectoryExists(BuildParameters.Paths.Directories.PublishedxUnitTests), "Skipping because there are no published xUnit tests")
     .Does(() => RequireTool(ToolSettings.XUnitTool, () => {
     EnsureDirectoryExists(BuildParameters.Paths.Directories.xUnitTestResults);
 
@@ -68,7 +65,6 @@ BuildParameters.Tasks.TestxUnitTask = Task("Test-xUnit")
 );
 
 BuildParameters.Tasks.DotNetCoreTestTask = Task("DotNetCoreTest")
-    .WithCriteria(() => BuildParameters.Configuration != "ReleaseOfficial", "Skipping since build configuration is ReleaseOfficial")
     .IsDependentOn("Install-OpenCover")
     .Does(() => {
 
@@ -183,7 +179,6 @@ BuildParameters.Tasks.DotNetCoreTestTask = Task("DotNetCoreTest")
 BuildParameters.Tasks.GenerateFriendlyTestReportTask = Task("Generate-FriendlyTestReport")
     .IsDependentOn("Test-NUnit")
     .IsDependentOn("Test-xUnit")
-    .WithCriteria(() => BuildParameters.Configuration != "ReleaseOfficial", "Skipping since build configuration is ReleaseOfficial")
     .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping due to not running on Windows")
     .Does(() => RequireTool(ToolSettings.ReportUnitTool, () =>
     {
@@ -200,7 +195,6 @@ BuildParameters.Tasks.GenerateFriendlyTestReportTask = Task("Generate-FriendlyTe
 );
 
 BuildParameters.Tasks.ReportUnitTestResultsTask = Task("Report-UnitTestResults")
-    .WithCriteria(() => BuildParameters.Configuration != "ReleaseOfficial", "Skipping since build configuration is ReleaseOfficial")
     .WithCriteria(() => BuildSystem.IsRunningOnTeamCity, "Skipping due to not running on TeamCity")
     .Does(() => {
         Information("Reporting Unit Test results to TeamCity if any exist...");
@@ -218,7 +212,6 @@ BuildParameters.Tasks.ReportUnitTestResultsTask = Task("Report-UnitTestResults")
 });
 
 BuildParameters.Tasks.ReportCodeCoverageMetricsTask = Task("Report-Code-Coverage-Metrics")
-    .WithCriteria(() => BuildParameters.Configuration != "ReleaseOfficial", "Skipping since build configuration is ReleaseOfficial")
     .WithCriteria(() => BuildSystem.IsRunningOnTeamCity, "Skipping due to not running on TeamCity")
     .Does(() => {
         var coverageFiles = GetFiles(BuildParameters.Paths.Directories.TestCoverage + "/coverlet/*.xml");
@@ -301,7 +294,6 @@ private void ReportCoverageMetric(
 }
 
 BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Generate-LocalCoverageReport")
-    .WithCriteria(() => BuildParameters.Configuration != "ReleaseOfficial", "Skipping since build configuration is ReleaseOfficial")
     .WithCriteria(() => BuildParameters.IsLocalBuild, "Skipping due to not running a local build")
     .Does(() => RequireTool(BuildParameters.IsDotNetCoreBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.ReportGeneratorGlobalTool : ToolSettings.ReportGeneratorTool, () => {
         var coverageFiles = GetFiles(BuildParameters.Paths.Directories.TestCoverage + "/coverlet/*.xml");
