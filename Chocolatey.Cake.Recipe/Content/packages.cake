@@ -45,7 +45,7 @@ BuildParameters.Tasks.CreateNuGetPackagesTask = Task("Create-NuGet-Packages")
     .IsDependentOn("Clean")
     .IsDependentOn("Copy-Nuspec-Folders")
     .WithCriteria(() => BuildParameters.ShouldRunNuGet, "Skipping because execution of NuGet has been disabled")
-    .WithCriteria(() => DirectoryExists(BuildParameters.Paths.Directories.NuGetNuspecDirectory), "NuGet nuspec directory does not exist")
+    .WithCriteria(() => DirectoryExists(BuildParameters.Paths.Directories.NuGetNuspecDirectory), "Skipping because NuGet nuspec directory does not exist")
     .Does(() =>
 {
     var nuspecFiles = GetFiles(BuildParameters.Paths.Directories.NuGetNuspecDirectory + "/**/*.nuspec");
@@ -97,7 +97,7 @@ BuildParameters.Tasks.CreateNuGetPackagesTask = Task("Create-NuGet-Packages")
 
 BuildParameters.Tasks.DotNetCorePackTask = Task("DotNetCorePack")
     .IsDependentOn("DotNetCoreBuild")
-    .WithCriteria(() => BuildParameters.ShouldRunDotNetCorePack, "Packaging through .NET Core is disabled")
+    .WithCriteria(() => BuildParameters.ShouldRunDotNetCorePack, "Skipping because packaging through .NET Core is disabled")
     .Does(() =>
 {
     var projects = GetFiles(BuildParameters.SourceDirectoryPath + "/**/*.csproj")

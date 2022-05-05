@@ -6,13 +6,13 @@ using System.Xml.XPath;
 ///////////////////////////////////////////////////////////////////////////////
 
 BuildParameters.Tasks.InstallOpenCoverTask = Task("Install-OpenCover")
-    .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Not running on windows")
+    .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping because not running on windows")
     .Does(() => RequireTool(ToolSettings.OpenCoverTool, () => {
     }));
 
 BuildParameters.Tasks.TestNUnitTask = Task("Test-NUnit")
     .IsDependentOn("Install-OpenCover")
-    .WithCriteria(() => DirectoryExists(BuildParameters.Paths.Directories.PublishedNUnitTests), "No published NUnit tests")
+    .WithCriteria(() => DirectoryExists(BuildParameters.Paths.Directories.PublishedNUnitTests), "Skipping because there are no published NUnit tests")
     .Does(() => RequireTool(ToolSettings.NUnitTool, () => {
         EnsureDirectoryExists(BuildParameters.Paths.Directories.NUnitTestResults);
 
@@ -38,7 +38,7 @@ BuildParameters.Tasks.TestNUnitTask = Task("Test-NUnit")
 
 BuildParameters.Tasks.TestxUnitTask = Task("Test-xUnit")
     .IsDependentOn("Install-OpenCover")
-    .WithCriteria(() => DirectoryExists(BuildParameters.Paths.Directories.PublishedxUnitTests), "No published xUnit tests")
+    .WithCriteria(() => DirectoryExists(BuildParameters.Paths.Directories.PublishedxUnitTests), "Skipping because there are no published xUnit tests")
     .Does(() => RequireTool(ToolSettings.XUnitTool, () => {
     EnsureDirectoryExists(BuildParameters.Paths.Directories.xUnitTestResults);
 
