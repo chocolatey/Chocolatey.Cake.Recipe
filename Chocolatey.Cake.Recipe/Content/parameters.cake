@@ -119,28 +119,6 @@ public static class BuildParameters
         }
     }
 
-    public static bool CanPullTranslations
-    {
-        get
-        {
-            return TransifexEnabled &&
-                    Transifex.HasCredentials &&
-                    !IsPullRequest &&
-                    (!IsLocalBuild || string.Equals(BuildParameters.Target, "Transifex-Pull-Translations", StringComparison.OrdinalIgnoreCase));
-        }
-    }
-
-    public static bool CanPushTranslations
-    {
-        get
-        {
-            return TransifexEnabled &&
-                    Transifex.HasCredentials &&
-                    !IsPullRequest &&
-                    (!IsLocalBuild || string.Equals(BuildParameters.Target, "Transifex-Push-SourceFiles", StringComparison.OrdinalIgnoreCase));
-        }
-    }
-
     public static void SetBuildVersion(BuildVersion version)
     {
         Version  = version;
@@ -199,8 +177,6 @@ public static class BuildParameters
         context.Information("UseChocolateyGuiStrongNameKey: {0}", UseChocolateyGuiStrongNameKey);
         context.Information("AllowedAssemblyName: {0}", string.Join(", ", AllowedAssemblyNames));
         context.Information("TransifexEnabled: {0}", TransifexEnabled);
-        context.Information("CanPullTranslations: {0}", CanPullTranslations);
-        context.Information("CanPushTranslations: {0}", CanPushTranslations);
         context.Information("PreferDotNetGlobalToolUsage: {0}", PreferDotNetGlobalToolUsage);
 
         if (TransifexEnabled)
@@ -496,11 +472,7 @@ public static class BuildParameters
         ShouldDownloadFullReleaseNotes = shouldDownloadFullReleaseNotes;
         ShouldDownloadMilestoneReleaseNotes = shouldDownloadMilestoneReleaseNotes;
 
-        ShouldPublishGitHub = (!IsLocalBuild &&
-                                !IsPullRequest &&
-                                (BuildParameters.BranchType == BranchType.Master || BuildParameters.BranchType == BranchType.Release || BuildParameters.BranchType == BranchType.HotFix) &&
-                                IsTagged &&
-                                shouldPublishGitHub);
+        ShouldPublishGitHub = shouldPublishGitHub;
 
         if (packageSourceDatas?.Any() ?? false)
         {
