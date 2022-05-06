@@ -18,6 +18,8 @@ BuildParameters.Tasks.TestNUnitTask = Task("Test-NUnit")
 
         if (BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows)
         {
+            Information("Running OpenCover and NUnit...");
+
             OpenCover(tool => {
                 tool.NUnit3(GetFiles(BuildParameters.Paths.Directories.PublishedNUnitTests + (BuildParameters.TestFilePattern ?? "/**/*Tests.dll")), new NUnit3Settings {
                     Work = BuildParameters.Paths.Directories.NUnitTestResults
@@ -33,6 +35,15 @@ BuildParameters.Tasks.TestNUnitTask = Task("Test-NUnit")
                 .ExcludeByAttribute(ToolSettings.TestCoverageExcludeByAttribute)
                 .ExcludeByFile(ToolSettings.TestCoverageExcludeByFile));
         }
+        else
+        {
+            Information("Running OpenCover and NUnit...");
+
+            // OpenCover doesn't work on anything non-windows, so let's just run NUnit by itself
+            NUnit3(GetFiles(BuildParameters.Paths.Directories.PublishedNUnitTests + (BuildParameters.TestFilePattern ?? "/**/*Tests.dll")), new NUnit3Settings {
+                Work = BuildParameters.Paths.Directories.NUnitTestResults
+            });
+        }
     })
 );
 
@@ -44,6 +55,8 @@ BuildParameters.Tasks.TestxUnitTask = Task("Test-xUnit")
 
         if (BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows)
         {
+            Information("Running OpenCover and xUnit...");
+
             OpenCover(tool => {
                 tool.XUnit2(GetFiles(BuildParameters.Paths.Directories.PublishedxUnitTests + (BuildParameters.TestFilePattern ?? "/**/*Tests.dll")), new XUnit2Settings {
                     OutputDirectory = BuildParameters.Paths.Directories.xUnitTestResults,
@@ -60,6 +73,17 @@ BuildParameters.Tasks.TestxUnitTask = Task("Test-xUnit")
                 .WithFilter(ToolSettings.TestCoverageFilter)
                 .ExcludeByAttribute(ToolSettings.TestCoverageExcludeByAttribute)
                 .ExcludeByFile(ToolSettings.TestCoverageExcludeByFile));
+        }
+        else
+        {
+            Information("Running xUnit...");
+
+            // OpenCover doesn't work on anything non-windows, so let's just run xUnit by itself
+            XUnit2(GetFiles(BuildParameters.Paths.Directories.PublishedxUnitTests + (BuildParameters.TestFilePattern ?? "/**/*Tests.dll")), new XUnit2Settings {
+                OutputDirectory = BuildParameters.Paths.Directories.xUnitTestResults,
+                XmlReport = true,
+                NoAppDomain = true
+            });
         }
     })
 );
