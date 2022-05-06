@@ -18,6 +18,8 @@ BuildParameters.Tasks.TestNUnitTask = Task("Test-NUnit")
 
         if (BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows)
         {
+            Information("Running OpenCover and NUnit...");
+
             OpenCover(tool => {
                 tool.NUnit3(GetFiles(BuildParameters.Paths.Directories.PublishedNUnitTests + (BuildParameters.TestFilePattern ?? "/**/*Tests.dll")), new NUnit3Settings {
                     Work = BuildParameters.Paths.Directories.NUnitTestResults
@@ -33,6 +35,15 @@ BuildParameters.Tasks.TestNUnitTask = Task("Test-NUnit")
                 .ExcludeByAttribute(ToolSettings.TestCoverageExcludeByAttribute)
                 .ExcludeByFile(ToolSettings.TestCoverageExcludeByFile));
         }
+        else
+        {
+            Information("Running OpenCover and NUnit...");
+
+            // OpenCover doesn't work on anything non-windows, so let's just run NUnit by itself
+            NUnit3(GetFiles(BuildParameters.Paths.Directories.PublishedNUnitTests + (BuildParameters.TestFilePattern ?? "/**/*Tests.dll")), new NUnit3Settings {
+                Work = BuildParameters.Paths.Directories.NUnitTestResults
+            });
+        }
     })
 );
 
@@ -44,6 +55,8 @@ BuildParameters.Tasks.TestxUnitTask = Task("Test-xUnit")
 
         if (BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows)
         {
+            Information("Running OpenCover and xUnit...");
+
             OpenCover(tool => {
                 tool.XUnit2(GetFiles(BuildParameters.Paths.Directories.PublishedxUnitTests + (BuildParameters.TestFilePattern ?? "/**/*Tests.dll")), new XUnit2Settings {
                     OutputDirectory = BuildParameters.Paths.Directories.xUnitTestResults,
@@ -60,6 +73,17 @@ BuildParameters.Tasks.TestxUnitTask = Task("Test-xUnit")
                 .WithFilter(ToolSettings.TestCoverageFilter)
                 .ExcludeByAttribute(ToolSettings.TestCoverageExcludeByAttribute)
                 .ExcludeByFile(ToolSettings.TestCoverageExcludeByFile));
+        }
+        else
+        {
+            Information("Running xUnit...");
+
+            // OpenCover doesn't work on anything non-windows, so let's just run xUnit by itself
+            XUnit2(GetFiles(BuildParameters.Paths.Directories.PublishedxUnitTests + (BuildParameters.TestFilePattern ?? "/**/*Tests.dll")), new XUnit2Settings {
+                OutputDirectory = BuildParameters.Paths.Directories.xUnitTestResults,
+                XmlReport = true,
+                NoAppDomain = true
+            });
         }
     })
 );
@@ -212,6 +236,7 @@ BuildParameters.Tasks.ReportUnitTestResultsTask = Task("Report-UnitTestResults")
 });
 
 BuildParameters.Tasks.ReportCodeCoverageMetricsTask = Task("Report-Code-Coverage-Metrics")
+    .IsDependentOn("Convert-OpenCoverToLcov")
     .WithCriteria(() => BuildSystem.IsRunningOnTeamCity, "Skipping due to not running on TeamCity")
     .Does(() => {
         var coverageFiles = GetFiles(BuildParameters.Paths.Directories.TestCoverage + "/coverlet/*.xml");
@@ -313,6 +338,32 @@ BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Generate-LocalCove
             }
 
             ReportGenerator(coverageFiles, BuildParameters.Paths.Directories.TestCoverage, settings);
+        }
+        else
+        {
+            Warning("No coverage files was found, no local report is generated!");
+        }
+    })
+);
+
+BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Convert-OpenCoverToLcov")
+    .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping due to not running on Windows")
+    .Does(() => RequireTool(BuildParameters.IsDotNetCoreBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.ReportGeneratorGlobalTool : ToolSettings.ReportGeneratorTool, () => {
+        if (FileExists(BuildParameters.Paths.Files.TestCoverageOutputFilePath))
+        {
+            var settings = new ReportGeneratorSettings();
+
+            // Workaround until 0.38.5+ version of Cake is used in the Recipe
+            settings.ArgumentCustomization = args => args.Append("-reporttypes:lcov");
+
+            if (BuildParameters.IsDotNetCoreBuild && BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
+            {
+                // Workaround until 0.38.5+ version of cake is released
+                // https://github.com/cake-build/cake/pull/2824
+                settings.ToolPath = Context.Tools.Resolve("reportgenerator");
+            }
+
+            ReportGenerator(BuildParameters.Paths.Files.TestCoverageOutputFilePath, BuildParameters.Paths.Directories.TestCoverage, settings);
         }
         else
         {
