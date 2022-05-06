@@ -37,7 +37,7 @@ public static class ToolSettings
         string msbuildExtensionPackTool = "#tool nuget:?package=MSBuild.Extension.Pack&version=1.9.0",
         string nunitTool = "#tool nuget:?package=NUnit.ConsoleRunner&version=3.10.0",
         string openCoverTool = "#tool nuget:?package=OpenCover&version=4.7.1221",
-        string reportGeneratorTool = "#tool nuget:?package=ReportGenerator&version=3.1.2",
+        string reportGeneratorTool = "#tool nuget:?package=ReportGenerator&version=5.1.6",
         string reportUnitTool = "#tool nuget:?package=ReportUnit&version=1.2.1",
         string reSharperReportsTool = "#tool nuget:?package=ReSharperReports&version=0.2.0",
         string reSharperTools = "#tool nuget:?package=JetBrains.ReSharper.CommandLineTools&version=2017.2.0",

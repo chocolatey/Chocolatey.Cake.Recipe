@@ -212,6 +212,7 @@ BuildParameters.Tasks.ReportUnitTestResultsTask = Task("Report-UnitTestResults")
 });
 
 BuildParameters.Tasks.ReportCodeCoverageMetricsTask = Task("Report-Code-Coverage-Metrics")
+    .IsDependentOn("Convert-OpenCoverToLcov")
     .WithCriteria(() => BuildSystem.IsRunningOnTeamCity, "Skipping due to not running on TeamCity")
     .Does(() => {
         var coverageFiles = GetFiles(BuildParameters.Paths.Directories.TestCoverage + "/coverlet/*.xml");
@@ -313,6 +314,32 @@ BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Generate-LocalCove
             }
 
             ReportGenerator(coverageFiles, BuildParameters.Paths.Directories.TestCoverage, settings);
+        }
+        else
+        {
+            Warning("No coverage files was found, no local report is generated!");
+        }
+    })
+);
+
+BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Convert-OpenCoverToLcov")
+    .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping due to not running on Windows")
+    .Does(() => RequireTool(BuildParameters.IsDotNetCoreBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.ReportGeneratorGlobalTool : ToolSettings.ReportGeneratorTool, () => {
+        if (FileExists(BuildParameters.Paths.Files.TestCoverageOutputFilePath))
+        {
+            var settings = new ReportGeneratorSettings();
+
+            // Workaround until 0.38.5+ version of Cake is used in the Recipe
+            settings.ArgumentCustomization = args => args.Append("-reporttypes:lcov");
+
+            if (BuildParameters.IsDotNetCoreBuild && BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
+            {
+                // Workaround until 0.38.5+ version of cake is released
+                // https://github.com/cake-build/cake/pull/2824
+                settings.ToolPath = Context.Tools.Resolve("reportgenerator");
+            }
+
+            ReportGenerator(BuildParameters.Paths.Files.TestCoverageOutputFilePath, BuildParameters.Paths.Directories.TestCoverage, settings);
         }
         else
         {
