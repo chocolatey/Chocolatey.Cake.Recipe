@@ -311,3 +311,17 @@ public void PushNuGetPackages(ICakeContext context, bool isRelease, List<Package
         context.Information("Unable to publish NuGet Packages as NuGet Packages Directory doesn't exist.");
     }
 }
+
+BuildParameters.Tasks.PackageTask = Task("Package")
+    .IsDependentOn("Export-Release-Notes")
+    .Does(() => {
+        foreach (var nuGetPackage in GetFiles(BuildParameters.Paths.Directories.NuGetPackages + "/**/*.nupkg"))
+        {
+            BuildParameters.BuildProvider.UploadArtifact(nuGetPackage);
+        }
+
+        foreach (var chocolateyPackage in GetFiles(BuildParameters.Paths.Directories.ChocolateyPackages + "/*.nupkg"))
+        {
+            BuildParameters.BuildProvider.UploadArtifact(chocolateyPackage);
+        }
+});

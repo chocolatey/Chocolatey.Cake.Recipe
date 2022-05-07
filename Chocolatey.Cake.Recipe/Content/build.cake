@@ -148,6 +148,11 @@ BuildParameters.Tasks.BuildTask = Task("Build")
             XBuild(BuildParameters.SolutionFilePath, xbuildSettings);
         }
 
+        if (FileExists(BuildParameters.Paths.Files.BuildLogFilePath))
+        {
+            BuildParameters.BuildProvider.UploadArtifact(BuildParameters.Paths.Files.BuildLogFilePath);
+        }
+
         CopyBuildOutput();
     }));
 
@@ -412,9 +417,6 @@ BuildParameters.Tasks.BuildMsiTask = Task("Build-MSI")
     })
 );
 
-BuildParameters.Tasks.PackageTask = Task("Package")
-    .IsDependentOn("Export-Release-Notes");
-
 BuildParameters.Tasks.DefaultTask = Task("Default")
     .IsDependentOn("Package");
 
@@ -533,7 +535,7 @@ public class Builder
             BuildParameters.Tasks.GenerateLocalCoverageReportTask.IsDependentOn("Test-NUnit");
             BuildParameters.Tasks.GenerateLocalCoverageReportTask.IsDependentOn("Test-xUnit");
             BuildParameters.Tasks.TestTask.IsDependentOn("Generate-FriendlyTestReport");
-            BuildParameters.Tasks.TestTask.IsDependentOn("Generate-LocalCoverageReport");
+            BuildParameters.Tasks.TestTask.IsDependentOn("Generate-FriendlyCoverageReport");
             BuildParameters.Tasks.TestTask.IsDependentOn("Report-UnitTestResults");
             BuildParameters.Tasks.TestTask.IsDependentOn("Report-Code-Coverage-Metrics");
         }
@@ -546,7 +548,7 @@ public class Builder
 
             BuildParameters.Tasks.PackageTask.IsDependentOn(prefix + "Pack");
             BuildParameters.Tasks.GenerateLocalCoverageReportTask.IsDependentOn(prefix + "Test");
-            BuildParameters.Tasks.TestTask.IsDependentOn("Generate-LocalCoverageReport");
+            BuildParameters.Tasks.TestTask.IsDependentOn("Generate-FriendlyCoverageReport");
             BuildParameters.Tasks.TestTask.IsDependentOn("Report-UnitTestResults");
             BuildParameters.Tasks.TestTask.IsDependentOn("Report-Code-Coverage-Metrics");
         }

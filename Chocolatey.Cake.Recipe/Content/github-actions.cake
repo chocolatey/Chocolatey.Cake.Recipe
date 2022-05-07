@@ -162,6 +162,7 @@ public class GitHubActionBuildProvider : IBuildProvider
 
     public void UploadArtifact(FilePath file)
     {
+        _context.Information("Uploading artifact from path: {0}", file.FullPath);
         _context.Information("Uploading artifacts is currently not supported in Cake.Recipe. Please use the actions/upload-artifacts GitHub Action");
     }
 }

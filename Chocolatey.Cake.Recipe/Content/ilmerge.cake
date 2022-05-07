@@ -16,6 +16,11 @@ BuildParameters.Tasks.ILMergeTask = Task("Run-ILMerge")
 
             Information("Running ILMerge...");
             ILMerge(ilMergeConfig.Output, ilMergeConfig.PrimaryAssemblyName, ilMergeConfig.AssemblyPaths, settings);
+        
+            if (FileExists(ilMergeConfig.LogFile))
+            {
+                BuildParameters.BuildProvider.UploadArtifact(ilMergeConfig.LogFile);
+            }
         }
     }
     else

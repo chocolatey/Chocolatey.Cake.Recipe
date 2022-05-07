@@ -192,6 +192,7 @@ public class LocalBuildBuildProvider : IBuildProvider
 
     public void UploadArtifact(FilePath file)
     {
+        _context.Information("Uploading artifact from path: {0}", file.FullPath);
         _context.Information("Unable to upload artifacts as running local build");
     }
 }
