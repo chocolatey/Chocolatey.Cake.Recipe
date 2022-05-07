@@ -37,7 +37,7 @@ BuildParameters.Tasks.TestNUnitTask = Task("Test-NUnit")
         }
         else
         {
-            Information("Running OpenCover and NUnit...");
+            Information("Running NUnit...");
 
             // OpenCover doesn't work on anything non-windows, so let's just run NUnit by itself
             NUnit3(GetFiles(BuildParameters.Paths.Directories.PublishedNUnitTests + (BuildParameters.TestFilePattern ?? "/**/*Tests.dll")), new NUnit3Settings {
