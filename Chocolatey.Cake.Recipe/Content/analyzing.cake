@@ -49,6 +49,11 @@ BuildParameters.Tasks.InspectCodeTask = Task("InspectCode")
                 data.RepositoryRoot);
         Information("{0} InspectCode issues are found.", issues.Count());
         data.AddIssues(issues);
+
+        if (FileExists(inspectCodeLogFilePath))
+        {
+            BuildParameters.BuildProvider.UploadArtifact(inspectCodeLogFilePath);
+        }
     })
 );
 
@@ -63,7 +68,7 @@ BuildParameters.Tasks.CreateIssuesReportTask = Task("CreateIssuesReport")
             "./",
             issueReportFile);
 
-        if (!BuildParameters.IsLocalBuild && FileExists(issueReportFile))
+        if (FileExists(issueReportFile))
         {
             BuildParameters.BuildProvider.UploadArtifact(issueReportFile);
         }

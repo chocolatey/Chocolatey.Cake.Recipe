@@ -21,7 +21,7 @@ BuildParameters.Tasks.TestNUnitTask = Task("Test-NUnit")
             Information("Running OpenCover and NUnit...");
 
             OpenCover(tool => {
-                tool.NUnit3(GetFiles(BuildParameters.Paths.Directories.PublishedNUnitTests + (BuildParameters.TestFilePattern ?? "/**/*Tests.dll")), new NUnit3Settings {
+                tool.NUnit3(GetFiles(BuildParameters.Paths.Directories.PublishedNUnitTests + (BuildParameters.TestFilePattern ?? "/**/*[tT]ests.dll")), new NUnit3Settings {
                     Work = BuildParameters.Paths.Directories.NUnitTestResults
                 });
             },
@@ -37,10 +37,10 @@ BuildParameters.Tasks.TestNUnitTask = Task("Test-NUnit")
         }
         else
         {
-            Information("Running OpenCover and NUnit...");
+            Information("Running NUnit...");
 
             // OpenCover doesn't work on anything non-windows, so let's just run NUnit by itself
-            NUnit3(GetFiles(BuildParameters.Paths.Directories.PublishedNUnitTests + (BuildParameters.TestFilePattern ?? "/**/*Tests.dll")), new NUnit3Settings {
+            NUnit3(GetFiles(BuildParameters.Paths.Directories.PublishedNUnitTests + (BuildParameters.TestFilePattern ?? "/**/*[tT]ests.dll")), new NUnit3Settings {
                 Work = BuildParameters.Paths.Directories.NUnitTestResults
             });
         }
@@ -51,14 +51,14 @@ BuildParameters.Tasks.TestxUnitTask = Task("Test-xUnit")
     .IsDependentOn("Install-OpenCover")
     .WithCriteria(() => DirectoryExists(BuildParameters.Paths.Directories.PublishedxUnitTests), "Skipping because there are no published xUnit tests")
     .Does(() => RequireTool(ToolSettings.XUnitTool, () => {
-    EnsureDirectoryExists(BuildParameters.Paths.Directories.xUnitTestResults);
+        EnsureDirectoryExists(BuildParameters.Paths.Directories.xUnitTestResults);
 
         if (BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows)
         {
             Information("Running OpenCover and xUnit...");
 
             OpenCover(tool => {
-                tool.XUnit2(GetFiles(BuildParameters.Paths.Directories.PublishedxUnitTests + (BuildParameters.TestFilePattern ?? "/**/*Tests.dll")), new XUnit2Settings {
+                tool.XUnit2(GetFiles(BuildParameters.Paths.Directories.PublishedxUnitTests + (BuildParameters.TestFilePattern ?? "/**/*[tT]ests.dll")), new XUnit2Settings {
                     OutputDirectory = BuildParameters.Paths.Directories.xUnitTestResults,
                     XmlReport = true,
                     NoAppDomain = true
@@ -79,7 +79,7 @@ BuildParameters.Tasks.TestxUnitTask = Task("Test-xUnit")
             Information("Running xUnit...");
 
             // OpenCover doesn't work on anything non-windows, so let's just run xUnit by itself
-            XUnit2(GetFiles(BuildParameters.Paths.Directories.PublishedxUnitTests + (BuildParameters.TestFilePattern ?? "/**/*Tests.dll")), new XUnit2Settings {
+            XUnit2(GetFiles(BuildParameters.Paths.Directories.PublishedxUnitTests + (BuildParameters.TestFilePattern ?? "/**/*[tT]ests.dll")), new XUnit2Settings {
                 OutputDirectory = BuildParameters.Paths.Directories.xUnitTestResults,
                 XmlReport = true,
                 NoAppDomain = true
@@ -214,6 +214,13 @@ BuildParameters.Tasks.GenerateFriendlyTestReportTask = Task("Generate-FriendlyTe
         foreach (var directory in possibleDirectories.Where((d) => DirectoryExists(d)))
         {
             ReportUnit(directory, directory, new ReportUnitSettings());
+
+            var reportUnitFiles = GetFiles(directory + "/*.html");
+            var reportUnitZipFileName = directory.FullPath.Contains("xunit") ? "xunit-reportunit.zip" : "nunit-reportunit.zip";
+            var rootPath =directory.FullPath.Contains("xunit") ? "./code_drop/TestResults/xUnit" : "./code_drop/TestResults/NUnit";
+            Zip(rootPath, directory + "/" + reportUnitZipFileName, reportUnitFiles);
+
+            BuildParameters.BuildProvider.UploadArtifact(directory + "/" + reportUnitZipFileName);
         }
     })
 );
@@ -256,8 +263,6 @@ BuildParameters.Tasks.ReportCodeCoverageMetricsTask = Task("Report-Code-Coverage
 
         foreach(var coverageFile in coverageFiles)
         {
-            BuildParameters.BuildProvider.UploadArtifact(coverageFile);
-
             XDocument doc = XDocument.Load(coverageFile.FullPath);
             XElement summary = doc.XPathSelectElement("/CoverageSession/Summary");
 
@@ -318,8 +323,7 @@ private void ReportCoverageMetric(
     Information($"##teamcity[buildStatisticValue key='{tcCoverageKey}' value='{coverage}']");
 }
 
-BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Generate-LocalCoverageReport")
-    .WithCriteria(() => BuildParameters.IsLocalBuild, "Skipping due to not running a local build")
+BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Generate-FriendlyCoverageReport")
     .Does(() => RequireTool(BuildParameters.IsDotNetCoreBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.ReportGeneratorGlobalTool : ToolSettings.ReportGeneratorTool, () => {
         var coverageFiles = GetFiles(BuildParameters.Paths.Directories.TestCoverage + "/coverlet/*.xml");
         if (FileExists(BuildParameters.Paths.Files.TestCoverageOutputFilePath))
@@ -338,6 +342,17 @@ BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Generate-LocalCove
             }
 
             ReportGenerator(coverageFiles, BuildParameters.Paths.Directories.TestCoverage, settings);
+
+            var reportGeneratorFiles = GetFiles(BuildParameters.Paths.Directories.TestCoverage + "/*.html")
+                                     + GetFiles(BuildParameters.Paths.Directories.TestCoverage + "/*.htm")
+                                     + GetFiles(BuildParameters.Paths.Directories.TestCoverage + "/*.js")
+                                     + GetFiles(BuildParameters.Paths.Directories.TestCoverage + "/*.svg")
+                                     + GetFiles(BuildParameters.Paths.Directories.TestCoverage + "/*.css");
+
+            var reportGeneratorZipFileName = "coverage.zip";
+            Zip("./code_drop/TestCoverage", BuildParameters.Paths.Directories.TestCoverage + "/" + reportGeneratorZipFileName, reportGeneratorFiles);
+
+            BuildParameters.BuildProvider.UploadArtifact(BuildParameters.Paths.Directories.TestCoverage + "/" + reportGeneratorZipFileName);
         }
         else
         {
@@ -372,4 +387,31 @@ BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Convert-OpenCoverT
     })
 );
 
-BuildParameters.Tasks.TestTask = Task("Test");
+BuildParameters.Tasks.TestTask = Task("Test")
+    .Does(() => {
+        var coverageFiles = GetFiles(BuildParameters.Paths.Directories.TestCoverage + "/coverlet/*.xml");
+        if (FileExists(BuildParameters.Paths.Files.TestCoverageOutputFilePath))
+        {
+            coverageFiles += BuildParameters.Paths.Files.TestCoverageOutputFilePath;
+        }
+
+        foreach (var coverageFile in coverageFiles)
+        {
+            BuildParameters.BuildProvider.UploadArtifact(coverageFile);
+        }
+
+        foreach (var nUnitResultFile in GetFiles(BuildParameters.Paths.Directories.NUnitTestResults + "/*.xml"))
+        {
+            BuildParameters.BuildProvider.UploadArtifact(nUnitResultFile);
+        }
+
+        foreach (var xUnitResultFile in GetFiles(BuildParameters.Paths.Directories.xUnitTestResults + "/*.xml"))
+        {
+            BuildParameters.BuildProvider.UploadArtifact(xUnitResultFile);
+        }
+
+        if (FileExists(BuildParameters.Paths.Directories.TestCoverage + "/lcov.info"))
+        {
+            BuildParameters.BuildProvider.UploadArtifact(BuildParameters.Paths.Directories.TestCoverage + "/lcov.info");
+        }
+});

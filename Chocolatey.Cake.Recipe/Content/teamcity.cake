@@ -145,6 +145,7 @@ public class TeamCityBuildProvider : IBuildProvider
         Repository = new TeamCityRepositoryInfo(teamCity, context);
 
         _teamCity = teamCity;
+        _context = context;
     }
 
     public IRepositoryInfo Repository { get; }
@@ -169,8 +170,11 @@ public class TeamCityBuildProvider : IBuildProvider
 
     private readonly ITeamCityProvider _teamCity;
 
+    private readonly ICakeContext _context;
+
     public void UploadArtifact(FilePath file)
     {
+        _context.Information("Uploading artifact from path: {0}", file.FullPath);
         _teamCity.PublishArtifacts(file.FullPath);
     }
 }
