@@ -18,6 +18,7 @@ public static class BuildParameters
     public static string PreReleaseLabelFilePath { get; private set; }
     public static string Target { get; private set; }
     public static string BuildCounter { get; private set; }
+    public static string TestExecutionType { get; private set; }
     public static string Configuration { get; private set; }
     public static string DeploymentEnvironment { get; private set;}
     public static Cake.Core.Configuration.ICakeConfiguration CakeConfiguration { get; private set; }
@@ -44,7 +45,8 @@ public static class BuildParameters
     public static DirectoryPath SolutionDirectoryPath { get; private set; }
     public static DirectoryPath TestDirectoryPath { get; private set; }
     public static FilePath IntegrationTestScriptPath { get; private set; }
-    public static string TestFilePattern { get; private set; }
+    public static string TestAssemblyFilePattern { get; private set; }
+    public static string TestAssemblyProjectPattern { get; private set; }
     public static string Title { get; private set; }
     public static string ResharperSettingsFileName { get; private set; }
     public static string RepositoryOwner { get; private set; }
@@ -160,6 +162,7 @@ public static class BuildParameters
         context.Information("RepositoryName: {0}", RepositoryName);
         context.Information("NugetConfig: {0} ({1})", NugetConfig, context.FileExists(NugetConfig));
         context.Information("Build Counter: {0}", BuildCounter);
+        context.Information("Test Execution Type: {0}", TestExecutionType);
         context.Information("RestorePackagesDirectory: {0}", RestorePackagesDirectory);
         context.Information("ProductName: {0}", ProductName);
         context.Information("ProductDescription: {0}", ProductDescription);
@@ -174,6 +177,8 @@ public static class BuildParameters
         context.Information("StrongNameDependentAssembliesInputPath: {0}", StrongNameDependentAssembliesInputPath);
         context.Information("ShouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken: {0}", ShouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken);
         context.Information("AssemblyNamesRegexPattern: {0}", AssemblyNamesRegexPattern);
+        context.Information("TestAssemblyFilePattern: {0}", TestAssemblyFilePattern);
+        context.Information("TestAssemblyProjectPattern: {0}", TestAssemblyProjectPattern);
         context.Information("UseChocolateyGuiStrongNameKey: {0}", UseChocolateyGuiStrongNameKey);
         context.Information("AllowedAssemblyName: {0}", string.Join(", ", AllowedAssemblyNames));
         context.Information("TransifexEnabled: {0}", TransifexEnabled);
@@ -206,7 +211,8 @@ public static class BuildParameters
         DirectoryPath solutionDirectoryPath = null,
         DirectoryPath rootDirectoryPath = null,
         DirectoryPath testDirectoryPath = null,
-        string testFilePattern = null,
+        string testAssemblyFilePattern = null,
+        string testAssemblyProjectPattern = null,
         string integrationTestScriptPath = null,
         string resharperSettingsFileName = null,
         string repositoryOwner = null,
@@ -293,7 +299,6 @@ public static class BuildParameters
         SolutionDirectoryPath = solutionDirectoryPath ?? SourceDirectoryPath.Combine(Title);
         RootDirectoryPath = rootDirectoryPath ?? context.MakeAbsolute(context.Environment.WorkingDirectory);
         TestDirectoryPath = testDirectoryPath ?? sourceDirectoryPath;
-        TestFilePattern = testFilePattern;
         IntegrationTestScriptPath = integrationTestScriptPath ?? context.MakeAbsolute((FilePath)"test.cake");
         ResharperSettingsFileName = resharperSettingsFileName ?? string.Format("{0}.sln.DotSettings", Title);
         RepositoryOwner = repositoryOwner ?? string.Empty;
@@ -386,6 +391,24 @@ public static class BuildParameters
 
         Target = context.Argument("target", "Default");
         BuildCounter = context.Argument("buildCounter", BuildProvider.Build.Number);
+        TestExecutionType = context.Argument("testExecutionType", "unit");
+
+        if (TestExecutionType == "unit")
+        {
+            TestAssemblyFilePattern = testAssemblyFilePattern ?? "/**/*[tT]ests.dll";
+            TestAssemblyProjectPattern = testAssemblyProjectPattern ?? "/**/*[tT]ests.csproj";
+        }
+        else if (TestExecutionType == "integration")
+        {
+            TestAssemblyFilePattern = testAssemblyFilePattern ?? "/**/*[tT]ests.[iI]ntegration.dll";
+            TestAssemblyProjectPattern = testAssemblyProjectPattern ?? "/**/*[tT]ests.[iI]ntegration.csproj";
+        }
+        else if (TestExecutionType == "all")
+        {
+            TestAssemblyFilePattern = testAssemblyFilePattern ?? "/**/*{[tT]ests|[tT]ests.[iI]ntegration}.dll";
+            TestAssemblyProjectPattern = testAssemblyProjectPattern ?? "/**/*{[tT]ests|[tT]ests.[iI]ntegration}.csproj";
+        }
+
         Configuration = context.Argument("configuration", "Release");
         DeploymentEnvironment = context.Argument("environment", "Release");
         ForceContinuousIntegration = context.Argument("forceContinuousIntegration", false);
