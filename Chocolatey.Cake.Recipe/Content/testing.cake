@@ -17,6 +17,12 @@ BuildParameters.Tasks.TestNUnitTask = Task("Test-NUnit")
     .Does(() => RequireTool(ToolSettings.NUnitTool, () => {
         EnsureDirectoryExists(BuildParameters.Paths.Directories.NUnitTestResults);
 
+        if (BuildParameters.TestExecutionType == "none")
+        {
+            Information("The TestExecutionType parameter has been set to 'none', so no tests will be executed");
+            return;
+        }
+
         if (BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows)
         {
             Information("Running OpenCover and NUnit...");
@@ -54,6 +60,12 @@ BuildParameters.Tasks.TestxUnitTask = Task("Test-xUnit")
     .WithCriteria(() => DirectoryExists(BuildParameters.Paths.Directories.PublishedxUnitTests), "Skipping because there are no published xUnit tests")
     .Does(() => RequireTool(ToolSettings.XUnitTool, () => {
         EnsureDirectoryExists(BuildParameters.Paths.Directories.xUnitTestResults);
+
+        if (BuildParameters.TestExecutionType == "none")
+        {
+            Information("The TestExecutionType parameter has been set to 'none', so no tests will be executed");
+            return;
+        }
 
         if (BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows)
         {
@@ -94,6 +106,12 @@ BuildParameters.Tasks.DotNetTestTask = Task("DotNetTest")
     .IsDependentOn("Install-OpenCover")
     .WithCriteria(() => BuildParameters.ShouldRunDotNetTest, "Skipping because dotnet test is not enabled")
     .Does(() => {
+
+    if (BuildParameters.TestExecutionType == "none")
+    {
+        Information("The TestExecutionType parameter has been set to 'none', so no tests will be executed");
+        return;
+    }
 
     var msBuildSettings = new DotNetCoreMSBuildSettings()
                             .WithProperty("Version", BuildParameters.Version.SemVersion)
