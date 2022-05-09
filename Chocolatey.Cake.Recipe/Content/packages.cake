@@ -95,9 +95,9 @@ BuildParameters.Tasks.CreateNuGetPackagesTask = Task("Create-NuGet-Packages")
     }
 });
 
-BuildParameters.Tasks.DotNetCorePackTask = Task("DotNetCorePack")
-    .IsDependentOn("DotNetCoreBuild")
-    .WithCriteria(() => BuildParameters.ShouldRunDotNetCorePack, "Skipping because packaging through .NET Core is disabled")
+BuildParameters.Tasks.DotNetPackTask = Task("DotNetPack")
+    .IsDependentOn("DotNetBuild")
+    .WithCriteria(() => BuildParameters.ShouldRunDotNetPack, "Skipping because packaging through .NET Core is disabled")
     .Does(() =>
 {
     var projects = GetFiles(BuildParameters.SourceDirectoryPath + "/**/*.csproj")

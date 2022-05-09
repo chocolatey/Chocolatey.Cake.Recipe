@@ -332,7 +332,7 @@ BuildParameters.Tasks.ChangeStrongNameSignaturesTask = Task("Change-Strong-Name-
         var regularExpressionPattern = string.Format("<package id=\"({0})\" version=\"(\\S*)\" .*/>", BuildParameters.AssemblyNamesRegexPattern);
         var formatReplacement = "{0}/packages/{1}.{2}/lib";
 
-        if (BuildParameters.IsDotNetCoreBuild)
+        if (BuildParameters.IsDotNetBuild)
         {
             packageReferenceFiles = GetFiles(BuildParameters.SourceDirectoryPath + "/**/*.csproj");
             regularExpressionPattern = string.Format("<PackageReference Include=\"({0})\" Version=\"(\\S*)\" .*/>", BuildParameters.AssemblyNamesRegexPattern);

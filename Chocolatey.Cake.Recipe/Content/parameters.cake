@@ -34,7 +34,7 @@ public static class BuildParameters
     public static bool TransifexEnabled { get; set; }
     public static BranchType BranchType { get; private set; }
     public static bool IsTagged { get; private set; }
-    public static bool IsDotNetCoreBuild { get; set; }
+    public static bool IsDotNetBuild { get; set; }
     public static bool TreatWarningsAsErrors { get; set; }
     public static BuildVersion Version { get; private set; }
     public static BuildPaths Paths { get; private set; }
@@ -61,7 +61,7 @@ public static class BuildParameters
     public static ICollection<AssemblyInfoCustomAttribute> ProductCustomAttributes { get; private set; }
     public static bool ObfuscateAssembly { get; private set; }
     public static bool ShouldRunInspectCode { get; private set; }
-    public static bool ShouldRunDotNetCorePack { get; private set; }
+    public static bool ShouldRunDotNetPack { get; private set; }
     public static bool ShouldRunChocolatey { get; private set; }
     public static bool ShouldRunNuGet { get; private set; }
     public static bool ShouldBuildNugetSourcePackage { get; private set; }
@@ -151,7 +151,7 @@ public static class BuildParameters
         context.Information("Repository Name: {0}", BuildProvider.Repository.Name);
         context.Information("Branch Type: {0}", BranchType);
         context.Information("Branch Name: {0}", BuildProvider.Repository.Branch);
-        context.Information("IsDotNetCoreBuild: {0}", IsDotNetCoreBuild);
+        context.Information("IsDotNetBuild: {0}", IsDotNetBuild);
         context.Information("Solution FilePath: {0}", context.MakeAbsolute((FilePath)SolutionFilePath));
         context.Information("Solution DirectoryPath: {0}", context.MakeAbsolute((DirectoryPath)SolutionDirectoryPath));
         context.Information("Source DirectoryPath: {0}", context.MakeAbsolute(SourceDirectoryPath));
@@ -305,7 +305,7 @@ public static class BuildParameters
         RepositoryName = repositoryName ?? Title;
 
         ShouldRunInspectCode = shouldRunInspectCode;
-        ShouldRunDotNetCorePack = shouldRunDotNetCorePack;
+        ShouldRunDotNetPack = shouldRunDotNetPack;
         ShouldRunChocolatey = shouldRunChocolatey;
         ShouldRunNuGet = shouldRunNuGet;
         ShouldBuildNugetSourcePackage = shouldBuildNugetSourcePackage;

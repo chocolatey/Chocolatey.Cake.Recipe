@@ -88,7 +88,7 @@ BuildParameters.Tasks.TestxUnitTask = Task("Test-xUnit")
     })
 );
 
-BuildParameters.Tasks.DotNetCoreTestTask = Task("DotNetCoreTest")
+BuildParameters.Tasks.DotNetTestTask = Task("DotNetTest")
     .IsDependentOn("Install-OpenCover")
     .Does(() => {
 
@@ -324,7 +324,7 @@ private void ReportCoverageMetric(
 }
 
 BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Generate-FriendlyCoverageReport")
-    .Does(() => RequireTool(BuildParameters.IsDotNetCoreBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.ReportGeneratorGlobalTool : ToolSettings.ReportGeneratorTool, () => {
+    .Does(() => RequireTool(BuildParameters.IsDotNetBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.ReportGeneratorGlobalTool : ToolSettings.ReportGeneratorTool, () => {
         var coverageFiles = GetFiles(BuildParameters.Paths.Directories.TestCoverage + "/coverlet/*.xml");
         if (FileExists(BuildParameters.Paths.Files.TestCoverageOutputFilePath))
         {
@@ -334,7 +334,7 @@ BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Generate-FriendlyC
         if (coverageFiles.Any())
         {
             var settings = new ReportGeneratorSettings();
-            if (BuildParameters.IsDotNetCoreBuild && BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
+            if (BuildParameters.IsDotNetBuild && BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
             {
                 // Workaround until 0.38.5+ version of cake is released
                 // https://github.com/cake-build/cake/pull/2824
@@ -363,7 +363,7 @@ BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Generate-FriendlyC
 
 BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Convert-OpenCoverToLcov")
     .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping due to not running on Windows")
-    .Does(() => RequireTool(BuildParameters.IsDotNetCoreBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.ReportGeneratorGlobalTool : ToolSettings.ReportGeneratorTool, () => {
+    .Does(() => RequireTool(BuildParameters.IsDotNetBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.ReportGeneratorGlobalTool : ToolSettings.ReportGeneratorTool, () => {
         if (FileExists(BuildParameters.Paths.Files.TestCoverageOutputFilePath))
         {
             var settings = new ReportGeneratorSettings();
@@ -371,7 +371,7 @@ BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Convert-OpenCoverT
             // Workaround until 0.38.5+ version of Cake is used in the Recipe
             settings.ArgumentCustomization = args => args.Append("-reporttypes:lcov");
 
-            if (BuildParameters.IsDotNetCoreBuild && BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
+            if (BuildParameters.IsDotNetBuild && BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
             {
                 // Workaround until 0.38.5+ version of cake is released
                 // https://github.com/cake-build/cake/pull/2824

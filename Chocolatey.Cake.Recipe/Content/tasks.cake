@@ -10,9 +10,9 @@ public class BuildTasks
     // Build Tasks
     public CakeTaskBuilder CleanTask { get; set; }
     public CakeTaskBuilder RestoreTask { get; set; }
-    public CakeTaskBuilder DotNetCoreRestoreTask { get; set; }
+    public CakeTaskBuilder DotNetRestoreTask { get; set; }
     public CakeTaskBuilder BuildTask { get; set; }
-    public CakeTaskBuilder DotNetCoreBuildTask { get; set; }
+    public CakeTaskBuilder DotNetBuildTask { get; set; }
     public CakeTaskBuilder PackageTask { get; set; }
     public CakeTaskBuilder DefaultTask { get; set; }
     public CakeTaskBuilder ContinuousIntegrationTask { get; set; }
@@ -30,7 +30,7 @@ public class BuildTasks
     public CakeTaskBuilder CopyNuspecFolderTask { get; set; }
     public CakeTaskBuilder CreateChocolateyPackagesTask { get; set; }
     public CakeTaskBuilder CreateNuGetPackagesTask { get; set; }
-    public CakeTaskBuilder DotNetCorePackTask { get; set; }
+    public CakeTaskBuilder DotNetPackTask { get; set; }
     public CakeTaskBuilder PublishPreReleasePackagesTask { get; set; }
     public CakeTaskBuilder PublishReleasePackagesTask { get; set; }
 
@@ -38,7 +38,7 @@ public class BuildTasks
     public CakeTaskBuilder InstallOpenCoverTask { get; set; }
     public CakeTaskBuilder TestNUnitTask { get; set; }
     public CakeTaskBuilder TestxUnitTask { get; set; }
-    public CakeTaskBuilder DotNetCoreTestTask { get; set; }
+    public CakeTaskBuilder DotNetTestTask { get; set; }
     public CakeTaskBuilder GenerateFriendlyTestReportTask { get; set; }
     public CakeTaskBuilder ReportUnitTestResultsTask { get; set; }
     public CakeTaskBuilder ReportCodeCoverageMetricsTask { get; set; }
