@@ -63,7 +63,7 @@ public static class BuildParameters
     public static bool ShouldAuthenticodeSignOutputAssemblies { get; private set; }
     public static bool ShouldAuthenticodeSignPowerShellScripts { get; private set; }
     public static bool ShouldBuildMsi { get; private set; }
-    public static bool ShouldBuildNugetSourcePackage { get; private set; }
+    public static bool ShouldBuildNuGetSourcePackage { get; private set; }
     public static bool ShouldDownloadFullReleaseNotes { get; private set;}
     public static bool ShouldDownloadMilestoneReleaseNotes { get; private set;}
     public static bool ShouldObfuscateOutputAssemblies { get; private set; }
@@ -90,7 +90,7 @@ public static class BuildParameters
     public static string StrongNameDependentAssembliesInputPath { get; private set; }
     public static string AssemblyNamesRegexPattern { get; private set; }
     public static bool UseChocolateyGuiStrongNameKey { get; private set; }
-    public static FilePath NugetConfig { get; private set; }
+    public static FilePath NuGetConfig { get; private set; }
     public static ICollection<string> NuGetSources { get; private set; }
     public static DirectoryPath RestorePackagesDirectory { get; private set; }
     public static Func<FilePathCollection> GetFilesToObfuscate { get; private set; }
@@ -161,7 +161,7 @@ public static class BuildParameters
         context.Information("BuildAgentOperatingSystem: {0}", BuildAgentOperatingSystem);
         context.Information("RepositoryOwner: {0}", RepositoryOwner);
         context.Information("RepositoryName: {0}", RepositoryName);
-        context.Information("NugetConfig: {0} ({1})", NugetConfig, context.FileExists(NugetConfig));
+        context.Information("NuGetConfig: {0} ({1})", NuGetConfig, context.FileExists(NuGetConfig));
         context.Information("Build Counter: {0}", BuildCounter);
         context.Information("Test Execution Type: {0}", TestExecutionType);
         context.Information("RestorePackagesDirectory: {0}", RestorePackagesDirectory);
@@ -180,7 +180,7 @@ public static class BuildParameters
         context.Information("ShouldAuthenticodeSignOutputAssemblies: {0}", BuildParameters.ShouldAuthenticodeSignOutputAssemblies);
         context.Information("ShouldAuthenticodeSignPowerShellScripts: {0}", BuildParameters.ShouldAuthenticodeSignPowerShellScripts);
         context.Information("ShouldBuildMsi: {0}", BuildParameters.ShouldBuildMsi);
-        context.Information("ShouldBuildNugetSourcePackage: {0}", BuildParameters.ShouldBuildNugetSourcePackage);
+        context.Information("ShouldBuildNuGetSourcePackage: {0}", BuildParameters.ShouldBuildNuGetSourcePackage);
         context.Information("ShouldDownloadFullReleaseNotes: {0}", BuildParameters.ShouldDownloadFullReleaseNotes);
         context.Information("ShouldDownloadMilestoneReleaseNotes: {0}", BuildParameters.ShouldDownloadMilestoneReleaseNotes);
         context.Information("ShouldObfuscateOutputAssemblies: {0}", BuildParameters.ShouldObfuscateOutputAssemblies);
@@ -248,7 +248,7 @@ public static class BuildParameters
         bool shouldAuthenticodeSignOutputAssemblies = true,
         bool shouldAuthenticodeSignPowerShellScripts = true,
         bool shouldBuildMsi = false,
-        bool shouldBuildNugetSourcePackage = false,
+        bool shouldBuildNuGetSourcePackage = false,
         bool shouldDownloadFullReleaseNotes = false,
         bool shouldDownloadMilestoneReleaseNotes = false,
         bool shouldObfuscateOutputAssemblies = true,
@@ -345,7 +345,7 @@ public static class BuildParameters
         ShouldAuthenticodeSignOutputAssemblies = shouldAuthenticodeSignOutputAssemblies;
         ShouldAuthenticodeSignPowerShellScripts = shouldAuthenticodeSignPowerShellScripts;
         ShouldBuildMsi = shouldBuildMsi;
-        ShouldBuildNugetSourcePackage = shouldBuildNugetSourcePackage;
+        ShouldBuildNuGetSourcePackage = shouldBuildNuGetSourcePackage;
         ShouldDownloadFullReleaseNotes = shouldDownloadFullReleaseNotes;
         ShouldDownloadMilestoneReleaseNotes = shouldDownloadMilestoneReleaseNotes;
         ShouldObfuscateOutputAssemblies = shouldObfuscateOutputAssemblies;
@@ -375,7 +375,7 @@ public static class BuildParameters
         AssemblyNamesRegexPattern = assemblyNamesRegexPattern ?? "chocolatey.lib|chocolatey-licensed.lib|ChocolateyGui.Common|ChocolateyGui.Common.Windows";
         UseChocolateyGuiStrongNameKey = useChocolateyGuiStrongNameKey;
 
-        NugetConfig = context.MakeAbsolute(nugetConfig ?? (FilePath)"./NuGet.Config");
+        NuGetConfig = context.MakeAbsolute(nugetConfig ?? (FilePath)"./NuGet.Config");
         NuGetSources = nuGetSources;
         RestorePackagesDirectory = restorePackagesDirectory;
         GetFilesToObfuscate = getFilesToObfuscate;
@@ -398,10 +398,10 @@ public static class BuildParameters
 
         if (nuGetSources == null)
         {
-            if (context.FileExists(NugetConfig))
+            if (context.FileExists(NuGetConfig))
             {
                 NuGetSources = (
-                                    from configuration in System.Xml.Linq.XDocument.Load(NugetConfig.FullPath).Elements("configuration")
+                                    from configuration in System.Xml.Linq.XDocument.Load(NuGetConfig.FullPath).Elements("configuration")
                                     from packageSources in configuration.Elements("packageSources")
                                     from add in packageSources.Elements("add")
                                     from value in add.Attributes("value")

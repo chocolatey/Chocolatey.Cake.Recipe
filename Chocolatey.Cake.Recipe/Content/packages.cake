@@ -119,7 +119,7 @@ BuildParameters.Tasks.DotNetPackTask = Task("DotNetPack")
                             .WithProperty("FileVersion",  BuildParameters.Version.FileVersion)
                             .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion);
 
-    if (BuildParameters.ShouldBuildNugetSourcePackage)
+    if (BuildParameters.ShouldBuildNuGetSourcePackage)
     {
         msBuildSettings.WithProperty("SymbolPackageFormat", "snupkg");
     }
@@ -130,8 +130,8 @@ BuildParameters.Tasks.DotNetPackTask = Task("DotNetPack")
         Configuration = BuildParameters.Configuration,
         OutputDirectory = BuildParameters.Paths.Directories.NuGetPackages,
         MSBuildSettings = msBuildSettings,
-        IncludeSource = BuildParameters.ShouldBuildNugetSourcePackage,
-        IncludeSymbols = BuildParameters.ShouldBuildNugetSourcePackage,
+        IncludeSource = BuildParameters.ShouldBuildNuGetSourcePackage,
+        IncludeSymbols = BuildParameters.ShouldBuildNuGetSourcePackage,
     };
 
     foreach (var project in projects)
