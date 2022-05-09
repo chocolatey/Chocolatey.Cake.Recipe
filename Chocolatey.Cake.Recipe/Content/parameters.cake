@@ -31,7 +31,6 @@ public static class BuildParameters
     public static string MasterBranchName { get; private set; }
     public static string DevelopBranchName { get; private set; }
     public static bool PrepareLocalRelease { get; set; }
-    public static bool TransifexEnabled { get; set; }
     public static BranchType BranchType { get; private set; }
     public static bool IsTagged { get; private set; }
     public static bool IsDotNetBuild { get; set; }
@@ -60,25 +59,37 @@ public static class BuildParameters
     public static string ProductTrademark { get; private set; }
     public static ICollection<AssemblyInfoCustomAttribute> ProductCustomAttributes { get; private set; }
     public static bool ObfuscateAssembly { get; private set; }
-    public static bool ShouldRunInspectCode { get; private set; }
-    public static bool ShouldRunDotNetPack { get; private set; }
-    public static bool ShouldRunChocolatey { get; private set; }
-    public static bool ShouldRunNuGet { get; private set; }
-    public static bool ShouldBuildNugetSourcePackage { get; private set; }
-
-    public static bool ShouldStrongNameOutputAssemblies { get; private set; }
-    public static bool ShouldObfuscateOutputAssemblies { get; private set; }
-    public static bool ShouldAuthenticodeSignOutputAssemblies { get; private set; }
     public static bool ShouldAuthenticodeSignMsis { get; private set; }
-    public static bool ShouldBuildMsi { get; private set; }
-
+    public static bool ShouldAuthenticodeSignOutputAssemblies { get; private set; }
     public static bool ShouldAuthenticodeSignPowerShellScripts { get; private set; }
+    public static bool ShouldBuildMsi { get; private set; }
+    public static bool ShouldBuildNugetSourcePackage { get; private set; }
+    public static bool ShouldDownloadFullReleaseNotes { get; private set;}
+    public static bool ShouldDownloadMilestoneReleaseNotes { get; private set;}
+    public static bool ShouldObfuscateOutputAssemblies { get; private set; }
+    public static bool ShouldPublishGitHub { get; private set; }
+    public static bool ShouldPublishPreReleasePackages { get; private set; }
+    public static bool ShouldPublishReleasePackages { get; private set; }
+    public static bool ShouldReportCodeCoverageMetrics { get; private set; }
+    public static bool ShouldReportUnitTestResults { get; private set; }
+    public static bool ShouldRunChocolatey { get; private set; }
+    public static bool ShouldRunDotNetPack { get; private set; }
+    public static bool ShouldRunDotNetTest { get; private set; }
+    public static bool ShouldRunGitVersion { get; private set; }
+    public static bool ShouldRunILMerge { get; private set; }
+    public static bool ShouldRunInspectCode { get; private set; }
+    public static bool ShouldRunNuGet { get; private set; }
+    public static bool ShouldRunNUnit { get; private set; }
+    public static bool ShouldRunReportGenerator { get; private set; }
+    public static bool ShouldRunReportUnit { get; private set; }
+    public static bool ShouldRunTransifex { get; set; }
+    public static bool ShouldRunxUnit { get; private set; }
+    public static bool ShouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken { get; private set; }
+    public static bool ShouldStrongNameOutputAssemblies { get; private set; }
     public static bool ShouldStrongNameSignDependentAssemblies { get; private set; }
     public static string StrongNameDependentAssembliesInputPath { get; private set; }
-    public static bool ShouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken { get; private set; }
     public static string AssemblyNamesRegexPattern { get; private set; }
     public static bool UseChocolateyGuiStrongNameKey { get; private set; }
-
     public static FilePath NugetConfig { get; private set; }
     public static ICollection<string> NuGetSources { get; private set; }
     public static DirectoryPath RestorePackagesDirectory { get; private set; }
@@ -92,20 +103,12 @@ public static class BuildParameters
     public static bool ForceContinuousIntegration { get; private set; }
     public static List<string> AllowedAssemblyNames { get; private set; }
     public static IBuildProvider BuildProvider { get; private set; }
-
-    public static bool ShouldPublishGitHub { get; private set; }
-    public static bool ShouldDownloadMilestoneReleaseNotes { get; private set;}
-    public static bool ShouldDownloadFullReleaseNotes { get; private set;}
-
     public static FilePath MilestoneReleaseNotesFilePath { get; private set; }
     public static FilePath FullReleaseNotesFilePath { get; private set; }
-
     public static GitHubCredentials GitHub { get; private set; }
     public static TransifexCredentials Transifex { get; private set; }
-
     public static TransifexMode TransifexPullMode { get; private set; }
     public static int TransifexPullPercentage { get; private set; }
-
     public static bool PreferDotNetGlobalToolUsage { get; private set; }
 
     static BuildParameters()
@@ -146,8 +149,6 @@ public static class BuildParameters
         context.Information("IsPullRequest: {0}", IsPullRequest);
         context.Information("IsTagged: {0}", IsTagged);
         context.Information("PrepareLocalRelease: {0}", BuildParameters.PrepareLocalRelease);
-        context.Information("ShouldDownloadMilestoneReleaseNotes: {0}", BuildParameters.ShouldDownloadMilestoneReleaseNotes);
-        context.Information("ShouldDownloadFullReleaseNotes: {0}", BuildParameters.ShouldDownloadFullReleaseNotes);
         context.Information("Repository Name: {0}", BuildProvider.Repository.Name);
         context.Information("Branch Type: {0}", BranchType);
         context.Information("Branch Name: {0}", BuildProvider.Repository.Branch);
@@ -175,16 +176,42 @@ public static class BuildParameters
         context.Information("ForceContinuousIntegration: {0}", ForceContinuousIntegration);
         context.Information("NuGetSources: {0}", string.Join(", ", NuGetSources));
         context.Information("StrongNameDependentAssembliesInputPath: {0}", StrongNameDependentAssembliesInputPath);
-        context.Information("ShouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken: {0}", ShouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken);
+        context.Information("ShouldAuthenticodeSignMsis: {0}", BuildParameters.ShouldAuthenticodeSignMsis);
+        context.Information("ShouldAuthenticodeSignOutputAssemblies: {0}", BuildParameters.ShouldAuthenticodeSignOutputAssemblies);
+        context.Information("ShouldAuthenticodeSignPowerShellScripts: {0}", BuildParameters.ShouldAuthenticodeSignPowerShellScripts);
+        context.Information("ShouldBuildMsi: {0}", BuildParameters.ShouldBuildMsi);
+        context.Information("ShouldBuildNugetSourcePackage: {0}", BuildParameters.ShouldBuildNugetSourcePackage);
+        context.Information("ShouldDownloadFullReleaseNotes: {0}", BuildParameters.ShouldDownloadFullReleaseNotes);
+        context.Information("ShouldDownloadMilestoneReleaseNotes: {0}", BuildParameters.ShouldDownloadMilestoneReleaseNotes);
+        context.Information("ShouldObfuscateOutputAssemblies: {0}", BuildParameters.ShouldObfuscateOutputAssemblies);
+        context.Information("ShouldPublishGitHub: {0}", BuildParameters.ShouldPublishGitHub);
+        context.Information("ShouldPublishPreReleasePackages: {0}", BuildParameters.ShouldPublishPreReleasePackages);
+        context.Information("ShouldPublishReleasePackages: {0}", BuildParameters.ShouldPublishReleasePackages);
+        context.Information("ShouldReportCodeCoverageMetrics: {0}", BuildParameters.ShouldReportCodeCoverageMetrics);
+        context.Information("ShouldReportUnitTestResults: {0}", BuildParameters.ShouldReportUnitTestResults);
+        context.Information("ShouldRunChocolatey: {0}", BuildParameters.ShouldRunChocolatey);
+        context.Information("ShouldRunDotNetPack: {0}", BuildParameters.ShouldRunDotNetPack);
+        context.Information("ShouldRunDotNetTest: {0}", BuildParameters.ShouldRunDotNetTest);
+        context.Information("ShouldRunGitVersion: {0}", BuildParameters.ShouldRunGitVersion);
+        context.Information("ShouldRunILMerge: {0}", BuildParameters.ShouldRunILMerge);
+        context.Information("ShouldRunInspectCode: {0}", BuildParameters.ShouldRunInspectCode);
+        context.Information("ShouldRunNuGet: {0}", BuildParameters.ShouldRunNuGet);
+        context.Information("ShouldRunNUnit: {0}", BuildParameters.ShouldRunNUnit);
+        context.Information("ShouldRunReportGenerator: {0}", BuildParameters.ShouldRunReportGenerator);
+        context.Information("ShouldRunReportUnit: {0}", BuildParameters.ShouldRunReportUnit);
+        context.Information("ShouldRunTransifex: {0}", BuildParameters.ShouldRunTransifex);
+        context.Information("ShouldRunxUnit: {0}", BuildParameters.ShouldRunxUnit);
+        context.Information("ShouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken: {0}", BuildParameters.ShouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken);
+        context.Information("ShouldStrongNameOutputAssemblies: {0}", BuildParameters.ShouldStrongNameOutputAssemblies);
+        context.Information("ShouldStrongNameSignDependentAssemblies: {0}", BuildParameters.ShouldStrongNameSignDependentAssemblies);
         context.Information("AssemblyNamesRegexPattern: {0}", AssemblyNamesRegexPattern);
         context.Information("TestAssemblyFilePattern: {0}", TestAssemblyFilePattern);
         context.Information("TestAssemblyProjectPattern: {0}", TestAssemblyProjectPattern);
         context.Information("UseChocolateyGuiStrongNameKey: {0}", UseChocolateyGuiStrongNameKey);
         context.Information("AllowedAssemblyName: {0}", string.Join(", ", AllowedAssemblyNames));
-        context.Information("TransifexEnabled: {0}", TransifexEnabled);
         context.Information("PreferDotNetGlobalToolUsage: {0}", PreferDotNetGlobalToolUsage);
 
-        if (TransifexEnabled)
+        if (ShouldRunTransifex)
         {
             context.Information("TransifexPullMode: {0}", TransifexPullMode);
             context.Information("TransifexPullPercentage: {0}", TransifexPullPercentage);
@@ -217,21 +244,36 @@ public static class BuildParameters
         string resharperSettingsFileName = null,
         string repositoryOwner = null,
         string repositoryName = null,
-        bool shouldRunInspectCode = true,
-        bool shouldRunDotNetCorePack = false,
-        bool shouldRunChocolatey = true,
-        bool shouldRunNuGet = true,
-        bool shouldBuildNugetSourcePackage = false,
-        bool shouldStrongNameOutputAssemblies = true,
-        bool shouldObfuscateOutputAssemblies = true,
-        bool shouldAuthenticodeSignOutputAssemblies = true,
         bool shouldAuthenticodeSignMsis = true,
-        bool shouldBuildMsi = false,
+        bool shouldAuthenticodeSignOutputAssemblies = true,
         bool shouldAuthenticodeSignPowerShellScripts = true,
+        bool shouldBuildMsi = false,
+        bool shouldBuildNugetSourcePackage = false,
+        bool shouldDownloadFullReleaseNotes = false,
+        bool shouldDownloadMilestoneReleaseNotes = false,
+        bool shouldObfuscateOutputAssemblies = true,
+        bool shouldPublishGitHub = false,
+        bool shouldPublishPreReleasePackages = true,
+        bool shouldPublishReleasePackages = true,
+        bool shouldReportCodeCoverageResults = true,
+        bool shouldReportUnitTestResults = true,
+        bool shouldRunChocolatey = true,
+        bool shouldRunDotNetPack = false,
+        bool shouldRunDotNetTest = true,
+        bool shouldRunGitVersion = true,
+        bool shouldRunILMerge = true,
+        bool shouldRunInspectCode = true,
+        bool shouldRunNuGet = true,
+        bool shouldRunNUnit = true,
+        bool shouldRunReportGenerator = true,
+        bool shouldRunReportUnit = true,
+        bool? shouldRunTransifex = null,
+        bool shouldRunxUnit = true,
+        bool shouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken = false,
+        bool shouldStrongNameOutputAssemblies = true,
         bool shouldStrongNameSignDependentAssemblies = true,
         bool useChocolateyGuiStrongNameKey = false,
         string strongNameDependentAssembliesInputPath = null,
-        bool shouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken = false,
         string assemblyNamesRegexPattern = null,
         FilePath nugetConfig = null,
         ICollection<string> nuGetSources = null,
@@ -255,14 +297,10 @@ public static class BuildParameters
         List<PackageSourceData> packageSourceDatas = null,
         List<string> allowedAssemblyNames = null,
         string certificateSubjectName = null,
-        bool shouldPublishGitHub = false,
         string masterBranchName = "master",
         string developBranchName = "develop",
-        bool shouldDownloadMilestoneReleaseNotes = false,
-        bool shouldDownloadFullReleaseNotes = false,
         FilePath milestoneReleaseNotesFilePath = null,
         FilePath fullReleaseNotesFilePath = null,
-        bool? transifexEnabled = null,
         TransifexMode transifexPullMode = TransifexMode.OnlyTranslated,
         int transifexPullPercentage = 60,
         bool preferDotNetGlobalToolUsage = false
@@ -289,7 +327,6 @@ public static class BuildParameters
         MasterBranchName = masterBranchName;
         DevelopBranchName = developBranchName;
 
-        TransifexEnabled = transifexEnabled ?? TransifexIsConfiguredForRepository(context);
         TransifexPullMode = transifexPullMode;
         TransifexPullPercentage = transifexPullPercentage;
 
@@ -304,21 +341,37 @@ public static class BuildParameters
         RepositoryOwner = repositoryOwner ?? string.Empty;
         RepositoryName = repositoryName ?? Title;
 
-        ShouldRunInspectCode = shouldRunInspectCode;
-        ShouldRunDotNetPack = shouldRunDotNetPack;
-        ShouldRunChocolatey = shouldRunChocolatey;
-        ShouldRunNuGet = shouldRunNuGet;
-        ShouldBuildNugetSourcePackage = shouldBuildNugetSourcePackage;
-
-        ShouldStrongNameOutputAssemblies = shouldStrongNameOutputAssemblies;
-        ShouldObfuscateOutputAssemblies = shouldObfuscateOutputAssemblies;
-        ShouldAuthenticodeSignOutputAssemblies = shouldAuthenticodeSignOutputAssemblies;
         ShouldAuthenticodeSignMsis = shouldAuthenticodeSignMsis;
-        ShouldBuildMsi = shouldBuildMsi;
+        ShouldAuthenticodeSignOutputAssemblies = shouldAuthenticodeSignOutputAssemblies;
         ShouldAuthenticodeSignPowerShellScripts = shouldAuthenticodeSignPowerShellScripts;
-        ShouldStrongNameSignDependentAssemblies = shouldStrongNameSignDependentAssemblies;
-        StrongNameDependentAssembliesInputPath = strongNameDependentAssembliesInputPath ?? SourceDirectoryPath.Combine("packages").FullPath;
+        ShouldBuildMsi = shouldBuildMsi;
+        ShouldBuildNugetSourcePackage = shouldBuildNugetSourcePackage;
+        ShouldDownloadFullReleaseNotes = shouldDownloadFullReleaseNotes;
+        ShouldDownloadMilestoneReleaseNotes = shouldDownloadMilestoneReleaseNotes;
+        ShouldObfuscateOutputAssemblies = shouldObfuscateOutputAssemblies;
+        ShouldPublishGitHub = shouldPublishGitHub;
+        ShouldPublishPreReleasePackages = shouldPublishPreReleasePackages;
+        ShouldPublishReleasePackages = shouldPublishReleasePackages;
+        ShouldReportCodeCoverageMetrics = shouldReportCodeCoverageMetrics;
+        ShouldReportUnitTestResults = shouldReportUnitTestResults;
+        ShouldRunChocolatey = shouldRunChocolatey;
+        ShouldRunDotNetPack = shouldRunDotNetPack;
+        ShouldRunDotNetTest = shouldRunDotNetTest;
+        ShouldRunGitVersion = shouldRunGitVersion;
+        ShouldRunILMerge = shouldRunILMerge;
+        ShouldRunInspectCode = shouldRunInspectCode;
+        ShouldRunNuGet = shouldRunNuGet;
+        ShouldRunNUnit = shouldRunNUnit;
+        ShouldRunReportGenarator = shouldRunReportGenerator;
+        ShouldRunReportUnit = shouldRunReportUnit;
+        ShouldRunTransifex = shouldRunTransifex ?? TransifexIsConfiguredForRepository(context);
+        ShouldRunxUnit = shouldRunxUnit;
         ShouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken = shouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken;
+        ShouldStrongNameOutputAssemblies = shouldStrongNameOutputAssemblies;
+        ShouldStrongNameSignDependentAssemblies = shouldStrongNameSignDependentAssemblies;
+
+        StrongNameDependentAssembliesInputPath = strongNameDependentAssembliesInputPath ?? SourceDirectoryPath.Combine("packages").FullPath;
+
         AssemblyNamesRegexPattern = assemblyNamesRegexPattern ?? "chocolatey.lib|chocolatey-licensed.lib|ChocolateyGui.Common|ChocolateyGui.Common.Windows";
         UseChocolateyGuiStrongNameKey = useChocolateyGuiStrongNameKey;
 
@@ -491,11 +544,6 @@ public static class BuildParameters
         Transifex = GetTransifexCredentials(context);
 
         SetBuildPaths(BuildPaths.GetPaths());
-
-        ShouldDownloadFullReleaseNotes = shouldDownloadFullReleaseNotes;
-        ShouldDownloadMilestoneReleaseNotes = shouldDownloadMilestoneReleaseNotes;
-
-        ShouldPublishGitHub = shouldPublishGitHub;
 
         if (packageSourceDatas?.Any() ?? false)
         {
