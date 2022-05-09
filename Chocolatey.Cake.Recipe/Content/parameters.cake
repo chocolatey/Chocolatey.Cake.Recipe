@@ -67,7 +67,6 @@ public static class BuildParameters
     public static bool ShouldDownloadFullReleaseNotes { get; private set;}
     public static bool ShouldDownloadMilestoneReleaseNotes { get; private set;}
     public static bool ShouldObfuscateOutputAssemblies { get; private set; }
-    public static bool ShouldPublishGitHub { get; private set; }
     public static bool ShouldPublishPreReleasePackages { get; private set; }
     public static bool ShouldPublishReleasePackages { get; private set; }
     public static bool ShouldReportCodeCoverageMetrics { get; private set; }
@@ -75,6 +74,7 @@ public static class BuildParameters
     public static bool ShouldRunChocolatey { get; private set; }
     public static bool ShouldRunDotNetPack { get; private set; }
     public static bool ShouldRunDotNetTest { get; private set; }
+    public static bool ShouldRunGitReleaseManager { get; private set; }
     public static bool ShouldRunGitVersion { get; private set; }
     public static bool ShouldRunILMerge { get; private set; }
     public static bool ShouldRunInspectCode { get; private set; }
@@ -184,7 +184,6 @@ public static class BuildParameters
         context.Information("ShouldDownloadFullReleaseNotes: {0}", BuildParameters.ShouldDownloadFullReleaseNotes);
         context.Information("ShouldDownloadMilestoneReleaseNotes: {0}", BuildParameters.ShouldDownloadMilestoneReleaseNotes);
         context.Information("ShouldObfuscateOutputAssemblies: {0}", BuildParameters.ShouldObfuscateOutputAssemblies);
-        context.Information("ShouldPublishGitHub: {0}", BuildParameters.ShouldPublishGitHub);
         context.Information("ShouldPublishPreReleasePackages: {0}", BuildParameters.ShouldPublishPreReleasePackages);
         context.Information("ShouldPublishReleasePackages: {0}", BuildParameters.ShouldPublishReleasePackages);
         context.Information("ShouldReportCodeCoverageMetrics: {0}", BuildParameters.ShouldReportCodeCoverageMetrics);
@@ -192,6 +191,7 @@ public static class BuildParameters
         context.Information("ShouldRunChocolatey: {0}", BuildParameters.ShouldRunChocolatey);
         context.Information("ShouldRunDotNetPack: {0}", BuildParameters.ShouldRunDotNetPack);
         context.Information("ShouldRunDotNetTest: {0}", BuildParameters.ShouldRunDotNetTest);
+        context.Information("ShouldRunGitReleaseManager: {0}", BuildParameters.ShouldRunGitReleaseManager);
         context.Information("ShouldRunGitVersion: {0}", BuildParameters.ShouldRunGitVersion);
         context.Information("ShouldRunILMerge: {0}", BuildParameters.ShouldRunILMerge);
         context.Information("ShouldRunInspectCode: {0}", BuildParameters.ShouldRunInspectCode);
@@ -252,7 +252,6 @@ public static class BuildParameters
         bool shouldDownloadFullReleaseNotes = false,
         bool shouldDownloadMilestoneReleaseNotes = false,
         bool shouldObfuscateOutputAssemblies = true,
-        bool shouldPublishGitHub = false,
         bool shouldPublishPreReleasePackages = true,
         bool shouldPublishReleasePackages = true,
         bool shouldReportCodeCoverageMetrics = true,
@@ -260,6 +259,7 @@ public static class BuildParameters
         bool shouldRunChocolatey = true,
         bool shouldRunDotNetPack = false,
         bool shouldRunDotNetTest = true,
+        bool shouldRunGitReleaseManager = false,
         bool shouldRunGitVersion = true,
         bool shouldRunILMerge = true,
         bool shouldRunInspectCode = true,
@@ -349,7 +349,7 @@ public static class BuildParameters
         ShouldDownloadFullReleaseNotes = shouldDownloadFullReleaseNotes;
         ShouldDownloadMilestoneReleaseNotes = shouldDownloadMilestoneReleaseNotes;
         ShouldObfuscateOutputAssemblies = shouldObfuscateOutputAssemblies;
-        ShouldPublishGitHub = shouldPublishGitHub;
+        ShouldRunGitReleaseManager = shouldRunGitReleaseManager;
         ShouldPublishPreReleasePackages = shouldPublishPreReleasePackages;
         ShouldPublishReleasePackages = shouldPublishReleasePackages;
         ShouldReportCodeCoverageMetrics = shouldReportCodeCoverageMetrics;

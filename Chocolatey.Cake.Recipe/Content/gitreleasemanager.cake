@@ -64,7 +64,7 @@ BuildParameters.Tasks.PublishGitHubReleaseTask = Task("Publish-GitHub-Release")
     .WithCriteria(() => !BuildParameters.IsPullRequest, "Skipping because this is pull request")
     .WithCriteria(() => BuildParameters.BranchType == BranchType.Master || BuildParameters.BranchType == BranchType.Release || BuildParameters.BranchType == BranchType.HotFix, "Skipping because this is not a releasable branch")
     .WithCriteria(() => BuildParameters.IsTagged, "Skipping because this is not a tagged build")
-    .WithCriteria(() => BuildParameters.ShouldPublishGitHub, "Skipping because this publishing GitHub Release is disabled via parameters (perhaps the default value?")
+    .WithCriteria(() => BuildParameters.ShouldRunGitReleaseManager, "Skipping because this publishing running GitReleaseManager is disabled via parameters (perhaps the default value?")
     .Does(() => RequireTool(BuildParameters.IsDotNetBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.GitReleaseManagerGlobalTool : ToolSettings.GitReleaseManagerTool, () => {
         if (BuildParameters.CanUseGitReleaseManager)
         {
