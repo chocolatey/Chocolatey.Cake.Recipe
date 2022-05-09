@@ -444,7 +444,7 @@ public static class BuildParameters
 
         Target = context.Argument("target", "Default");
         BuildCounter = context.Argument("buildCounter", BuildProvider.Build.Number);
-        TestExecutionType = context.Argument("testExecutionType", "unit");
+        TestExecutionType = context.Argument("testExecutionType", "unit").ToLowerInvariant();
 
         if (TestExecutionType == "unit")
         {
