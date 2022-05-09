@@ -106,119 +106,118 @@ BuildParameters.Tasks.DotNetTestTask = Task("DotNetTest")
     .IsDependentOn("Install-OpenCover")
     .WithCriteria(() => BuildParameters.ShouldRunDotNetTest, "Skipping because dotnet test is not enabled")
     .Does(() => {
-
-    if (BuildParameters.TestExecutionType == "none")
-    {
-        Information("The TestExecutionType parameter has been set to 'none', so no tests will be executed");
-        return;
-    }
-
-    var msBuildSettings = new DotNetCoreMSBuildSettings()
-                            .WithProperty("Version", BuildParameters.Version.SemVersion)
-                            .WithProperty("AssemblyVersion", BuildParameters.Version.FileVersion)
-                            .WithProperty("FileVersion",  BuildParameters.Version.FileVersion)
-                            .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion);
-
-    if (BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
-    {
-        var frameworkPathOverride = new FilePath(typeof(object).Assembly.Location).GetDirectory().FullPath + "/";
-
-        // Use FrameworkPathOverride when not running on Windows.
-        Information("Restore will use FrameworkPathOverride={0} since not building on Windows.", frameworkPathOverride);
-        msBuildSettings.WithProperty("FrameworkPathOverride", frameworkPathOverride);
-    }
-
-    var projects = GetFiles(BuildParameters.TestDirectoryPath + BuildParameters.TestAssemblyProjectPattern);
-    // We create the coverlet settings here so we don't have to create the filters several times
-    var coverletSettings = new CoverletSettings
-    {
-        CollectCoverage         = true,
-        // It is problematic to merge the reports into one, as such we use a custom directory for coverage results
-        CoverletOutputDirectory = BuildParameters.Paths.Directories.TestCoverage.Combine("coverlet"),
-        CoverletOutputFormat    = CoverletOutputFormat.opencover,
-        ExcludeByFile           = ToolSettings.TestCoverageExcludeByFile.Split(new [] {';' }, StringSplitOptions.None).ToList(),
-        ExcludeByAttribute      = ToolSettings.TestCoverageExcludeByAttribute.Split(new [] {';' }, StringSplitOptions.None).ToList()
-    };
-
-    foreach (var filter in ToolSettings.TestCoverageFilter.Split(new [] {' ' }, StringSplitOptions.None))
-    {
-        if (filter[0] == '+')
+        if (BuildParameters.TestExecutionType == "none")
         {
-            coverletSettings.WithInclusion(filter.TrimStart('+'));
+            Information("The TestExecutionType parameter has been set to 'none', so no tests will be executed");
+            return;
         }
-        else if (filter[0] == '-')
-        {
-            coverletSettings.WithFilter(filter.TrimStart('-'));
-        }
-    }
-    var settings = new DotNetCoreTestSettings
-    {
-        Configuration = BuildParameters.Configuration,
-        NoBuild = true
-    };
 
-    foreach (var project in projects)
-    {
-        Action<ICakeContext> testAction = tool =>
+        var msBuildSettings = new DotNetCoreMSBuildSettings()
+                                .WithProperty("Version", BuildParameters.Version.SemVersion)
+                                .WithProperty("AssemblyVersion", BuildParameters.Version.FileVersion)
+                                .WithProperty("FileVersion",  BuildParameters.Version.FileVersion)
+                                .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion);
+
+        if (BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
         {
-            tool.DotNetCoreTest(project.FullPath, settings);
+            var frameworkPathOverride = new FilePath(typeof(object).Assembly.Location).GetDirectory().FullPath + "/";
+
+            // Use FrameworkPathOverride when not running on Windows.
+            Information("Restore will use FrameworkPathOverride={0} since not building on Windows.", frameworkPathOverride);
+            msBuildSettings.WithProperty("FrameworkPathOverride", frameworkPathOverride);
+        }
+
+        var projects = GetFiles(BuildParameters.TestDirectoryPath + BuildParameters.TestAssemblyProjectPattern);
+        // We create the coverlet settings here so we don't have to create the filters several times
+        var coverletSettings = new CoverletSettings
+        {
+            CollectCoverage         = true,
+            // It is problematic to merge the reports into one, as such we use a custom directory for coverage results
+            CoverletOutputDirectory = BuildParameters.Paths.Directories.TestCoverage.Combine("coverlet"),
+            CoverletOutputFormat    = CoverletOutputFormat.opencover,
+            ExcludeByFile           = ToolSettings.TestCoverageExcludeByFile.Split(new [] {';' }, StringSplitOptions.None).ToList(),
+            ExcludeByAttribute      = ToolSettings.TestCoverageExcludeByAttribute.Split(new [] {';' }, StringSplitOptions.None).ToList()
         };
 
-        var parsedProject = ParseProject(project, BuildParameters.Configuration);
-
-        var coverletPackage = parsedProject.GetPackage("coverlet.msbuild");
-        bool shouldAddSourceLinkArgument = false; // Set it to false by default due to OpenCover
-        if (coverletPackage != null)
+        foreach (var filter in ToolSettings.TestCoverageFilter.Split(new [] {' ' }, StringSplitOptions.None))
         {
-            // If the version is a pre-release, we will assume that it is a later
-            // version than what we need, and thus TryParse will return false.
-            // If TryParse is successful we need to compare the coverlet version
-            // to ensure it is higher or equal to the version that includes the fix
-            // for using the SourceLink argument.
-            // https://github.com/coverlet-coverage/coverlet/issues/882
-            Version coverletVersion;
-            shouldAddSourceLinkArgument = !Version.TryParse(coverletPackage.Version, out coverletVersion)
-                || coverletVersion >= Version.Parse("2.9.1");
-        }
-
-        settings.ArgumentCustomization = args => {
-            args.AppendMSBuildSettings(msBuildSettings, Context.Environment);
-            if (shouldAddSourceLinkArgument && parsedProject.HasPackage("Microsoft.SourceLink.GitHub"))
+            if (filter[0] == '+')
             {
-                args.Append("/p:UseSourceLink=true");
+                coverletSettings.WithInclusion(filter.TrimStart('+'));
             }
-            return args;
+            else if (filter[0] == '-')
+            {
+                coverletSettings.WithFilter(filter.TrimStart('-'));
+            }
+        }
+        var settings = new DotNetCoreTestSettings
+        {
+            Configuration = BuildParameters.Configuration,
+            NoBuild = true
         };
 
-        if (parsedProject.IsNetCore && coverletPackage != null)
+        foreach (var project in projects)
         {
-            coverletSettings.CoverletOutputName = parsedProject.RootNameSpace.Replace('.', '-');
-            DotNetCoreTest(project.FullPath, settings, coverletSettings);
-        }
-        else if (BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
-        {
-            testAction(Context);
-        }
-        else
-        {
-            if (BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows)
+            Action<ICakeContext> testAction = tool =>
             {
-                // We can not use msbuild properties together with opencover
-                settings.ArgumentCustomization = null;
-                OpenCover(testAction,
-                    BuildParameters.Paths.Files.TestCoverageOutputFilePath,
-                    new OpenCoverSettings {
-                        ReturnTargetCodeOffset = 0,
-                        OldStyle = true,
-                        Register = "user",
-                        MergeOutput = FileExists(BuildParameters.Paths.Files.TestCoverageOutputFilePath)
-                    }
-                    .WithFilter(ToolSettings.TestCoverageFilter)
-                    .ExcludeByAttribute(ToolSettings.TestCoverageExcludeByAttribute)
-                    .ExcludeByFile(ToolSettings.TestCoverageExcludeByFile));
+                tool.DotNetCoreTest(project.FullPath, settings);
+            };
+
+            var parsedProject = ParseProject(project, BuildParameters.Configuration);
+
+            var coverletPackage = parsedProject.GetPackage("coverlet.msbuild");
+            bool shouldAddSourceLinkArgument = false; // Set it to false by default due to OpenCover
+            if (coverletPackage != null)
+            {
+                // If the version is a pre-release, we will assume that it is a later
+                // version than what we need, and thus TryParse will return false.
+                // If TryParse is successful we need to compare the coverlet version
+                // to ensure it is higher or equal to the version that includes the fix
+                // for using the SourceLink argument.
+                // https://github.com/coverlet-coverage/coverlet/issues/882
+                Version coverletVersion;
+                shouldAddSourceLinkArgument = !Version.TryParse(coverletPackage.Version, out coverletVersion)
+                    || coverletVersion >= Version.Parse("2.9.1");
+            }
+
+            settings.ArgumentCustomization = args => {
+                args.AppendMSBuildSettings(msBuildSettings, Context.Environment);
+                if (shouldAddSourceLinkArgument && parsedProject.HasPackage("Microsoft.SourceLink.GitHub"))
+                {
+                    args.Append("/p:UseSourceLink=true");
+                }
+                return args;
+            };
+
+            if (parsedProject.IsNetCore && coverletPackage != null)
+            {
+                coverletSettings.CoverletOutputName = parsedProject.RootNameSpace.Replace('.', '-');
+                DotNetCoreTest(project.FullPath, settings, coverletSettings);
+            }
+            else if (BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
+            {
+                testAction(Context);
+            }
+            else
+            {
+                if (BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows)
+                {
+                    // We can not use msbuild properties together with opencover
+                    settings.ArgumentCustomization = null;
+                    OpenCover(testAction,
+                        BuildParameters.Paths.Files.TestCoverageOutputFilePath,
+                        new OpenCoverSettings {
+                            ReturnTargetCodeOffset = 0,
+                            OldStyle = true,
+                            Register = "user",
+                            MergeOutput = FileExists(BuildParameters.Paths.Files.TestCoverageOutputFilePath)
+                        }
+                        .WithFilter(ToolSettings.TestCoverageFilter)
+                        .ExcludeByAttribute(ToolSettings.TestCoverageExcludeByAttribute)
+                        .ExcludeByFile(ToolSettings.TestCoverageExcludeByFile));
+                }
             }
         }
-    }
 });
 
 BuildParameters.Tasks.GenerateFriendlyTestReportTask = Task("Generate-FriendlyTestReport")
