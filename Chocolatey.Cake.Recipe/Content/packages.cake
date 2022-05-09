@@ -141,6 +141,7 @@ BuildParameters.Tasks.DotNetPackTask = Task("DotNetPack")
 });
 
 BuildParameters.Tasks.PublishPreReleasePackagesTask = Task("Publish-PreRelease-Packages")
+    .WithCriteria(() => BuildParameters.ShouldPublishPreReleasePackages, "Skipping because publishing of pre-release packages is not enabled")
     .WithCriteria(() => !BuildParameters.IsLocalBuild || BuildParameters.ForceContinuousIntegration, "Skipping because this is a local build, and force isn't being applied")
     .WithCriteria(() => !BuildParameters.IsPullRequest, "Skipping because current build is from a Pull Request")
     .WithCriteria(() => !BuildParameters.IsTagged, "Skipping because current commit is tagged")
@@ -162,6 +163,7 @@ BuildParameters.Tasks.PublishPreReleasePackagesTask = Task("Publish-PreRelease-P
 });
 
 BuildParameters.Tasks.PublishReleasePackagesTask = Task("Publish-Release-Packages")
+    .WithCriteria(() => BuildParameters.ShouldPublishReleasePackages, "Skipping because publishing of release packages is not enabled")
     .WithCriteria(() => !BuildParameters.IsLocalBuild || BuildParameters.ForceContinuousIntegration, "Skipping because this is a local build, and force isn't being applied")
     .WithCriteria(() => !BuildParameters.IsPullRequest, "Skipping because current build is from a Pull Request")
     .WithCriteria(() => BuildParameters.IsTagged, "Skipping because current commit is not tagged")

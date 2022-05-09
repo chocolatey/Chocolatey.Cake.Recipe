@@ -1,5 +1,6 @@
 BuildParameters.Tasks.ILMergeTask = Task("Run-ILMerge")
     .IsDependeeOf("Copy-Nuspec-Folders")
+    .WithCriteria(() => BuildParameters.ShouldRunILMerge, "Skipping because ILMerge is not enabled")
     .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping because not running on Windows")
     .Does(() => RequireTool(ToolSettings.ILMergeTool, () =>
 {
@@ -16,7 +17,7 @@ BuildParameters.Tasks.ILMergeTask = Task("Run-ILMerge")
 
             Information("Running ILMerge...");
             ILMerge(ilMergeConfig.Output, ilMergeConfig.PrimaryAssemblyName, ilMergeConfig.AssemblyPaths, settings);
-        
+
             if (FileExists(ilMergeConfig.LogFile))
             {
                 BuildParameters.BuildProvider.UploadArtifact(ilMergeConfig.LogFile);

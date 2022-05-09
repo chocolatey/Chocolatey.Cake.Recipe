@@ -255,7 +255,7 @@ public static class BuildParameters
         bool shouldPublishGitHub = false,
         bool shouldPublishPreReleasePackages = true,
         bool shouldPublishReleasePackages = true,
-        bool shouldReportCodeCoverageResults = true,
+        bool shouldReportCodeCoverageMetrics = true,
         bool shouldReportUnitTestResults = true,
         bool shouldRunChocolatey = true,
         bool shouldRunDotNetPack = false,
@@ -362,7 +362,7 @@ public static class BuildParameters
         ShouldRunInspectCode = shouldRunInspectCode;
         ShouldRunNuGet = shouldRunNuGet;
         ShouldRunNUnit = shouldRunNUnit;
-        ShouldRunReportGenarator = shouldRunReportGenerator;
+        ShouldRunReportGenerator = shouldRunReportGenerator;
         ShouldRunReportUnit = shouldRunReportUnit;
         ShouldRunTransifex = shouldRunTransifex ?? TransifexIsConfiguredForRepository(context);
         ShouldRunxUnit = shouldRunxUnit;
