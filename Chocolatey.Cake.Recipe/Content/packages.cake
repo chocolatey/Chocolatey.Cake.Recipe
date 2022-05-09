@@ -95,9 +95,9 @@ BuildParameters.Tasks.CreateNuGetPackagesTask = Task("Create-NuGet-Packages")
     }
 });
 
-BuildParameters.Tasks.DotNetCorePackTask = Task("DotNetCorePack")
-    .IsDependentOn("DotNetCoreBuild")
-    .WithCriteria(() => BuildParameters.ShouldRunDotNetCorePack, "Skipping because packaging through .NET Core is disabled")
+BuildParameters.Tasks.DotNetPackTask = Task("DotNetPack")
+    .IsDependentOn("DotNetBuild")
+    .WithCriteria(() => BuildParameters.ShouldRunDotNetPack, "Skipping because packaging through .NET Core is disabled")
     .Does(() =>
 {
     var projects = GetFiles(BuildParameters.SourceDirectoryPath + "/**/*.csproj")
@@ -119,7 +119,7 @@ BuildParameters.Tasks.DotNetCorePackTask = Task("DotNetCorePack")
                             .WithProperty("FileVersion",  BuildParameters.Version.FileVersion)
                             .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion);
 
-    if (BuildParameters.ShouldBuildNugetSourcePackage)
+    if (BuildParameters.ShouldBuildNuGetSourcePackage)
     {
         msBuildSettings.WithProperty("SymbolPackageFormat", "snupkg");
     }
@@ -130,8 +130,8 @@ BuildParameters.Tasks.DotNetCorePackTask = Task("DotNetCorePack")
         Configuration = BuildParameters.Configuration,
         OutputDirectory = BuildParameters.Paths.Directories.NuGetPackages,
         MSBuildSettings = msBuildSettings,
-        IncludeSource = BuildParameters.ShouldBuildNugetSourcePackage,
-        IncludeSymbols = BuildParameters.ShouldBuildNugetSourcePackage,
+        IncludeSource = BuildParameters.ShouldBuildNuGetSourcePackage,
+        IncludeSymbols = BuildParameters.ShouldBuildNuGetSourcePackage,
     };
 
     foreach (var project in projects)
@@ -141,6 +141,7 @@ BuildParameters.Tasks.DotNetCorePackTask = Task("DotNetCorePack")
 });
 
 BuildParameters.Tasks.PublishPreReleasePackagesTask = Task("Publish-PreRelease-Packages")
+    .WithCriteria(() => BuildParameters.ShouldPublishPreReleasePackages, "Skipping because publishing of pre-release packages is not enabled")
     .WithCriteria(() => !BuildParameters.IsLocalBuild || BuildParameters.ForceContinuousIntegration, "Skipping because this is a local build, and force isn't being applied")
     .WithCriteria(() => !BuildParameters.IsPullRequest, "Skipping because current build is from a Pull Request")
     .WithCriteria(() => !BuildParameters.IsTagged, "Skipping because current commit is tagged")
@@ -162,6 +163,7 @@ BuildParameters.Tasks.PublishPreReleasePackagesTask = Task("Publish-PreRelease-P
 });
 
 BuildParameters.Tasks.PublishReleasePackagesTask = Task("Publish-Release-Packages")
+    .WithCriteria(() => BuildParameters.ShouldPublishReleasePackages, "Skipping because publishing of release packages is not enabled")
     .WithCriteria(() => !BuildParameters.IsLocalBuild || BuildParameters.ForceContinuousIntegration, "Skipping because this is a local build, and force isn't being applied")
     .WithCriteria(() => !BuildParameters.IsPullRequest, "Skipping because current build is from a Pull Request")
     .WithCriteria(() => BuildParameters.IsTagged, "Skipping because current commit is not tagged")

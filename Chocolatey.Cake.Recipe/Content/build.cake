@@ -19,7 +19,7 @@ Setup<BuildData>(context =>
         context.Log.Verbosity = Verbosity.Diagnostic;
     }
 
-    RequireTool(BuildParameters.IsDotNetCoreBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.GitVersionGlobalTool : ToolSettings.GitVersionTool, () => {
+    RequireTool(BuildParameters.IsDotNetBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.GitVersionGlobalTool : ToolSettings.GitVersionTool, () => {
         BuildParameters.SetBuildVersion(
             BuildVersion.CalculatingSemanticVersion(
                 context: Context,
@@ -74,7 +74,7 @@ BuildParameters.Tasks.RestoreTask = Task("Restore")
         });
 });
 
-BuildParameters.Tasks.DotNetCoreRestoreTask = Task("DotNetCoreRestore")
+BuildParameters.Tasks.DotNetRestoreTask = Task("DotNetRestore")
     .IsDependentOn("Clean")
     .Does(() =>
 {
@@ -156,9 +156,9 @@ BuildParameters.Tasks.BuildTask = Task("Build")
         CopyBuildOutput();
     }));
 
-BuildParameters.Tasks.DotNetCoreBuildTask = Task("DotNetCoreBuild")
+BuildParameters.Tasks.DotNetBuildTask = Task("DotNetBuild")
     .IsDependentOn("Clean")
-    .IsDependentOn("DotNetCoreRestore")
+    .IsDependentOn("DotNetRestore")
     .Does(() => {
         Information("Building {0}", BuildParameters.SolutionFilePath);
 
@@ -226,7 +226,7 @@ public void CopyBuildOutput()
         Information("AssemblyName: {0}", parsedProject.AssemblyName);
         Information("IsLibrary: {0}", parsedProject.IsLibrary());
 
-        if (BuildParameters.IsDotNetCoreBuild)
+        if (BuildParameters.IsDotNetBuild)
         {
             Information("IsGlobalTool: {0}", parsedProject.IsGlobalTool());
         }
@@ -304,7 +304,7 @@ public void CopyBuildOutput()
 
                 foreach (var targetFramework in parsedProject.NetCore.TargetFrameworks)
                 {
-                    Information("Running DotNetCorePublish for {0}...", project.Path.FullPath);
+                    Information("Running dotnet publish for {0}...", project.Path.FullPath);
 
                     DotNetCorePublish(project.Path.FullPath, new DotNetCorePublishSettings {
                         OutputDirectory = outputFolder.Combine(targetFramework),
@@ -366,7 +366,7 @@ public void CopyBuildOutput()
 
                 foreach (var targetFramework in parsedProject.NetCore.TargetFrameworks)
                 {
-                    Information("Running DotNetCorePublish for {0}...", project.Path.FullPath);
+                    Information("Running dotnet publish for {0}...", project.Path.FullPath);
 
                     DotNetCorePublish(project.Path.FullPath, new DotNetCorePublishSettings {
                         OutputDirectory = outputFolder.Combine(targetFramework),
@@ -421,23 +421,7 @@ BuildParameters.Tasks.DefaultTask = Task("Default")
     .IsDependentOn("Package");
 
 
-BuildParameters.Tasks.UploadArtifactsTask = Task("Upload-Artifacts")
-    .IsDependentOn("Package")
-    .WithCriteria(() => !BuildParameters.IsLocalBuild || BuildParameters.ForceContinuousIntegration, "Skipping because this is a local build, and force isn't being applied")
-    .WithCriteria(() => DirectoryExists(BuildParameters.Paths.Directories.NuGetPackages) || DirectoryExists(BuildParameters.Paths.Directories.ChocolateyPackages), "Skipping because no packages to upload")
-    .Does(() =>
-{
-    // Concatenating FilePathCollections should make sure we get unique FilePaths
-    foreach (var package in GetFiles(BuildParameters.Paths.Directories.Packages + "/*") +
-                           GetFiles(BuildParameters.Paths.Directories.NuGetPackages + "/*") +
-                           GetFiles(BuildParameters.Paths.Directories.ChocolateyPackages + "/*"))
-    {
-        BuildParameters.BuildProvider.UploadArtifact(package);
-    }
-});
-
 BuildParameters.Tasks.ContinuousIntegrationTask = Task("CI")
-    .IsDependentOn("Upload-Artifacts")
     .IsDependentOn("Publish-PreRelease-Packages")
     .IsDependentOn("Publish-Release-Packages")
     .IsDependentOn("Publish-GitHub-Release")
@@ -478,25 +462,25 @@ public class Builder
 
     public void Run()
     {
-        BuildParameters.IsDotNetCoreBuild = false;
+        BuildParameters.IsDotNetBuild = false;
 
-        SetupTasks(BuildParameters.IsDotNetCoreBuild);
-
-        _action(BuildParameters.Target);
-    }
-
-    public void RunDotNetCore()
-    {
-        BuildParameters.IsDotNetCoreBuild = true;
-
-        SetupTasks(BuildParameters.IsDotNetCoreBuild);
+        SetupTasks(BuildParameters.IsDotNetBuild);
 
         _action(BuildParameters.Target);
     }
 
-    private static void SetupTasks(bool isDotNetCoreBuild)
+    public void RunDotNet()
     {
-        var prefix = isDotNetCoreBuild ? "DotNetCore" : "";
+        BuildParameters.IsDotNetBuild = true;
+
+        SetupTasks(BuildParameters.IsDotNetBuild);
+
+        _action(BuildParameters.Target);
+    }
+
+    private static void SetupTasks(bool isDotNetBuild)
+    {
+        var prefix = isDotNetBuild ? "DotNet" : "";
 
         BuildParameters.Tasks.PackageTask.IsDependentOn("Test");
         BuildParameters.Tasks.PackageTask.IsDependentOn("Analyze");
@@ -521,9 +505,9 @@ public class Builder
         BuildParameters.Tasks.ConfigurationBuilderTask.IsDependentOn(prefix + "Build");
         BuildParameters.Tasks.TestTask.IsDependentOn(prefix + "Build");
 
-        if (!isDotNetCoreBuild)
+        if (!isDotNetBuild)
         {
-            if (BuildParameters.TransifexEnabled)
+            if (BuildParameters.ShouldRunTransifex)
             {
                 BuildParameters.Tasks.BuildTask.IsDependentOn("Transifex-Pull-Translations");
             }
@@ -541,9 +525,9 @@ public class Builder
         }
         else
         {
-            if (BuildParameters.TransifexEnabled)
+            if (BuildParameters.ShouldRunTransifex)
             {
-                BuildParameters.Tasks.DotNetCoreBuildTask.IsDependentOn("Transifex-Pull-Translations");
+                BuildParameters.Tasks.DotNetBuildTask.IsDependentOn("Transifex-Pull-Translations");
             }
 
             BuildParameters.Tasks.PackageTask.IsDependentOn(prefix + "Pack");

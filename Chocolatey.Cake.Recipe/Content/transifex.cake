@@ -20,7 +20,7 @@ public static bool TransifexIsConfiguredForRepository(ICakeContext context)
 // Because we expect the repository to already be configured to use
 // transifex, we cannot run tx init, or it would replace the repository configuration file.
 BuildParameters.Tasks.TransifexSetupTask = Task("Transifex-Setup")
-    .WithCriteria(() => BuildParameters.TransifexEnabled, "Skipping because Transifex is not enabled")
+    .WithCriteria(() => BuildParameters.ShouldRunTransifex, "Skipping because Transifex is not enabled")
     .WithCriteria(() => !TransifexUserSettingsExists(Context), "Skipping because Transifex user settings already exist")
     .WithCriteria(() => BuildParameters.Transifex.HasCredentials, "Skipping because the Transifex credentials are missing")
     .Does(() =>
@@ -32,7 +32,7 @@ BuildParameters.Tasks.TransifexSetupTask = Task("Transifex-Setup")
     });
 
 BuildParameters.Tasks.TransifexPushSourceResourceTask = Task("Transifex-Push-SourceFiles")
-    .WithCriteria(() => BuildParameters.TransifexEnabled, "Skipping because Transifex is not enabled")
+    .WithCriteria(() => BuildParameters.ShouldRunTransifex, "Skipping because Transifex is not enabled")
     .WithCriteria(() => BuildParameters.Transifex.HasCredentials, "Skipping because the Transifex credentials are missing")
     .WithCriteria(() => !BuildParameters.IsPullRequest, "Skipping because current build is from a Pull Request")
     .WithCriteria(() => !BuildParameters.IsLocalBuild || string.Equals(BuildParameters.Target, "Transifex-Push-Translations", StringComparison.OrdinalIgnoreCase), "Skipping because this is a local build, and target name is not Transifex-Push-Translations")
@@ -46,7 +46,7 @@ BuildParameters.Tasks.TransifexPushSourceResourceTask = Task("Transifex-Push-Sou
     });
 
 BuildParameters.Tasks.TransifexPullTranslationsTask = Task("Transifex-Pull-Translations")
-        .WithCriteria(() => BuildParameters.TransifexEnabled, "Skipping because Transifex is not enabled")
+        .WithCriteria(() => BuildParameters.ShouldRunTransifex, "Skipping because Transifex is not enabled")
     .WithCriteria(() => BuildParameters.Transifex.HasCredentials, "Skipping because the Transifex credentials are missing")
     .WithCriteria(() => !BuildParameters.IsPullRequest, "Skipping because current build is from a Pull Request")
     .WithCriteria(() => !BuildParameters.IsLocalBuild || string.Equals(BuildParameters.Target, "Transifex-Pull-Translations", StringComparison.OrdinalIgnoreCase), "Skipping because this is a local build, and target name is not Transifex-Pull-Translations")

@@ -20,6 +20,23 @@ public class BuildVersion
 
         string cakeVersion = typeof(ICakeContext).Assembly.GetName().Version.ToString();
 
+        if (!BuildParameters.ShouldRunGitVersion)
+        {
+            context.Information("Running GitVersion is not enabled, so returning default values...");
+
+            return new BuildVersion
+            {
+                MajorMinorPatch = "0.1.0",
+                SemVersion = "0.1.0-alpha.0",
+                Milestone = "0.1.0",
+                CakeVersion = cakeVersion,
+                FileVersion = "0.1.0.0",
+                PackageVersion = "0.1.0-alpha-20220317-13",
+                InformationalVersion = "0.1.0-alpha.0+Branch.develop.Sha.528f9bf572a52f0660cbe3f4d109599eab1e9866",
+                FullSemVersion = "0.1.0-alpha.0",
+            };
+        }
+
         try
         {
             context.Information("Testing to see if valid git repository...");
