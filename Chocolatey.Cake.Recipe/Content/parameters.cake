@@ -116,7 +116,7 @@ public static class BuildParameters
         Tasks = new BuildTasks();
     }
 
-    public static bool CanUseGitReleaseManager
+    public static bool CanRunGitReleaseManager
     {
         get
         {

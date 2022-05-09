@@ -4,7 +4,7 @@
 
 BuildParameters.Tasks.CreateReleaseNotesTask = Task("Create-Release-Notes")
     .Does(() => RequireTool(BuildParameters.IsDotNetBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.GitReleaseManagerGlobalTool : ToolSettings.GitReleaseManagerTool, () => {
-        if (BuildParameters.CanUseGitReleaseManager)
+        if (BuildParameters.CanRunGitReleaseManager)
         {
             var settings = new GitReleaseManagerCreateSettings
             {
@@ -34,7 +34,7 @@ BuildParameters.Tasks.ExportReleaseNotesTask = Task("Export-Release-Notes")
     .WithCriteria(() => BuildParameters.BranchType == BranchType.Master || BuildParameters.BranchType == BranchType.Release || BuildParameters.BranchType == BranchType.HotFix || BuildParameters.PrepareLocalRelease, "Skipping because this is not a releasable branch, and is not preparing local release")
     .WithCriteria(() => BuildParameters.IsTagged || BuildParameters.PrepareLocalRelease, "Skipping because this is not a tagged build, and is not preparing local release")
     .Does(() => RequireTool(BuildParameters.IsDotNetBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.GitReleaseManagerGlobalTool : ToolSettings.GitReleaseManagerTool, () => {
-        if (BuildParameters.CanUseGitReleaseManager)
+        if (BuildParameters.CanRunGitReleaseManager)
         {
             if (BuildParameters.ShouldDownloadMilestoneReleaseNotes)
             {
@@ -66,7 +66,7 @@ BuildParameters.Tasks.PublishGitHubReleaseTask = Task("Publish-GitHub-Release")
     .WithCriteria(() => BuildParameters.IsTagged, "Skipping because this is not a tagged build")
     .WithCriteria(() => BuildParameters.ShouldRunGitReleaseManager, "Skipping because this publishing running GitReleaseManager is disabled via parameters (perhaps the default value?")
     .Does(() => RequireTool(BuildParameters.IsDotNetBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.GitReleaseManagerGlobalTool : ToolSettings.GitReleaseManagerTool, () => {
-        if (BuildParameters.CanUseGitReleaseManager)
+        if (BuildParameters.CanRunGitReleaseManager)
         {
             // Concatenating FilePathCollections should make sure we get unique FilePaths
             foreach (var package in GetFiles(BuildParameters.Paths.Directories.Packages + "/*") +
@@ -93,7 +93,7 @@ BuildParameters.Tasks.PublishGitHubReleaseTask = Task("Publish-GitHub-Release")
 
 BuildParameters.Tasks.CreateDefaultLabelsTask = Task("Create-Default-Labels")
     .Does(() => RequireTool(BuildParameters.IsDotNetBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.GitReleaseManagerGlobalTool : ToolSettings.GitReleaseManagerTool, () => {
-        if (BuildParameters.CanUseGitReleaseManager)
+        if (BuildParameters.CanRunGitReleaseManager)
         {
             GitReleaseManagerLabel(BuildParameters.GitHub.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName);
         }
