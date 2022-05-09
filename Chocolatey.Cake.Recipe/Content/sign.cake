@@ -33,7 +33,7 @@ BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
         {
             var password = System.IO.File.ReadAllText(BuildParameters.CertificatePassword);
 
-            Information("Signing '{0}' with {1}", string.Join(",", BuildParameters.GetScriptsToSign()), BuildParameters.CertificateFilePath);
+            Information("Signing above scripts with {0}", BuildParameters.CertificateFilePath);
 
             StartPowershellFile(MakeAbsolute(powerShellSigningScript), args =>
                 {
