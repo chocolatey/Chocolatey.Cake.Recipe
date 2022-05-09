@@ -15,7 +15,6 @@ public class BuildTasks
     public CakeTaskBuilder DotNetCoreBuildTask { get; set; }
     public CakeTaskBuilder PackageTask { get; set; }
     public CakeTaskBuilder DefaultTask { get; set; }
-    public CakeTaskBuilder UploadArtifactsTask { get; set; }
     public CakeTaskBuilder ContinuousIntegrationTask { get; set; }
     public CakeTaskBuilder BuildMsiTask { get; set; }
 

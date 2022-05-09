@@ -421,23 +421,7 @@ BuildParameters.Tasks.DefaultTask = Task("Default")
     .IsDependentOn("Package");
 
 
-BuildParameters.Tasks.UploadArtifactsTask = Task("Upload-Artifacts")
-    .IsDependentOn("Package")
-    .WithCriteria(() => !BuildParameters.IsLocalBuild || BuildParameters.ForceContinuousIntegration, "Skipping because this is a local build, and force isn't being applied")
-    .WithCriteria(() => DirectoryExists(BuildParameters.Paths.Directories.NuGetPackages) || DirectoryExists(BuildParameters.Paths.Directories.ChocolateyPackages), "Skipping because no packages to upload")
-    .Does(() =>
-{
-    // Concatenating FilePathCollections should make sure we get unique FilePaths
-    foreach (var package in GetFiles(BuildParameters.Paths.Directories.Packages + "/*") +
-                           GetFiles(BuildParameters.Paths.Directories.NuGetPackages + "/*") +
-                           GetFiles(BuildParameters.Paths.Directories.ChocolateyPackages + "/*"))
-    {
-        BuildParameters.BuildProvider.UploadArtifact(package);
-    }
-});
-
 BuildParameters.Tasks.ContinuousIntegrationTask = Task("CI")
-    .IsDependentOn("Upload-Artifacts")
     .IsDependentOn("Publish-PreRelease-Packages")
     .IsDependentOn("Publish-Release-Packages")
     .IsDependentOn("Publish-GitHub-Release")
