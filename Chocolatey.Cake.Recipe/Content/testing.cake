@@ -23,7 +23,7 @@ BuildParameters.Tasks.TestNUnitTask = Task("Test-NUnit")
             return;
         }
 
-        if (BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows)
+        if (BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows && BuildParameters.ShouldRunOpenCover)
         {
             Information("Running OpenCover and NUnit...");
 
@@ -67,7 +67,7 @@ BuildParameters.Tasks.TestxUnitTask = Task("Test-xUnit")
             return;
         }
 
-        if (BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows)
+        if (BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows && BuildParameters.ShouldRunOpenCover)
         {
             Information("Running OpenCover and xUnit...");
 
@@ -200,7 +200,7 @@ BuildParameters.Tasks.DotNetTestTask = Task("DotNetTest")
             }
             else
             {
-                if (BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows)
+                if (BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows && BuildParameters.ShouldRunOpenCover)
                 {
                     // We can not use msbuild properties together with opencover
                     settings.ArgumentCustomization = null;

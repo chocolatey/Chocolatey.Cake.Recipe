@@ -80,6 +80,7 @@ public static class BuildParameters
     public static bool ShouldRunInspectCode { get; private set; }
     public static bool ShouldRunNuGet { get; private set; }
     public static bool ShouldRunNUnit { get; private set; }
+    public static bool ShouldRunOpenCover { get; private set; }
     public static bool ShouldRunReportGenerator { get; private set; }
     public static bool ShouldRunReportUnit { get; private set; }
     public static bool ShouldRunTransifex { get; set; }
@@ -197,6 +198,7 @@ public static class BuildParameters
         context.Information("ShouldRunInspectCode: {0}", BuildParameters.ShouldRunInspectCode);
         context.Information("ShouldRunNuGet: {0}", BuildParameters.ShouldRunNuGet);
         context.Information("ShouldRunNUnit: {0}", BuildParameters.ShouldRunNUnit);
+        context.Information("ShouldRunOpenCover: {0}", BuildParameters.ShouldRunOpenCover);
         context.Information("ShouldRunReportGenerator: {0}", BuildParameters.ShouldRunReportGenerator);
         context.Information("ShouldRunReportUnit: {0}", BuildParameters.ShouldRunReportUnit);
         context.Information("ShouldRunTransifex: {0}", BuildParameters.ShouldRunTransifex);
@@ -265,6 +267,7 @@ public static class BuildParameters
         bool shouldRunInspectCode = true,
         bool shouldRunNuGet = true,
         bool shouldRunNUnit = true,
+        bool shouldRunOpenCover = true,
         bool shouldRunReportGenerator = true,
         bool shouldRunReportUnit = true,
         bool? shouldRunTransifex = null,
@@ -362,6 +365,7 @@ public static class BuildParameters
         ShouldRunInspectCode = shouldRunInspectCode;
         ShouldRunNuGet = shouldRunNuGet;
         ShouldRunNUnit = shouldRunNUnit;
+        ShouldRunOpenCover = shouldRunOpenCover;
         ShouldRunReportGenerator = shouldRunReportGenerator;
         ShouldRunReportUnit = shouldRunReportUnit;
         ShouldRunTransifex = shouldRunTransifex ?? TransifexIsConfiguredForRepository(context);
