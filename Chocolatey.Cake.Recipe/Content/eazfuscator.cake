@@ -4,41 +4,57 @@ BuildParameters.Tasks.ObfuscateAssembliesTask = Task("Obfuscate-Assemblies")
 {
     if (BuildParameters.GetFilesToObfuscate != null)
     {
-        foreach (var file in BuildParameters.GetFilesToObfuscate())
+        var settings = new EazfuscatorNetSettings();
+
+        if (BuildParameters.ShouldStrongNameOutputAssemblies)
         {
-            var fileName = file.GetFilenameWithoutExtension();
-            var msbuildPathFilePath = new FilePath(string.Format("{0}/{1}/{1}.csproj", BuildParameters.SourceDirectoryPath.FullPath, fileName));
+            settings.KeyFile = BuildParameters.StrongNameKeyPath;
+        }
 
-            var settings = new EazfuscatorNetSettings();
+        var eazfuscatorToolLocation = Context.Tools.Resolve("Eazfuscator.NET.exe");
 
-            if (BuildParameters.ShouldStrongNameOutputAssemblies)
+        if (eazfuscatorToolLocation == null)
+        {
+            Warning("Couldn't resolve EazFuscator.NET.Exe tool, so using value from ToolSettings: {0}", ToolSettings.EazfuscatorToolLocation);
+            Context.Tools.RegisterFile(ToolSettings.EazfuscatorToolLocation);
+        }
+        else
+        {
+            Information("Using EazFuscator from: {0}", eazfuscatorToolLocation);
+        }
+
+        if (Context.Log.Verbosity == Verbosity.Verbose || Context.Log.Verbosity == Verbosity.Diagnostic)
+        {
+            settings.Statistics = true;
+        }
+
+        if (BuildParameters.IsDotNetBuild)
+        {
+            // Then run Eazfuscator once per file, since there is no ILMerge happening
+            Information("Running EazFuscator once for each file...");
+
+            foreach (var file in BuildParameters.GetFilesToObfuscate())
             {
-                settings.KeyFile = BuildParameters.StrongNameKeyPath;
-            }
+                var fileName = file.GetFilenameWithoutExtension();
+                var msbuildPathFilePath = new FilePath(string.Format("{0}/{1}/{1}.csproj", BuildParameters.SourceDirectoryPath.FullPath, fileName));
 
-            var eazfuscatorToolLocation = Context.Tools.Resolve("Eazfuscator.NET.exe");
+                if (FileExists(msbuildPathFilePath))
+                {
+                    settings.MSBuildProjectPath = msbuildPathFilePath;
+                }
 
-            if (eazfuscatorToolLocation == null)
-            {
-                Warning("Couldn't resolve EazFuscator.NET.Exe tool, so using value from ToolSettings: {0}", ToolSettings.EazfuscatorToolLocation);
-                Context.Tools.RegisterFile(ToolSettings.EazfuscatorToolLocation);
+                EazfuscatorNet(file, settings);
             }
-            else
-            {
-                Information("Using EazFuscator from: {0}", eazfuscatorToolLocation);
-            }
+        }
+        else
+        {
+            // Then run Eazfuscator once, for all files
+            // This is due to the fact we are ILmerge'ing at teh same time, and all assets need
+            // to be obfuscated, prior to teh merge happening.  We could try and do this ourselves
+            // however, Eazfuscator already knows how to do it, so let it take care of it.
+            Information("Running EazFuscator once for all files...");
 
-            if (FileExists(msbuildPathFilePath))
-            {
-                settings.MSBuildProjectPath = msbuildPathFilePath;
-            }
-
-            if (Context.Log.Verbosity == Verbosity.Verbose || Context.Log.Verbosity == Verbosity.Diagnostic)
-            {
-                settings.Statistics = true;
-            }
-
-            EazfuscatorNet(file, settings);
+            EazfuscatorNet(BuildParameters.GetFilesToObfuscate(), settings);
         }
     }
     else
