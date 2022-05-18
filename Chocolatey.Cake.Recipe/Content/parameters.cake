@@ -91,7 +91,6 @@ public static class BuildParameters
     public static string StrongNameDependentAssembliesInputPath { get; private set; }
     public static string AssemblyNamesRegexPattern { get; private set; }
     public static bool UseChocolateyGuiStrongNameKey { get; private set; }
-    public static FilePath NuGetConfig { get; private set; }
     public static ICollection<string> NuGetSources { get; private set; }
     public static DirectoryPath RestorePackagesDirectory { get; private set; }
     public static Func<FilePathCollection> GetFilesToObfuscate { get; private set; }
@@ -162,7 +161,6 @@ public static class BuildParameters
         context.Information("BuildAgentOperatingSystem: {0}", BuildAgentOperatingSystem);
         context.Information("RepositoryOwner: {0}", RepositoryOwner);
         context.Information("RepositoryName: {0}", RepositoryName);
-        context.Information("NuGetConfig: {0} ({1})", NuGetConfig, context.FileExists(NuGetConfig));
         context.Information("Build Counter: {0}", BuildCounter);
         context.Information("Test Execution Type: {0}", TestExecutionType);
         context.Information("RestorePackagesDirectory: {0}", RestorePackagesDirectory);
@@ -278,7 +276,6 @@ public static class BuildParameters
         bool useChocolateyGuiStrongNameKey = false,
         string strongNameDependentAssembliesInputPath = null,
         string assemblyNamesRegexPattern = null,
-        FilePath nugetConfig = null,
         ICollection<string> nuGetSources = null,
         bool treatWarningsAsErrors = true,
         DirectoryPath restorePackagesDirectory = null,
@@ -379,7 +376,6 @@ public static class BuildParameters
         AssemblyNamesRegexPattern = assemblyNamesRegexPattern ?? "chocolatey.lib|chocolatey-licensed.lib|ChocolateyGui.Common|ChocolateyGui.Common.Windows";
         UseChocolateyGuiStrongNameKey = useChocolateyGuiStrongNameKey;
 
-        NuGetConfig = context.MakeAbsolute(nugetConfig ?? (FilePath)"./NuGet.Config");
         NuGetSources = nuGetSources;
         RestorePackagesDirectory = restorePackagesDirectory;
         GetFilesToObfuscate = getFilesToObfuscate;
@@ -402,47 +398,35 @@ public static class BuildParameters
 
         if (nuGetSources == null)
         {
-            if (context.FileExists(NuGetConfig))
-            {
-                NuGetSources = (
-                                    from configuration in System.Xml.Linq.XDocument.Load(NuGetConfig.FullPath).Elements("configuration")
-                                    from packageSources in configuration.Elements("packageSources")
-                                    from add in packageSources.Elements("add")
-                                    from value in add.Attributes("value")
-                                    select value.Value
-                                ).ToArray();
+            var primaryNuGetSource = context.EnvironmentVariable("PRIMARY_NUGET_SOURCE");
 
-                context.Information("NuGet Sources configured from nuget.config file.");
+            if (!string.IsNullOrEmpty(primaryNuGetSource))
+            {
+                NuGetSources = new []{
+                    primaryNuGetSource
+                };
+
+                context.Information("NuGet Sources configured using primary NuGet Source.");
             }
             else
             {
-                var primaryNuGetSource = context.EnvironmentVariable("PRIMARY_NUGET_SOURCE");
+                var nuGetDevRestoreNuGetSource = context.EnvironmentVariable("NUGETDEVRESTORE_SOURCE");
 
-                if (!string.IsNullOrEmpty(primaryNuGetSource))
+                var devNuGetSources = new List<string>
                 {
-                    NuGetSources = new []{
-                        primaryNuGetSource
-                    };
+                    "https://www.nuget.org/api/v2/",
+                    "https://api.nuget.org/v3/index.json"
+                };
 
-                    context.Information("NuGet Sources configured using primary NuGet Source.");
-                }
-                else
+                if (!string.IsNullOrEmpty(nuGetDevRestoreNuGetSource))
                 {
-                    var devNuGetSources = new List<string>
-                    {
-                        "https://www.nuget.org/api/v2/",
-                        "https://api.nuget.org/v3/index.json"
-                    };
-
-                    if (context.HasEnvironmentVariable("NUGETDEVRESTORE_SOURCE"))
-                    {
-                        devNuGetSources.Add(context.EnvironmentVariable("NUGETDEVRESTORE_SOURCE"));
-                    }
-
-                    NuGetSources = devNuGetSources;
-
-                    context.Information("NuGet Sources configured using default values.");
+                    context.Information("Adding source to default values: {0}", nuGetDevRestoreNuGetSource);
+                    devNuGetSources.Add(nuGetDevRestoreNuGetSource);
                 }
+
+                NuGetSources = devNuGetSources;
+
+                context.Information("NuGet Sources configured using default values.");
             }
         }
 
