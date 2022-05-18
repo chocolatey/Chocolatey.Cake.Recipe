@@ -9,56 +9,61 @@ public enum BranchType
 
 public static class BuildParameters
 {
+    public static List<string> AllowedAssemblyNames { get; private set; }
+    public static string AssemblyNamesRegexPattern { get; private set; }
+    public static BranchType BranchType { get; private set; }
+    public static PlatformFamily BuildAgentOperatingSystem { get; private set; }
+    public static string BuildCounter { get; private set; }
+    public static IBuildProvider BuildProvider { get; private set; }
+    public static Cake.Core.Configuration.ICakeConfiguration CakeConfiguration { get; private set; }
+    public static bool CanRunGitReleaseManager { get { return !string.IsNullOrEmpty(BuildParameters.GitHub.Token); } }
+    public static string CertificateAlgorithm { get; private set; }
     public static string CertificateFilePath { get; private set; }
     public static string CertificatePassword { get; private set; }
-    public static string CertificateTimestampUrl { get; private set; }
-    public static string CertificateAlgorithm { get; private set; }
     public static string CertificateSubjectName { get; private set; }
-    public static string StrongNameKeyPath { get; private set; }
-    public static string PreReleaseLabelFilePath { get; private set; }
-    public static string Target { get; private set; }
-    public static string BuildCounter { get; private set; }
-    public static string TestExecutionType { get; private set; }
+    public static string CertificateTimestampUrl { get; private set; }
     public static string Configuration { get; private set; }
     public static string DeploymentEnvironment { get; private set;}
-    public static Cake.Core.Configuration.ICakeConfiguration CakeConfiguration { get; private set; }
+    public static string DevelopBranchName { get; private set; }
+    public static bool ForceContinuousIntegration { get; private set; }
+    public static FilePath FullReleaseNotesFilePath { get; private set; }
+    public static Func<FilePathCollection> GetFilesToObfuscate { get; private set; }
+    public static Func<FilePathCollection> GetFilesToSign { get; private set; }
+    public static Func<List<ILMergeConfig>> GetILMergeConfigs { get; private set; }
+    public static Func<FilePathCollection> GetMsisToSign { get; private set; }
+    public static Func<FilePathCollection> GetProjectsToPack { get; private set; }
+    public static Func<FilePathCollection> GetScriptsToSign { get; private set; }
+    public static GitHubCredentials GitHub { get; private set; }
+    public static FilePath IntegrationTestScriptPath { get; private set; }
+    public static bool IsDotNetBuild { get; set; }
     public static bool IsLocalBuild { get; private set; }
+    public static bool IsPullRequest { get; private set; }
+    public static bool IsRepositoryHostedOnGitHub { get; private set; }
     public static bool IsRunningOnGitHubActions { get; private set; }
     public static bool IsRunningOnTeamCity { get; private set; }
-    public static bool IsRepositoryHostedOnGitHub { get; private set; }
-    public static PlatformFamily BuildAgentOperatingSystem { get; private set; }
-    public static bool IsPullRequest { get; private set; }
-    public static string MasterBranchName { get; private set; }
-    public static string DevelopBranchName { get; private set; }
-    public static bool PrepareLocalRelease { get; set; }
-    public static BranchType BranchType { get; private set; }
     public static bool IsTagged { get; private set; }
-    public static bool IsDotNetBuild { get; set; }
-    public static bool TreatWarningsAsErrors { get; set; }
-    public static BuildVersion Version { get; private set; }
+    public static string MasterBranchName { get; private set; }
+    public static FilePath MilestoneReleaseNotesFilePath { get; private set; }
+    public static ICollection<string> NuGetSources { get; private set; }
+    public static bool ObfuscateAssembly { get; private set; }
+    public static List<PackageSourceData> PackageSources { get; private set; }
     public static BuildPaths Paths { get; private set; }
-    public static BuildTasks Tasks { get; set; }
-    public static DirectoryPath RootDirectoryPath { get; private set; }
-    public static FilePath SolutionFilePath { get; private set; }
-    public static DirectoryPath SourceDirectoryPath { get; private set; }
-    public static DirectoryPath SolutionDirectoryPath { get; private set; }
-    public static DirectoryPath TestDirectoryPath { get; private set; }
-    public static FilePath IntegrationTestScriptPath { get; private set; }
-    public static string TestAssemblyFilePattern { get; private set; }
-    public static string TestAssemblyProjectPattern { get; private set; }
-    public static string Title { get; private set; }
-    public static string ResharperSettingsFileName { get; private set; }
-    public static string RepositoryOwner { get; private set; }
-    public static string RepositoryName { get; private set; }
-    public static string ProductName { get; private set; }
-    public static string ProductDescription { get; private set; }
-    public static string ProductCopyright { get; private set; }
-    public static bool ProductComVisible { get; private set; }
+    public static bool PreferDotNetGlobalToolUsage { get; private set; }
+    public static string PreReleaseLabelFilePath { get; private set; }
+    public static bool PrepareLocalRelease { get; set; }
     public static bool ProductClsCompliant { get; private set; }
     public static string ProductCompany { get; private set; }
-    public static string ProductTrademark { get; private set; }
+    public static bool ProductComVisible { get; private set; }
+    public static string ProductCopyright { get; private set; }
     public static ICollection<AssemblyInfoCustomAttribute> ProductCustomAttributes { get; private set; }
-    public static bool ObfuscateAssembly { get; private set; }
+    public static string ProductDescription { get; private set; }
+    public static string ProductName { get; private set; }
+    public static string ProductTrademark { get; private set; }
+    public static string RepositoryName { get; private set; }
+    public static string RepositoryOwner { get; private set; }
+    public static string ResharperSettingsFileName { get; private set; }
+    public static DirectoryPath RestorePackagesDirectory { get; private set; }
+    public static DirectoryPath RootDirectoryPath { get; private set; }
     public static bool ShouldAuthenticodeSignMsis { get; private set; }
     public static bool ShouldAuthenticodeSignOutputAssemblies { get; private set; }
     public static bool ShouldAuthenticodeSignPowerShellScripts { get; private set; }
@@ -88,40 +93,28 @@ public static class BuildParameters
     public static bool ShouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken { get; private set; }
     public static bool ShouldStrongNameOutputAssemblies { get; private set; }
     public static bool ShouldStrongNameSignDependentAssemblies { get; private set; }
+    public static DirectoryPath SolutionDirectoryPath { get; private set; }
+    public static FilePath SolutionFilePath { get; private set; }
+    public static DirectoryPath SourceDirectoryPath { get; private set; }
     public static string StrongNameDependentAssembliesInputPath { get; private set; }
-    public static string AssemblyNamesRegexPattern { get; private set; }
-    public static bool UseChocolateyGuiStrongNameKey { get; private set; }
-    public static ICollection<string> NuGetSources { get; private set; }
-    public static DirectoryPath RestorePackagesDirectory { get; private set; }
-    public static Func<FilePathCollection> GetFilesToObfuscate { get; private set; }
-    public static Func<List<ILMergeConfig>> GetILMergeConfigs { get; private set; }
-    public static Func<FilePathCollection> GetFilesToSign { get; private set; }
-    public static Func<FilePathCollection> GetMsisToSign { get; private set; }
-    public static Func<FilePathCollection> GetScriptsToSign { get; private set; }
-    public static Func<FilePathCollection> GetProjectsToPack { get; private set; }
-    public static List<PackageSourceData> PackageSources { get; private set; }
-    public static bool ForceContinuousIntegration { get; private set; }
-    public static List<string> AllowedAssemblyNames { get; private set; }
-    public static IBuildProvider BuildProvider { get; private set; }
-    public static FilePath MilestoneReleaseNotesFilePath { get; private set; }
-    public static FilePath FullReleaseNotesFilePath { get; private set; }
-    public static GitHubCredentials GitHub { get; private set; }
+    public static string StrongNameKeyPath { get; private set; }
+    public static string Target { get; private set; }
+    public static BuildTasks Tasks { get; set; }
+    public static string TestAssemblyFilePattern { get; private set; }
+    public static string TestAssemblyProjectPattern { get; private set; }
+    public static DirectoryPath TestDirectoryPath { get; private set; }
+    public static string TestExecutionType { get; private set; }
+    public static string Title { get; private set; }
     public static TransifexCredentials Transifex { get; private set; }
     public static TransifexMode TransifexPullMode { get; private set; }
     public static int TransifexPullPercentage { get; private set; }
-    public static bool PreferDotNetGlobalToolUsage { get; private set; }
+    public static bool TreatWarningsAsErrors { get; set; }
+    public static bool UseChocolateyGuiStrongNameKey { get; private set; }
+    public static BuildVersion Version { get; private set; }
 
     static BuildParameters()
     {
         Tasks = new BuildTasks();
-    }
-
-    public static bool CanRunGitReleaseManager
-    {
-        get
-        {
-            return !string.IsNullOrEmpty(BuildParameters.GitHub.Token);
-        }
     }
 
     public static void SetBuildVersion(BuildVersion version)
@@ -143,38 +136,44 @@ public static class BuildParameters
 
         context.Information("Printing Build Parameters...");
         context.Information("------------------------------------------------------------------------------------------");
-        context.Information("Target: {0}", Target);
+        context.Information("AllowedAssemblyName: {0}", string.Join(", ", AllowedAssemblyNames));
+        context.Information("AssemblyNamesRegexPattern: {0}", AssemblyNamesRegexPattern);
+        context.Information("BranchType: {0}", BranchType);
+        context.Information("BranchName: {0}", BuildProvider.Repository.Branch);
+        context.Information("BuildAgentOperatingSystem: {0}", BuildAgentOperatingSystem);
+        context.Information("BuildCounter: {0}", BuildCounter);
+        context.Information("BuildDirectoryPath: {0}", context.MakeAbsolute(Paths.Directories.Build));
+        context.Information("BuildProviderRepositoryName: {0}", BuildProvider.Repository.Name);
         context.Information("Configuration: {0}", Configuration);
+        context.Information("ForceContinuousIntegration: {0}", ForceContinuousIntegration);
         context.Information("IsLocalBuild: {0}", IsLocalBuild);
         context.Information("IsPullRequest: {0}", IsPullRequest);
         context.Information("IsTagged: {0}", IsTagged);
+        context.Information("NuGetSources: {0}", string.Join(", ", NuGetSources));
+        context.Information("ObfuscateAssembly: {0}", ObfuscateAssembly);
+        context.Information("PreferDotNetGlobalToolUsage: {0}", PreferDotNetGlobalToolUsage);
         context.Information("PrepareLocalRelease: {0}", BuildParameters.PrepareLocalRelease);
-        context.Information("Repository Name: {0}", BuildProvider.Repository.Name);
-        context.Information("Branch Type: {0}", BranchType);
-        context.Information("Branch Name: {0}", BuildProvider.Repository.Branch);
-        context.Information("IsDotNetBuild: {0}", IsDotNetBuild);
-        context.Information("Solution FilePath: {0}", context.MakeAbsolute((FilePath)SolutionFilePath));
-        context.Information("Solution DirectoryPath: {0}", context.MakeAbsolute((DirectoryPath)SolutionDirectoryPath));
-        context.Information("Source DirectoryPath: {0}", context.MakeAbsolute(SourceDirectoryPath));
-        context.Information("Build DirectoryPath: {0}", context.MakeAbsolute(Paths.Directories.Build));
-        context.Information("TreatWarningsAsErrors: {0}", TreatWarningsAsErrors);
-        context.Information("BuildAgentOperatingSystem: {0}", BuildAgentOperatingSystem);
-        context.Information("RepositoryOwner: {0}", RepositoryOwner);
-        context.Information("RepositoryName: {0}", RepositoryName);
-        context.Information("Build Counter: {0}", BuildCounter);
-        context.Information("Test Execution Type: {0}", TestExecutionType);
-        context.Information("RestorePackagesDirectory: {0}", RestorePackagesDirectory);
         context.Information("ProductName: {0}", ProductName);
         context.Information("ProductDescription: {0}", ProductDescription);
         context.Information("ProductCopyright: {0}", ProductCopyright);
         context.Information("ProductComVisible: {0}", ProductComVisible);
         context.Information("ProductClsCompliant: {0}", ProductClsCompliant);
         context.Information("ProductCompany: {0}", ProductCompany);
+
+        if (ProductCustomAttributes != null)
+        {
+            context.Information("ProductCustomAttributes: {0}", string.Join(", ", ProductCustomAttributes));
+        }
+        else
+        {
+            context.Information("ProductCustomAttributes: No Product Custom Attributes being used");
+        }
+
         context.Information("ProductTrademark: {0}", ProductTrademark);
-        context.Information("ObfuscateAssembly: {0}", ObfuscateAssembly);
-        context.Information("ForceContinuousIntegration: {0}", ForceContinuousIntegration);
-        context.Information("NuGetSources: {0}", string.Join(", ", NuGetSources));
-        context.Information("StrongNameDependentAssembliesInputPath: {0}", StrongNameDependentAssembliesInputPath);
+
+        context.Information("RepositoryName: {0}", RepositoryName);
+        context.Information("RepositoryOwner: {0}", RepositoryOwner);
+        context.Information("RestorePackagesDirectory: {0}", RestorePackagesDirectory);
         context.Information("ShouldAuthenticodeSignMsis: {0}", BuildParameters.ShouldAuthenticodeSignMsis);
         context.Information("ShouldAuthenticodeSignOutputAssemblies: {0}", BuildParameters.ShouldAuthenticodeSignOutputAssemblies);
         context.Information("ShouldAuthenticodeSignPowerShellScripts: {0}", BuildParameters.ShouldAuthenticodeSignPowerShellScripts);
@@ -204,12 +203,14 @@ public static class BuildParameters
         context.Information("ShouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken: {0}", BuildParameters.ShouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken);
         context.Information("ShouldStrongNameOutputAssemblies: {0}", BuildParameters.ShouldStrongNameOutputAssemblies);
         context.Information("ShouldStrongNameSignDependentAssemblies: {0}", BuildParameters.ShouldStrongNameSignDependentAssemblies);
-        context.Information("AssemblyNamesRegexPattern: {0}", AssemblyNamesRegexPattern);
+        context.Information("SolutionFilePath: {0}", context.MakeAbsolute((FilePath)SolutionFilePath));
+        context.Information("SolutionDirectoryPath: {0}", context.MakeAbsolute((DirectoryPath)SolutionDirectoryPath));
+        context.Information("SourceDirectoryPath: {0}", context.MakeAbsolute(SourceDirectoryPath));
+        context.Information("StrongNameDependentAssembliesInputPath: {0}", StrongNameDependentAssembliesInputPath);
+        context.Information("Target: {0}", Target);
         context.Information("TestAssemblyFilePattern: {0}", TestAssemblyFilePattern);
         context.Information("TestAssemblyProjectPattern: {0}", TestAssemblyProjectPattern);
-        context.Information("UseChocolateyGuiStrongNameKey: {0}", UseChocolateyGuiStrongNameKey);
-        context.Information("AllowedAssemblyName: {0}", string.Join(", ", AllowedAssemblyNames));
-        context.Information("PreferDotNetGlobalToolUsage: {0}", PreferDotNetGlobalToolUsage);
+        context.Information("TestExecutionType: {0}", TestExecutionType);
 
         if (ShouldRunTransifex)
         {
@@ -217,14 +218,8 @@ public static class BuildParameters
             context.Information("TransifexPullPercentage: {0}", TransifexPullPercentage);
         }
 
-        if (ProductCustomAttributes != null)
-        {
-            context.Information("ProductCustomAttributes: {0}", string.Join(", ", ProductCustomAttributes));
-        }
-        else
-        {
-            context.Information("No Product Custom Attributes being used");
-        }
+        context.Information("TreatWarningsAsErrors: {0}", TreatWarningsAsErrors);
+        context.Information("UseChocolateyGuiStrongNameKey: {0}", UseChocolateyGuiStrongNameKey);
 
         context.Information("------------------------------------------------------------------------------------------");
     }
@@ -234,16 +229,38 @@ public static class BuildParameters
         BuildSystem buildSystem,
         DirectoryPath sourceDirectoryPath,
         string title,
-        FilePath solutionFilePath = null,
-        DirectoryPath solutionDirectoryPath = null,
-        DirectoryPath rootDirectoryPath = null,
-        DirectoryPath testDirectoryPath = null,
-        string testAssemblyFilePattern = null,
-        string testAssemblyProjectPattern = null,
+        List<string> allowedAssemblyNames = null,
+        string assemblyNamesRegexPattern = null,
+        string certificateSubjectName = null,
+        string developBranchName = "develop",
+        FilePath fullReleaseNotesFilePath = null,
+        Func<FilePathCollection> getFilesToObfuscate = null,
+        Func<FilePathCollection> getFilesToSign = null,
+        Func<List<ILMergeConfig>> getILMergeConfigs = null,
+        Func<FilePathCollection> getMsisToSign = null,
+        Func<FilePathCollection> getProjectsToPack = null,
+        Func<FilePathCollection> getScriptsToSign = null,
         string integrationTestScriptPath = null,
-        string resharperSettingsFileName = null,
-        string repositoryOwner = null,
+        string masterBranchName = "master",
+        FilePath milestoneReleaseNotesFilePath = null,
+        ICollection<string> nuGetSources = null,
+        bool obfuscateAssembly = false,
+        List<PackageSourceData> packageSourceDatas = null,
+        bool preferDotNetGlobalToolUsage = false,
+        string preReleaseLabelFilePath = null,
+        bool productClsCompliant = false,
+        string productCompany = null,
+        bool productComVisible = false,
+        string productCopyright = null,
+        ICollection<AssemblyInfoCustomAttribute> productCustomAttributes = null,
+        string productDescription = null,
+        string productName = null,
+        string productTrademark = null,
         string repositoryName = null,
+        string repositoryOwner = null,
+        string resharperSettingsFileName = null,
+        DirectoryPath restorePackagesDirectory = null,
+        DirectoryPath rootDirectoryPath = null,
         bool shouldAuthenticodeSignMsis = true,
         bool shouldAuthenticodeSignOutputAssemblies = true,
         bool shouldAuthenticodeSignPowerShellScripts = true,
@@ -273,37 +290,16 @@ public static class BuildParameters
         bool shouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken = false,
         bool shouldStrongNameOutputAssemblies = true,
         bool shouldStrongNameSignDependentAssemblies = true,
-        bool useChocolateyGuiStrongNameKey = false,
+        DirectoryPath solutionDirectoryPath = null,
+        FilePath solutionFilePath = null,
         string strongNameDependentAssembliesInputPath = null,
-        string assemblyNamesRegexPattern = null,
-        ICollection<string> nuGetSources = null,
-        bool treatWarningsAsErrors = true,
-        DirectoryPath restorePackagesDirectory = null,
-        Func<FilePathCollection> getFilesToObfuscate = null,
-        Func<List<ILMergeConfig>> getILMergeConfigs = null,
-        Func<FilePathCollection> getFilesToSign = null,
-        Func<FilePathCollection> getMsisToSign = null,
-        Func<FilePathCollection> getScriptsToSign = null,
-        Func<FilePathCollection> getProjectsToPack = null,
-        string productName = null,
-        string productDescription = null,
-        string productCopyright = null,
-        bool productComVisible = false,
-        bool productClsCompliant = false,
-        string productCompany = null,
-        string productTrademark = null,
-        bool obfuscateAssembly = false,
-        ICollection<AssemblyInfoCustomAttribute> productCustomAttributes = null,
-        List<PackageSourceData> packageSourceDatas = null,
-        List<string> allowedAssemblyNames = null,
-        string certificateSubjectName = null,
-        string masterBranchName = "master",
-        string developBranchName = "develop",
-        FilePath milestoneReleaseNotesFilePath = null,
-        FilePath fullReleaseNotesFilePath = null,
+        string testAssemblyFilePattern = null,
+        string testAssemblyProjectPattern = null,
+        DirectoryPath testDirectoryPath = null,
         TransifexMode transifexPullMode = TransifexMode.OnlyTranslated,
         int transifexPullPercentage = 60,
-        bool preferDotNetGlobalToolUsage = false
+        bool treatWarningsAsErrors = true,
+        bool useChocolateyGuiStrongNameKey = false
         )
     {
         if (context == null)
@@ -311,36 +307,73 @@ public static class BuildParameters
             throw new ArgumentNullException("context");
         }
 
-        CertificateSubjectName = certificateSubjectName ?? "Chocolatey Software, Inc.";
+        if (buildSystem == null)
+        {
+            throw new ArgumentNullException("buildSystem");
+        }
+
+        if (sourceDirectoryPath == null)
+        {
+            throw new ArgumentNullException("sourceDirectoryPath");
+        }
+
+        if (string.IsNullOrEmpty(title))
+        {
+            throw new ArgumentNullException("title");
+        }
+
+        // These properties are used to define other values, so have to be set first, which is why
+        // they are not in alphabetical order like the others.
+        BuildProvider = GetBuildProvider(context, buildSystem);
+        RootDirectoryPath = rootDirectoryPath ?? context.MakeAbsolute(context.Environment.WorkingDirectory);
+
+        AllowedAssemblyNames = allowedAssemblyNames ?? new List<string> { "chocolatey.dll", "chocolatey.licensed.dll", "ChocolateyGui.Common.dll", "ChocolateyGui.Common.Windows.dll" };
+        AssemblyNamesRegexPattern = assemblyNamesRegexPattern ?? "chocolatey.lib|chocolatey-licensed.lib|ChocolateyGui.Common|ChocolateyGui.Common.Windows";
+        BuildAgentOperatingSystem = context.Environment.Platform.Family;
+        BuildCounter = context.Argument("buildCounter", BuildProvider.Build.Number);
+        CakeConfiguration = context.GetConfiguration();
+        CertificateAlgorithm = context.EnvironmentVariable("CERT_ALGORITHM") ?? "Sha256";
         CertificateFilePath = context.EnvironmentVariable("CHOCOLATEY_OFFICIAL_CERT") ?? "";
         CertificatePassword = context.EnvironmentVariable("CHOCOLATEY_OFFICIAL_CERT_PASSWORD") ?? "";
+        CertificateSubjectName = certificateSubjectName ?? "Chocolatey Software, Inc.";
         CertificateTimestampUrl = context.EnvironmentVariable("CERT_TIMESTAMP_URL") ?? "http://timestamp.digicert.com";
-        CertificateAlgorithm = context.EnvironmentVariable("CERT_ALGORITHM") ?? "Sha256";
-        PreReleaseLabelFilePath = ".build_pre_release_label";
-
-        BuildProvider = GetBuildProvider(context, buildSystem);
-
-        IsTagged = BuildProvider.Repository.Tag.IsTag;
+        Configuration = context.Argument("configuration", "Release");
+        DeploymentEnvironment = context.Argument("environment", "Release");
+        DevelopBranchName = developBranchName;
+        ForceContinuousIntegration = context.Argument("forceContinuousIntegration", false);
+        FullReleaseNotesFilePath = fullReleaseNotesFilePath ?? RootDirectoryPath.CombineWithFilePath("ReleaseNotes.md");
+        GetFilesToObfuscate = getFilesToObfuscate;
+        GetFilesToSign = getFilesToSign;
+        GetILMergeConfigs = getILMergeConfigs;
+        GetMsisToSign = getMsisToSign;
+        GetProjectsToPack = getProjectsToPack;
+        GetScriptsToSign = getScriptsToSign;
+        GitHub = GetGitHubCredentials(context);
+        IntegrationTestScriptPath = integrationTestScriptPath ?? context.MakeAbsolute((FilePath)"test.cake");
+        IsLocalBuild = buildSystem.IsLocalBuild;
+        IsPullRequest = BuildProvider.PullRequest.IsPullRequest;
         IsRunningOnGitHubActions = BuildProvider.Type == BuildProviderType.GitHubActions;
         IsRunningOnTeamCity = BuildProvider.Type == BuildProviderType.TeamCity;
-
+        IsTagged = BuildProvider.Repository.Tag.IsTag;
         MasterBranchName = masterBranchName;
-        DevelopBranchName = developBranchName;
-
-        TransifexPullMode = transifexPullMode;
-        TransifexPullPercentage = transifexPullPercentage;
-
-        SourceDirectoryPath = sourceDirectoryPath;
-        Title = title;
-        SolutionFilePath = solutionFilePath ?? SourceDirectoryPath.CombineWithFilePath(Title + ".sln");
-        SolutionDirectoryPath = solutionDirectoryPath ?? SourceDirectoryPath.Combine(Title);
-        RootDirectoryPath = rootDirectoryPath ?? context.MakeAbsolute(context.Environment.WorkingDirectory);
-        TestDirectoryPath = testDirectoryPath ?? sourceDirectoryPath;
-        IntegrationTestScriptPath = integrationTestScriptPath ?? context.MakeAbsolute((FilePath)"test.cake");
-        ResharperSettingsFileName = resharperSettingsFileName ?? string.Format("{0}.sln.DotSettings", Title);
+        MilestoneReleaseNotesFilePath = milestoneReleaseNotesFilePath ?? RootDirectoryPath.CombineWithFilePath("CHANGELOG.md");
+        NuGetSources = nuGetSources;
+        ObfuscateAssembly = obfuscateAssembly;
+        PreferDotNetGlobalToolUsage = preferDotNetGlobalToolUsage;
+        PrepareLocalRelease = context.Argument("prepareLocalRelease", false);
+        PreReleaseLabelFilePath = preReleaseLabelFilePath ?? ".build_pre_release_label";
+        ProductClsCompliant = productClsCompliant;
+        ProductCompany = productCompany ?? "Chocolatey Software, Inc.";
+        ProductComVisible = productComVisible;
+        ProductCopyright = productCopyright ?? "Copyright not provided";
+        ProductCustomAttributes = productCustomAttributes;
+        ProductDescription = productDescription ?? "Description not provided";
+        ProductName = productName ?? "Name not provided";
+        ProductTrademark = productTrademark ?? "Chocolatey - Chocolatey Software, Inc.";
+        RepositoryName = repositoryName ?? title;
         RepositoryOwner = repositoryOwner ?? string.Empty;
-        RepositoryName = repositoryName ?? Title;
-
+        ResharperSettingsFileName = resharperSettingsFileName ?? string.Format("{0}.sln.DotSettings", title);
+        RestorePackagesDirectory = restorePackagesDirectory;
         ShouldAuthenticodeSignMsis = shouldAuthenticodeSignMsis;
         ShouldAuthenticodeSignOutputAssemblies = shouldAuthenticodeSignOutputAssemblies;
         ShouldAuthenticodeSignPowerShellScripts = shouldAuthenticodeSignPowerShellScripts;
@@ -349,7 +382,6 @@ public static class BuildParameters
         ShouldDownloadFullReleaseNotes = shouldDownloadFullReleaseNotes;
         ShouldDownloadMilestoneReleaseNotes = shouldDownloadMilestoneReleaseNotes;
         ShouldObfuscateOutputAssemblies = shouldObfuscateOutputAssemblies;
-        ShouldRunGitReleaseManager = shouldRunGitReleaseManager;
         ShouldPublishPreReleasePackages = shouldPublishPreReleasePackages;
         ShouldPublishReleasePackages = shouldPublishReleasePackages;
         ShouldReportCodeCoverageMetrics = shouldReportCodeCoverageMetrics;
@@ -357,6 +389,7 @@ public static class BuildParameters
         ShouldRunChocolatey = shouldRunChocolatey;
         ShouldRunDotNetPack = shouldRunDotNetPack;
         ShouldRunDotNetTest = shouldRunDotNetTest;
+        ShouldRunGitReleaseManager = shouldRunGitReleaseManager;
         ShouldRunGitVersion = shouldRunGitVersion;
         ShouldRunILMerge = shouldRunILMerge;
         ShouldRunInspectCode = shouldRunInspectCode;
@@ -370,31 +403,43 @@ public static class BuildParameters
         ShouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken = shouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken;
         ShouldStrongNameOutputAssemblies = shouldStrongNameOutputAssemblies;
         ShouldStrongNameSignDependentAssemblies = shouldStrongNameSignDependentAssemblies;
-
-        StrongNameDependentAssembliesInputPath = strongNameDependentAssembliesInputPath ?? SourceDirectoryPath.Combine("packages").FullPath;
-
-        AssemblyNamesRegexPattern = assemblyNamesRegexPattern ?? "chocolatey.lib|chocolatey-licensed.lib|ChocolateyGui.Common|ChocolateyGui.Common.Windows";
+        SolutionDirectoryPath = solutionDirectoryPath ?? sourceDirectoryPath.Combine(title);
+        SolutionFilePath = solutionFilePath ?? sourceDirectoryPath.CombineWithFilePath(title + ".sln");
+        SourceDirectoryPath = sourceDirectoryPath;
+        StrongNameDependentAssembliesInputPath = strongNameDependentAssembliesInputPath ?? sourceDirectoryPath.Combine("packages").FullPath;
+        Target = context.Argument("target", "Default");
+        TestDirectoryPath = testDirectoryPath ?? sourceDirectoryPath;
+        TestExecutionType = context.Argument("testExecutionType", "unit").ToLowerInvariant();
+        Title = title;
+        Transifex = GetTransifexCredentials(context);
+        TransifexPullMode = transifexPullMode;
+        TransifexPullPercentage = transifexPullPercentage;
+        TreatWarningsAsErrors = treatWarningsAsErrors;
         UseChocolateyGuiStrongNameKey = useChocolateyGuiStrongNameKey;
 
-        NuGetSources = nuGetSources;
-        RestorePackagesDirectory = restorePackagesDirectory;
-        GetFilesToObfuscate = getFilesToObfuscate;
-        GetILMergeConfigs = getILMergeConfigs;
-        GetFilesToSign = getFilesToSign;
-        GetMsisToSign = getMsisToSign;
-        GetScriptsToSign = getScriptsToSign;
-        GetProjectsToPack = getProjectsToPack;
-        ProductName = productName ?? "Name not provided";
-        ProductDescription = productDescription ?? "Description not provided";
-        ProductCopyright = productCopyright ?? "Copyright not provided";
-        ProductComVisible = productComVisible;
-        ProductClsCompliant = productClsCompliant;
-        ProductCompany = productCompany ?? "Chocolatey Software, Inc.";
-        ProductTrademark = productTrademark ?? "Chocolatey - Chocolatey Software, Inc.";
-        ObfuscateAssembly = obfuscateAssembly;
-        ProductCustomAttributes = productCustomAttributes;
+        SetBuildPaths(BuildPaths.GetPaths());
 
-        PreferDotNetGlobalToolUsage = preferDotNetGlobalToolUsage;
+        var branchName = BuildProvider.Repository.Branch;
+        if (StringComparer.OrdinalIgnoreCase.Equals(masterBranchName, branchName))
+        {
+            BranchType = BranchType.Master;
+        }
+        else if (StringComparer.OrdinalIgnoreCase.Equals(developBranchName, branchName))
+        {
+            BranchType = BranchType.Develop;
+        }
+        else if (branchName.StartsWith("release", StringComparison.OrdinalIgnoreCase))
+        {
+            BranchType = BranchType.Release;
+        }
+        else if (branchName.StartsWith("hotfix", StringComparison.OrdinalIgnoreCase))
+        {
+            BranchType = BranchType.HotFix;
+        }
+        else
+        {
+            BranchType = BranchType.Unknown;
+        }
 
         if (nuGetSources == null)
         {
@@ -430,35 +475,27 @@ public static class BuildParameters
             }
         }
 
-        Target = context.Argument("target", "Default");
-        BuildCounter = context.Argument("buildCounter", BuildProvider.Build.Number);
-        TestExecutionType = context.Argument("testExecutionType", "unit").ToLowerInvariant();
-
-        if (TestExecutionType == "unit")
+        if (packageSourceDatas?.Any() ?? false)
         {
-            TestAssemblyFilePattern = testAssemblyFilePattern ?? "/**/*[tT]ests.dll";
-            TestAssemblyProjectPattern = testAssemblyProjectPattern ?? "/**/*[tT]ests.csproj";
+            context.Information("Setting Package Sources to passed in variable...");
+            PackageSources = packageSourceDatas;
         }
-        else if (TestExecutionType == "integration")
+        else
         {
-            TestAssemblyFilePattern = testAssemblyFilePattern ?? "/**/*[tT]ests.[iI]ntegration.dll";
-            TestAssemblyProjectPattern = testAssemblyProjectPattern ?? "/**/*[tT]ests.[iI]ntegration.csproj";
-        }
-        else if (TestExecutionType == "all")
-        {
-            TestAssemblyFilePattern = testAssemblyFilePattern ?? "/**/*{[tT]ests|[tT]ests.[iI]ntegration}.dll";
-            TestAssemblyProjectPattern = testAssemblyProjectPattern ?? "/**/*{[tT]ests|[tT]ests.[iI]ntegration}.csproj";
-        }
+            PackageSources = new List<PackageSourceData>();
 
-        Configuration = context.Argument("configuration", "Release");
-        DeploymentEnvironment = context.Argument("environment", "Release");
-        ForceContinuousIntegration = context.Argument("forceContinuousIntegration", false);
-        PrepareLocalRelease = context.Argument("prepareLocalRelease", false);
-        CakeConfiguration = context.GetConfiguration();
-        IsLocalBuild = buildSystem.IsLocalBuild;
-
-        MilestoneReleaseNotesFilePath = milestoneReleaseNotesFilePath ?? RootDirectoryPath.CombineWithFilePath("CHANGELOG.md");
-        FullReleaseNotesFilePath = fullReleaseNotesFilePath ?? RootDirectoryPath.CombineWithFilePath("ReleaseNotes.md");
+            var defaultPushSourceUrl = context.EnvironmentVariable(Environment.DefaultPushSourceUrlVariable);
+            context.Information("defaultPushSourceUrl: {0}", defaultPushSourceUrl);
+            if (!string.IsNullOrEmpty(defaultPushSourceUrl))
+            {
+                context.Information("Adding Default Package Source Datas...");
+                var defaultPushSourceUrlParts = Environment.DefaultPushSourceUrlVariable.Split('_');
+                PackageSources.Add(new PackageSourceData(context, defaultPushSourceUrlParts[0], defaultPushSourceUrl));
+                PackageSources.Add(new PackageSourceData(context, defaultPushSourceUrlParts[0], defaultPushSourceUrl, FeedType.Chocolatey));
+                PackageSources.Add(new PackageSourceData(context, defaultPushSourceUrlParts[0], defaultPushSourceUrl, FeedType.NuGet, false));
+                PackageSources.Add(new PackageSourceData(context, defaultPushSourceUrlParts[0], defaultPushSourceUrl, FeedType.Chocolatey, false));
+            }
+        }
 
         if (ShouldStrongNameOutputAssemblies || ShouldStrongNameSignDependentAssemblies || ShouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken)
         {
@@ -486,7 +523,7 @@ public static class BuildParameters
             {
                 context.Information("Creating new unofficial Strong Name Key...");
 
-                var newChocolateyUnofficialKey = context.MakeAbsolute(new FilePath(string.Format("{0}.unofficial.snk", Title)));
+                var newChocolateyUnofficialKey = context.MakeAbsolute(new FilePath(string.Format("{0}.unofficial.snk", title)));
 
                 // If the file already exists, don't re-create it
                 if (!context.FileExists(newChocolateyUnofficialKey))
@@ -498,61 +535,20 @@ public static class BuildParameters
             }
         }
 
-        AllowedAssemblyNames = allowedAssemblyNames ?? new List<string> { "chocolatey.dll", "chocolatey.licensed.dll", "ChocolateyGui.Common.dll", "ChocolateyGui.Common.Windows.dll" };
-
-        BuildAgentOperatingSystem = context.Environment.Platform.Family;
-
-        IsPullRequest = BuildProvider.PullRequest.IsPullRequest;
-
-        var branchName = BuildProvider.Repository.Branch;
-        if (StringComparer.OrdinalIgnoreCase.Equals(masterBranchName, branchName))
+        if (TestExecutionType == "unit")
         {
-            BranchType = BranchType.Master;
+            TestAssemblyFilePattern = testAssemblyFilePattern ?? "/**/*[tT]ests.dll";
+            TestAssemblyProjectPattern = testAssemblyProjectPattern ?? "/**/*[tT]ests.csproj";
         }
-        else if (StringComparer.OrdinalIgnoreCase.Equals(developBranchName, branchName))
+        else if (TestExecutionType == "integration")
         {
-            BranchType = BranchType.Develop;
+            TestAssemblyFilePattern = testAssemblyFilePattern ?? "/**/*[tT]ests.[iI]ntegration.dll";
+            TestAssemblyProjectPattern = testAssemblyProjectPattern ?? "/**/*[tT]ests.[iI]ntegration.csproj";
         }
-        else if (branchName.StartsWith("release", StringComparison.OrdinalIgnoreCase))
+        else if (TestExecutionType == "all")
         {
-            BranchType = BranchType.Release;
-        }
-        else if (branchName.StartsWith("hotfix", StringComparison.OrdinalIgnoreCase))
-        {
-            BranchType = BranchType.HotFix;
-        }
-        else
-        {
-            BranchType = BranchType.Unknown;
-        }
-
-        TreatWarningsAsErrors = treatWarningsAsErrors;
-
-        GitHub = GetGitHubCredentials(context);
-        Transifex = GetTransifexCredentials(context);
-
-        SetBuildPaths(BuildPaths.GetPaths());
-
-        if (packageSourceDatas?.Any() ?? false)
-        {
-            context.Information("Setting Package Sources to passed in variable...");
-            PackageSources = packageSourceDatas;
-        }
-        else
-        {
-            PackageSources = new List<PackageSourceData>();
-
-            var defaultPushSourceUrl = context.EnvironmentVariable(Environment.DefaultPushSourceUrlVariable);
-            context.Information("defaultPushSourceUrl: {0}", defaultPushSourceUrl);
-            if (!string.IsNullOrEmpty(defaultPushSourceUrl))
-            {
-                context.Information("Adding Default Package Source Datas...");
-                var defaultPushSourceUrlParts = Environment.DefaultPushSourceUrlVariable.Split('_');
-                PackageSources.Add(new PackageSourceData(context, defaultPushSourceUrlParts[0], defaultPushSourceUrl));
-                PackageSources.Add(new PackageSourceData(context, defaultPushSourceUrlParts[0], defaultPushSourceUrl, FeedType.Chocolatey));
-                PackageSources.Add(new PackageSourceData(context, defaultPushSourceUrlParts[0], defaultPushSourceUrl, FeedType.NuGet, false));
-                PackageSources.Add(new PackageSourceData(context, defaultPushSourceUrlParts[0], defaultPushSourceUrl, FeedType.Chocolatey, false));
-            }
+            TestAssemblyFilePattern = testAssemblyFilePattern ?? "/**/*{[tT]ests|[tT]ests.[iI]ntegration}.dll";
+            TestAssemblyProjectPattern = testAssemblyProjectPattern ?? "/**/*{[tT]ests|[tT]ests.[iI]ntegration}.csproj";
         }
     }
 }
