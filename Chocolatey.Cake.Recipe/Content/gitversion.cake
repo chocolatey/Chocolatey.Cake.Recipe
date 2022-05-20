@@ -152,51 +152,59 @@ public class BuildVersion
             context.Information("There is a tag.");
         }
 
-        // create SolutionVersion.cs file...
-        var assemblyInfoSettings = new AssemblyInfoSettings {
-            ComVisible = BuildParameters.ProductComVisible,
-            CLSCompliant = BuildParameters.ProductClsCompliant,
-            Company = BuildParameters.ProductCompany,
-            Version = fileVersion,
-            FileVersion = fileVersion,
-            InformationalVersion = informationalVersion,
-            Product = BuildParameters.ProductName,
-            Description = BuildParameters.ProductDescription,
-            Trademark = BuildParameters.ProductTrademark,
-            Copyright = BuildParameters.ProductCopyright
-        };
-
-        if (BuildParameters.ProductCustomAttributes != null)
+        if (BuildParameters.ShouldGenerateSolutionVersionCSharpFile)
         {
-            assemblyInfoSettings.CustomAttributes = BuildParameters.ProductCustomAttributes;
-        }
-        else
-        {
-            assemblyInfoSettings.CustomAttributes = new List<AssemblyInfoCustomAttribute>();
+            context.Information("Generating SolutionVersion.cs file...");
 
-            if (BuildParameters.ShouldStrongNameOutputAssemblies)
+            var assemblyInfoSettings = new AssemblyInfoSettings {
+                ComVisible = BuildParameters.ProductComVisible,
+                CLSCompliant = BuildParameters.ProductClsCompliant,
+                Company = BuildParameters.ProductCompany,
+                Version = fileVersion,
+                FileVersion = fileVersion,
+                InformationalVersion = informationalVersion,
+                Product = BuildParameters.ProductName,
+                Description = BuildParameters.ProductDescription,
+                Trademark = BuildParameters.ProductTrademark,
+                Copyright = BuildParameters.ProductCopyright
+            };
+
+            if (BuildParameters.ProductCustomAttributes != null)
             {
-                var assemblyKeyFileAttribute = new AssemblyInfoCustomAttribute
+                assemblyInfoSettings.CustomAttributes = BuildParameters.ProductCustomAttributes;
+            }
+            else
+            {
+                assemblyInfoSettings.CustomAttributes = new List<AssemblyInfoCustomAttribute>();
+
+                if (BuildParameters.ShouldStrongNameOutputAssemblies)
                 {
-                    Name = "AssemblyKeyFile",
-                    Value = BuildParameters.StrongNameKeyPath.Replace("\\", "\\\\"),
+                    var assemblyKeyFileAttribute = new AssemblyInfoCustomAttribute
+                    {
+                        Name = "AssemblyKeyFile",
+                        Value = BuildParameters.StrongNameKeyPath.Replace("\\", "\\\\"),
+                        NameSpace = "System.Reflection"
+                    };
+
+                    assemblyInfoSettings.CustomAttributes.Add(assemblyKeyFileAttribute);
+                }
+
+                var obfuscateAssemblyAttribute = new AssemblyInfoCustomAttribute
+                {
+                    Name = "ObfuscateAssembly",
+                    Value = BuildParameters.ObfuscateAssembly,
                     NameSpace = "System.Reflection"
                 };
 
-                assemblyInfoSettings.CustomAttributes.Add(assemblyKeyFileAttribute);
+                assemblyInfoSettings.CustomAttributes.Add(obfuscateAssemblyAttribute);
             }
 
-            var obfuscateAssemblyAttribute = new AssemblyInfoCustomAttribute
-            {
-                Name = "ObfuscateAssembly",
-                Value = BuildParameters.ObfuscateAssembly,
-                NameSpace = "System.Reflection"
-            };
-
-            assemblyInfoSettings.CustomAttributes.Add(obfuscateAssemblyAttribute);
+            context.CreateAssemblyInfo(BuildParameters.Paths.Files.SolutionInfoFilePath, assemblyInfoSettings);
         }
-
-        context.CreateAssemblyInfo(BuildParameters.Paths.Files.SolutionInfoFilePath, assemblyInfoSettings);
+        else
+        {
+            context.Information("Skipping generation of SolutionVersion.cs file.");
+        }
 
         context.Information("Calculated Major.Minor.Patch: {0}", majorMinorPatch);
         context.Information("Calculated Sem Version: {0}", semVersion);

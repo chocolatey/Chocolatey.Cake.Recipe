@@ -71,6 +71,7 @@ public static class BuildParameters
     public static bool ShouldBuildNuGetSourcePackage { get; private set; }
     public static bool ShouldDownloadFullReleaseNotes { get; private set; }
     public static bool ShouldDownloadMilestoneReleaseNotes { get; private set; }
+    public static bool ShouldGenerateSolutionVersionCSharpFile { get; private set; }
     public static bool ShouldObfuscateOutputAssemblies { get; private set; }
     public static bool ShouldPublishPreReleasePackages { get; private set; }
     public static bool ShouldPublishReleasePackages { get; private set; }
@@ -181,6 +182,7 @@ public static class BuildParameters
         context.Information("ShouldBuildNuGetSourcePackage: {0}", BuildParameters.ShouldBuildNuGetSourcePackage);
         context.Information("ShouldDownloadFullReleaseNotes: {0}", BuildParameters.ShouldDownloadFullReleaseNotes);
         context.Information("ShouldDownloadMilestoneReleaseNotes: {0}", BuildParameters.ShouldDownloadMilestoneReleaseNotes);
+        context.Information("ShouldGenerateSolutionVersionCSharpFile: {0}", BuildParameters.ShouldGenerateSolutionVersionCSharpFile);
         context.Information("ShouldObfuscateOutputAssemblies: {0}", BuildParameters.ShouldObfuscateOutputAssemblies);
         context.Information("ShouldPublishPreReleasePackages: {0}", BuildParameters.ShouldPublishPreReleasePackages);
         context.Information("ShouldPublishReleasePackages: {0}", BuildParameters.ShouldPublishReleasePackages);
@@ -268,6 +270,7 @@ public static class BuildParameters
         bool shouldBuildNuGetSourcePackage = false,
         bool shouldDownloadFullReleaseNotes = false,
         bool shouldDownloadMilestoneReleaseNotes = false,
+        bool shouldGenerateSolutionVersionCSharpFile = true,
         bool shouldObfuscateOutputAssemblies = true,
         bool shouldPublishPreReleasePackages = true,
         bool shouldPublishReleasePackages = true,
@@ -381,6 +384,7 @@ public static class BuildParameters
         ShouldBuildNuGetSourcePackage = shouldBuildNuGetSourcePackage;
         ShouldDownloadFullReleaseNotes = shouldDownloadFullReleaseNotes;
         ShouldDownloadMilestoneReleaseNotes = shouldDownloadMilestoneReleaseNotes;
+        ShouldGenerateSolutionVersionCSharpFile = shouldGenerateSolutionVersionCSharpFile;
         ShouldObfuscateOutputAssemblies = shouldObfuscateOutputAssemblies;
         ShouldPublishPreReleasePackages = shouldPublishPreReleasePackages;
         ShouldPublishReleasePackages = shouldPublishReleasePackages;
