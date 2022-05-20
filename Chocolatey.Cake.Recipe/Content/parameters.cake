@@ -23,7 +23,7 @@ public static class BuildParameters
     public static string CertificateSubjectName { get; private set; }
     public static string CertificateTimestampUrl { get; private set; }
     public static string Configuration { get; private set; }
-    public static string DeploymentEnvironment { get; private set;}
+    public static string DeploymentEnvironment { get; private set; }
     public static string DevelopBranchName { get; private set; }
     public static bool ForceContinuousIntegration { get; private set; }
     public static FilePath FullReleaseNotesFilePath { get; private set; }
@@ -69,8 +69,8 @@ public static class BuildParameters
     public static bool ShouldAuthenticodeSignPowerShellScripts { get; private set; }
     public static bool ShouldBuildMsi { get; private set; }
     public static bool ShouldBuildNuGetSourcePackage { get; private set; }
-    public static bool ShouldDownloadFullReleaseNotes { get; private set;}
-    public static bool ShouldDownloadMilestoneReleaseNotes { get; private set;}
+    public static bool ShouldDownloadFullReleaseNotes { get; private set; }
+    public static bool ShouldDownloadMilestoneReleaseNotes { get; private set; }
     public static bool ShouldObfuscateOutputAssemblies { get; private set; }
     public static bool ShouldPublishPreReleasePackages { get; private set; }
     public static bool ShouldPublishReleasePackages { get; private set; }
