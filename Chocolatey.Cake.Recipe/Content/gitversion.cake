@@ -219,12 +219,6 @@ public class BuildVersion
         {
             // use the asserted package version for the build number in TeamCity
             context.BuildSystem().TeamCity.SetBuildNumber(packageVersion);
-
-            if (BuildParameters.Title == "ChocolateySoftware.ChocolateyManagement")
-            {
-                // Only set this when it is a CCM Build
-                context.BuildSystem().TeamCity.SetParameter("CCMVersion", packageVersion);
-            }
         }
 
         return new BuildVersion
