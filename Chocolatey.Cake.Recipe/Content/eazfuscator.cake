@@ -35,6 +35,9 @@ BuildParameters.Tasks.ObfuscateAssembliesTask = Task("Obfuscate-Assemblies")
 
             foreach (var file in BuildParameters.GetFilesToObfuscate())
             {
+                // This needs to be "reset" so that previously set properties aren't in place for the next iteration.
+                settings = new EazfuscatorNetSettings();
+
                 var fileName = file.GetFilenameWithoutExtension();
                 var msbuildPathFilePath = new FilePath(string.Format("{0}/{1}/{1}.csproj", BuildParameters.SourceDirectoryPath.FullPath, fileName));
 
