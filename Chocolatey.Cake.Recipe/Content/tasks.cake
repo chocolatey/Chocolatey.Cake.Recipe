@@ -47,8 +47,6 @@ public class BuildTasks
 
     // Strong Name Tasks
     public CakeTaskBuilder StrongNameSignerTask { get; set; }
-    public CakeTaskBuilder InstallSNRemoveTask { get; set; }
-    public CakeTaskBuilder ChangeStrongNameSignaturesTask { get; set; }
 
     // Signing Tasks
     public CakeTaskBuilder SignPowerShellScriptsTask { get; set; }
