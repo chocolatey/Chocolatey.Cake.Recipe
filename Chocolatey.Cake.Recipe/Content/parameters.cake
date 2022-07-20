@@ -9,8 +9,6 @@ public enum BranchType
 
 public static class BuildParameters
 {
-    public static List<string> AllowedAssemblyNames { get; private set; }
-    public static string AssemblyNamesRegexPattern { get; private set; }
     public static BranchType BranchType { get; private set; }
     public static PlatformFamily BuildAgentOperatingSystem { get; private set; }
     public static string BuildCounter { get; private set; }
@@ -91,7 +89,6 @@ public static class BuildParameters
     public static bool ShouldRunReportUnit { get; private set; }
     public static bool ShouldRunTransifex { get; set; }
     public static bool ShouldRunxUnit { get; private set; }
-    public static bool ShouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken { get; private set; }
     public static bool ShouldStrongNameOutputAssemblies { get; private set; }
     public static bool ShouldStrongNameSignDependentAssemblies { get; private set; }
     public static DirectoryPath SolutionDirectoryPath { get; private set; }
@@ -137,8 +134,6 @@ public static class BuildParameters
 
         context.Information("Printing Build Parameters...");
         context.Information("------------------------------------------------------------------------------------------");
-        context.Information("AllowedAssemblyName: {0}", string.Join(", ", AllowedAssemblyNames));
-        context.Information("AssemblyNamesRegexPattern: {0}", AssemblyNamesRegexPattern);
         context.Information("BranchType: {0}", BranchType);
         context.Information("BranchName: {0}", BuildProvider.Repository.Branch);
         context.Information("BuildAgentOperatingSystem: {0}", BuildAgentOperatingSystem);
@@ -202,7 +197,6 @@ public static class BuildParameters
         context.Information("ShouldRunReportUnit: {0}", BuildParameters.ShouldRunReportUnit);
         context.Information("ShouldRunTransifex: {0}", BuildParameters.ShouldRunTransifex);
         context.Information("ShouldRunxUnit: {0}", BuildParameters.ShouldRunxUnit);
-        context.Information("ShouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken: {0}", BuildParameters.ShouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken);
         context.Information("ShouldStrongNameOutputAssemblies: {0}", BuildParameters.ShouldStrongNameOutputAssemblies);
         context.Information("ShouldStrongNameSignDependentAssemblies: {0}", BuildParameters.ShouldStrongNameSignDependentAssemblies);
         context.Information("SolutionFilePath: {0}", context.MakeAbsolute((FilePath)SolutionFilePath));
@@ -231,8 +225,6 @@ public static class BuildParameters
         BuildSystem buildSystem,
         DirectoryPath sourceDirectoryPath,
         string title,
-        List<string> allowedAssemblyNames = null,
-        string assemblyNamesRegexPattern = null,
         string certificateSubjectName = null,
         string developBranchName = "develop",
         FilePath fullReleaseNotesFilePath = null,
@@ -290,7 +282,6 @@ public static class BuildParameters
         bool shouldRunReportUnit = true,
         bool? shouldRunTransifex = null,
         bool shouldRunxUnit = true,
-        bool shouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken = false,
         bool shouldStrongNameOutputAssemblies = true,
         bool shouldStrongNameSignDependentAssemblies = true,
         DirectoryPath solutionDirectoryPath = null,
@@ -330,8 +321,6 @@ public static class BuildParameters
         BuildProvider = GetBuildProvider(context, buildSystem);
         RootDirectoryPath = rootDirectoryPath ?? context.MakeAbsolute(context.Environment.WorkingDirectory);
 
-        AllowedAssemblyNames = allowedAssemblyNames ?? new List<string> { "chocolatey.dll", "chocolatey.licensed.dll", "ChocolateyGui.Common.dll", "ChocolateyGui.Common.Windows.dll" };
-        AssemblyNamesRegexPattern = assemblyNamesRegexPattern ?? "chocolatey.lib|chocolatey-licensed.lib|ChocolateyGui.Common|ChocolateyGui.Common.Windows";
         BuildAgentOperatingSystem = context.Environment.Platform.Family;
         BuildCounter = context.Argument("buildCounter", BuildProvider.Build.Number);
         CakeConfiguration = context.GetConfiguration();
@@ -400,11 +389,16 @@ public static class BuildParameters
         ShouldRunNuGet = shouldRunNuGet;
         ShouldRunNUnit = shouldRunNUnit;
         ShouldRunOpenCover = shouldRunOpenCover;
+
+        if (context.HasArgument("shouldRunOpenCover"))
+        {
+            ShouldRunOpenCover = context.Argument<bool>("shouldRunOpenCover");
+        }
+
         ShouldRunReportGenerator = shouldRunReportGenerator;
         ShouldRunReportUnit = shouldRunReportUnit;
         ShouldRunTransifex = shouldRunTransifex ?? TransifexIsConfiguredForRepository(context);
         ShouldRunxUnit = shouldRunxUnit;
-        ShouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken = shouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken;
         ShouldStrongNameOutputAssemblies = shouldStrongNameOutputAssemblies;
         ShouldStrongNameSignDependentAssemblies = shouldStrongNameSignDependentAssemblies;
         SolutionDirectoryPath = solutionDirectoryPath ?? sourceDirectoryPath.Combine(title);
@@ -501,7 +495,7 @@ public static class BuildParameters
             }
         }
 
-        if (ShouldStrongNameOutputAssemblies || ShouldStrongNameSignDependentAssemblies || ShouldStrongNameChocolateyDependenciesWithCurrentPublicKeyToken)
+        if (ShouldStrongNameOutputAssemblies || ShouldStrongNameSignDependentAssemblies)
         {
             var officialStrongNameKey = context.EnvironmentVariable("CHOCOLATEY_OFFICIAL_KEY");
             var localUnofficialStrongNameKey = RootDirectoryPath.CombineWithFilePath("chocolatey.snk").FullPath;

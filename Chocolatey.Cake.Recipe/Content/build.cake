@@ -498,8 +498,6 @@ public class Builder
         BuildParameters.Tasks.ObfuscateAssembliesTask.IsDependeeOf("Sign-Assemblies");
         BuildParameters.Tasks.StrongNameSignerTask.IsDependentOn(prefix + "Restore");
         BuildParameters.Tasks.StrongNameSignerTask.IsDependeeOf(prefix + "Build");
-        BuildParameters.Tasks.ChangeStrongNameSignaturesTask.IsDependentOn(prefix + "Restore");
-        BuildParameters.Tasks.ChangeStrongNameSignaturesTask.IsDependeeOf(prefix + "Build");
         BuildParameters.Tasks.ObfuscateAssembliesTask.IsDependentOn(prefix + "Build");
         BuildParameters.Tasks.InspectCodeTask.IsDependentOn(prefix + "Build");
         BuildParameters.Tasks.ConfigurationBuilderTask.IsDependentOn(prefix + "Build");
