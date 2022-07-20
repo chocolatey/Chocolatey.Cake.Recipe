@@ -400,6 +400,12 @@ public static class BuildParameters
         ShouldRunNuGet = shouldRunNuGet;
         ShouldRunNUnit = shouldRunNUnit;
         ShouldRunOpenCover = shouldRunOpenCover;
+
+        if (context.HasArgument("shouldRunOpenCover"))
+        {
+            ShouldRunOpenCover = context.Argument<bool>("shouldRunOpenCover");
+        }
+
         ShouldRunReportGenerator = shouldRunReportGenerator;
         ShouldRunReportUnit = shouldRunReportUnit;
         ShouldRunTransifex = shouldRunTransifex ?? TransifexIsConfiguredForRepository(context);
