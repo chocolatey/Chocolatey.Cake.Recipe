@@ -104,6 +104,7 @@ public static class BuildParameters
     public static Func<FilePathCollection> GetFilesToObfuscate { get; private set; }
     public static Func<FilePathCollection> GetFilesToSign { get; private set; }
     public static Func<List<ILMergeConfig>> GetILMergeConfigs { get; private set; }
+    public static Func<List<PSScriptAnalyzerSettings>> GetPSScriptAnalyzerSettings { get; private set; }
     public static Func<FilePathCollection> GetMsisToSign { get; private set; }
     public static Func<FilePathCollection> GetProjectsToPack { get; private set; }
     public static Func<FilePathCollection> GetScriptsToSign { get; private set; }
@@ -181,6 +182,7 @@ public static class BuildParameters
     public static bool ShouldRunTests { get; private set ;}
     public static bool ShouldRunTransifex { get; set; }
     public static bool ShouldRunxUnit { get; private set; }
+    public static bool ShouldRunPSScriptAnalyzer { get; private set; }
     public static bool ShouldStrongNameOutputAssemblies { get; private set; }
     public static bool ShouldStrongNameSignDependentAssemblies { get; private set; }
     public static SlackCredentials Slack { get; private set; }
@@ -313,6 +315,7 @@ public static class BuildParameters
         context.Information("ShouldRunTests: {0}", BuildParameters.ShouldRunTests);
         context.Information("ShouldRunTransifex: {0}", BuildParameters.ShouldRunTransifex);
         context.Information("ShouldRunxUnit: {0}", BuildParameters.ShouldRunxUnit);
+        context.Information("ShouldRunPSScriptAnalyzer: {0}", BuildParameters.ShouldRunPSScriptAnalyzer);
         context.Information("ShouldStrongNameOutputAssemblies: {0}", BuildParameters.ShouldStrongNameOutputAssemblies);
         context.Information("ShouldStrongNameSignDependentAssemblies: {0}", BuildParameters.ShouldStrongNameSignDependentAssemblies);
         context.Information("SolutionDirectoryPath: {0}", context.MakeAbsolute((DirectoryPath)SolutionDirectoryPath));
@@ -353,6 +356,7 @@ public static class BuildParameters
         Func<FilePathCollection> getFilesToObfuscate = null,
         Func<FilePathCollection> getFilesToSign = null,
         Func<List<ILMergeConfig>> getILMergeConfigs = null,
+        Func<List<PSScriptAnalyzerSettings>> getPSScriptAnalyzerSettings = null,
         Func<FilePathCollection> getMsisToSign = null,
         Func<FilePathCollection> getProjectsToPack = null,
         Func<FilePathCollection> getScriptsToSign = null,
@@ -421,6 +425,7 @@ public static class BuildParameters
         bool shouldRunTests = true,
         bool? shouldRunTransifex = null,
         bool shouldRunxUnit = true,
+        bool shouldRunPSScriptAnalyzer = true,
         bool shouldStrongNameOutputAssemblies = true,
         bool shouldStrongNameSignDependentAssemblies = true,
         Func<BuildVersion, object[]> slackMessageArguments = null,
@@ -485,6 +490,7 @@ public static class BuildParameters
         GetFilesToObfuscate = getFilesToObfuscate;
         GetFilesToSign = getFilesToSign;
         GetILMergeConfigs = getILMergeConfigs;
+        GetPSScriptAnalyzerSettings = getPSScriptAnalyzerSettings;
         GetMsisToSign = getMsisToSign;
         GetProjectsToPack = getProjectsToPack;
         GetScriptsToSign = getScriptsToSign;
@@ -743,6 +749,13 @@ public static class BuildParameters
             ShouldRunOpenCover = context.Argument<bool>("shouldRunOpenCover");
         }
 
+        ShouldRunPSScriptAnalyzer = shouldRunPSScriptAnalyzer;
+
+        if (context.HasArgument("shouldRunPSScriptAnalyzer"))
+        {
+            ShouldRunPSScriptAnalyzer = context.Argument<bool>("shouldRunPSScriptAnalyzer");
+        }
+        
         ShouldRunReportGenerator = shouldRunReportGenerator;
 
         if (context.HasArgument("shouldRunReportGenerator"))
@@ -779,7 +792,7 @@ public static class BuildParameters
         }
 
         ShouldRunxUnit = shouldRunxUnit;
-
+        
         if (context.HasArgument("shouldRunxUnit"))
         {
             ShouldRunxUnit = context.Argument<bool>("shouldRunxUnit");

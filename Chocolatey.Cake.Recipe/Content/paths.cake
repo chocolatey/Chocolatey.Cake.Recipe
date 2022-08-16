@@ -38,6 +38,7 @@ public class BuildPaths
 
         var testResultsDirectory = buildDirectoryPath + "/TestResults";
         var inspectCodeResultsDirectory = testResultsDirectory + "/InspectCode";
+        var scriptAnalyzerResultsDirectory = testResultsDirectory + "/PSScriptAnalyzer";
         var NUnitTestResultsDirectory = testResultsDirectory + "/NUnit";
         var xUnitTestResultsDirectory = testResultsDirectory + "/xUnit";
 
@@ -75,6 +76,7 @@ public class BuildPaths
             nugetNuspecDirectory,
             testResultsDirectory,
             inspectCodeResultsDirectory,
+            scriptAnalyzerResultsDirectory,
             NUnitTestResultsDirectory,
             xUnitTestResultsDirectory,
             testCoverageDirectory,
@@ -165,6 +167,7 @@ public class BuildDirectories
     public DirectoryPath NuGetNuspecDirectory { get; private set; }
     public DirectoryPath TestResults { get; private set; }
     public DirectoryPath InspectCodeTestResults { get; private set; }
+    public DirectoryPath PSScriptAnalyzerResults { get; private set; }
     public DirectoryPath NUnitTestResults { get; private set; }
     public DirectoryPath xUnitTestResults { get; private set; }
     public DirectoryPath TestCoverage { get; private set; }
@@ -188,6 +191,7 @@ public class BuildDirectories
         DirectoryPath nugetNuspecDirectory,
         DirectoryPath testResults,
         DirectoryPath inspectCodeTestResults,
+        DirectoryPath scriptAnalyzerResults,
         DirectoryPath nunitTestResults,
         DirectoryPath xunitTestResults,
         DirectoryPath testCoverage,
@@ -210,6 +214,7 @@ public class BuildDirectories
         NuGetNuspecDirectory = nugetNuspecDirectory;
         TestResults = testResults;
         InspectCodeTestResults = inspectCodeTestResults;
+        PSScriptAnalyzerResults = scriptAnalyzerResults;
         NUnitTestResults = nunitTestResults;
         xUnitTestResults = xunitTestResults;
         TestCoverage = testCoverage;
