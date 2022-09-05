@@ -9,7 +9,8 @@ BuildParameters.SetParameters(context: Context,
                             repositoryOwner: "chocolatey",
                             repositoryName: "Chocolatey.Cake.Recipe",
                             appVeyorAccountName: "chocolatey",
-                            nuspecFilePath: "./Chocolatey.Cake.Recipe/Chocolatey.Cake.Recipe.nuspec");
+                            nuspecFilePath: "./Chocolatey.Cake.Recipe/Chocolatey.Cake.Recipe.nuspec",
+                            preferredBuildProviderType: BuildProviderType.TeamCity);
 
 BuildParameters.PrintParameters(Context);
 
