@@ -124,6 +124,13 @@ public class BuildVersion
             prerelease = prerelease.Replace("-", string.Empty).Substring(0, 10);
         }
 
+        // Chocolatey doesn't support a prerelease that starts with a digit.
+        // If we see a digit here, merely replace it with an `a` to get around this.
+        if (System.Text.RegularExpressions.Regex.Match(prerelease, @"^\d.*$").Success)
+        {
+            prerelease = string.Format("a{0}", prerelease.Substring(1,9));
+        }
+
         sha = assertedVersions.Sha.Substring(0,8);
 
         if (context.FileExists(preReleaseLabelFilePath))
