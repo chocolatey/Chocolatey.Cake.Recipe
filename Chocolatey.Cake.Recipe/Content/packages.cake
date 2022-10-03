@@ -190,31 +190,26 @@ BuildParameters.Tasks.PublishAwsLambdasTask = Task("Publish-AWS-Lambdas")
     .WithCriteria(() => !BuildParameters.IsPullRequest, "Skipping because current build is from a Pull Request")
     .WithCriteria(() => BuildParameters.IsTagged, "Skipping because current commit is not tagged")
     .IsDependentOn("DotNetBuild")
-    .Does(() =>
-{
-    if (DirectoryExists(BuildParameters.Paths.Directories.PublishedLambdas))
-    {
-        var lambdaPackages = GetFiles(BuildParameters.Paths.Directories.PublishedLambdas + "/**/*.zip");
-
-        foreach (var lambdaPackage in lambdaPackages)
+    .Does(() => RequireTool(ToolSettings.AmazonLambdaGlobalTool, () => {
+        if (DirectoryExists(BuildParameters.Paths.Directories.PublishedLambdas))
         {
-            Information("Deploying Lambda package from zip file: {0}", lambdaPackage);
+            var lambdaPackages = GetFiles(BuildParameters.Paths.Directories.PublishedLambdas + "/**/*.zip");
 
-            var functionName = lambdaPackage.GetFilenameWithoutExtension().FullPath.ToLower();
+            foreach (var lambdaPackage in lambdaPackages)
+            {
+                Information("Deploying Lambda package from zip file: {0}", lambdaPackage);
 
-            // deploy the lambda...
-            DotNetCoreTool(
-                null,
-                "lambda",
-                string.Format("deploy-function --package-type zip --package {0} --disable-interactive true --function-name {1}-test", lambdaPackage, functionName)
-            );
+                var functionName = lambdaPackage.GetFilenameWithoutExtension().FullPath.ToLower();
+
+               StartProcess("./tools/dotnet-lambda.exe", new ProcessSettings { Arguments = string.Format("deploy-function --package-type zip --package {0} --disable-interactive true --function-name {1}-test", lambdaPackage, functionName) });
+            }
         }
-    }
-    else
-    {
-        Information("Unable to publish AWS Lambdas as AWS Lambdas Directory doesn't exist.");
-    }
-})
+        else
+        {
+            Information("Unable to publish AWS Lambdas as AWS Lambdas Directory doesn't exist.");
+        }
+    })
+)
 .OnError(exception =>
 {
     Error(exception.Message);

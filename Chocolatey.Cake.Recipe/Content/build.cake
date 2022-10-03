@@ -261,11 +261,9 @@ public void CopyBuildOutput()
             var projectDirectoryPath = project.Path.GetDirectory();
             var packageOutputFilePath = outputFolder.Combine(parsedProject.AssemblyName + "." + BuildParameters.Version.PackageVersion + ".zip");
 
-            DotNetCoreTool(
-                null,
-                "lambda",
-                string.Format("package --project-location {0} --configuration {1} --output-package {2}", projectDirectoryPath, BuildParameters.Configuration, packageOutputFilePath)
-            );
+            RequireTool(ToolSettings.AmazonLambdaGlobalTool, () => {
+                StartProcess("./tools/dotnet-lambda.exe", new ProcessSettings { Arguments = string.Format("package --project-location {0} --configuration {1} --output-package {2}", projectDirectoryPath, BuildParameters.Configuration, packageOutputFilePath) });
+            });
 
             if (FileExists(packageOutputFilePath.FullPath))
             {
