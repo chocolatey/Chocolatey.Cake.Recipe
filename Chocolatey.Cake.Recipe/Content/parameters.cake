@@ -71,6 +71,7 @@ public static class BuildParameters
     public static bool ShouldDownloadMilestoneReleaseNotes { get; private set; }
     public static bool ShouldGenerateSolutionVersionCSharpFile { get; private set; }
     public static bool ShouldObfuscateOutputAssemblies { get; private set; }
+    public static bool ShouldPublishAwsLambdas { get; private set; }
     public static bool ShouldPublishPreReleasePackages { get; private set; }
     public static bool ShouldPublishReleasePackages { get; private set; }
     public static bool ShouldReportCodeCoverageMetrics { get; private set; }
@@ -179,6 +180,7 @@ public static class BuildParameters
         context.Information("ShouldDownloadMilestoneReleaseNotes: {0}", BuildParameters.ShouldDownloadMilestoneReleaseNotes);
         context.Information("ShouldGenerateSolutionVersionCSharpFile: {0}", BuildParameters.ShouldGenerateSolutionVersionCSharpFile);
         context.Information("ShouldObfuscateOutputAssemblies: {0}", BuildParameters.ShouldObfuscateOutputAssemblies);
+        context.Information("ShouldPublishAwsLambdas: {0}", BuildParameters.ShouldPublishAwsLambdas);
         context.Information("ShouldPublishPreReleasePackages: {0}", BuildParameters.ShouldPublishPreReleasePackages);
         context.Information("ShouldPublishReleasePackages: {0}", BuildParameters.ShouldPublishReleasePackages);
         context.Information("ShouldReportCodeCoverageMetrics: {0}", BuildParameters.ShouldReportCodeCoverageMetrics);
@@ -264,6 +266,7 @@ public static class BuildParameters
         bool shouldDownloadMilestoneReleaseNotes = false,
         bool shouldGenerateSolutionVersionCSharpFile = true,
         bool shouldObfuscateOutputAssemblies = true,
+        bool shouldPublishAwsLambdas = true,
         bool shouldPublishPreReleasePackages = true,
         bool shouldPublishReleasePackages = true,
         bool shouldReportCodeCoverageMetrics = true,
@@ -375,6 +378,7 @@ public static class BuildParameters
         ShouldDownloadMilestoneReleaseNotes = shouldDownloadMilestoneReleaseNotes;
         ShouldGenerateSolutionVersionCSharpFile = shouldGenerateSolutionVersionCSharpFile;
         ShouldObfuscateOutputAssemblies = shouldObfuscateOutputAssemblies;
+        ShouldPublishAwsLambdas = shouldPublishAwsLambdas;
         ShouldPublishPreReleasePackages = shouldPublishPreReleasePackages;
         ShouldPublishReleasePackages = shouldPublishReleasePackages;
         ShouldReportCodeCoverageMetrics = shouldReportCodeCoverageMetrics;
