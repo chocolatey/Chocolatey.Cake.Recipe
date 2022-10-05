@@ -231,6 +231,13 @@ public void CopyBuildOutput()
             Information("IsGlobalTool: {0}", parsedProject.IsGlobalTool());
         }
 
+        var isAwsLambdaProject = false;
+
+        if (parsedProject.IsLibrary() && parsedProject.HasPackage("Amazon.Lambda.Core"))
+        {
+            isAwsLambdaProject = true;
+        }
+
         Information("IsDotNetCliTestProject: {0}", parsedProject.IsDotNetCliTestProject());
         Information("IsNetCore: {0}", parsedProject.IsNetCore);
         Information("IsNetStandard: {0}", parsedProject.IsNetStandard);
@@ -241,6 +248,30 @@ public void CopyBuildOutput()
         Information("IXUnitTestProject: {0}", parsedProject.IsXUnitTestProject());
         Information("IsNUnitTestProject: {0}", parsedProject.IsNUnitTestProject());
         Information("IsWebApplication: {0}", parsedProject.IsWebApplication());
+        Information("IsAwsLambdaProject: {0}", isAwsLambdaProject);
+
+        if (isAwsLambdaProject && !(parsedProject.IsXUnitTestProject() || parsedProject.IsNUnitTestProject()))
+        {
+            Information("Project is an AWS Lambda Function Application: {0}", parsedProject.AssemblyName);
+
+            var outputFolder = MakeAbsolute(BuildParameters.Paths.Directories.PublishedLambdas.Combine(parsedProject.AssemblyName));
+
+            EnsureDirectoryExists(outputFolder);
+
+            var projectDirectoryPath = project.Path.GetDirectory();
+            var packageOutputFilePath = outputFolder.Combine(parsedProject.AssemblyName + "." + BuildParameters.Version.PackageVersion + ".zip");
+
+            RequireTool(ToolSettings.AmazonLambdaGlobalTool, () => {
+                StartProcess("./tools/dotnet-lambda.exe", new ProcessSettings { Arguments = string.Format("package --project-location {0} --configuration {1} --output-package {2}", projectDirectoryPath, BuildParameters.Configuration, packageOutputFilePath) });
+            });
+
+            if (FileExists(packageOutputFilePath.FullPath))
+            {
+                BuildParameters.BuildProvider.UploadArtifact(packageOutputFilePath.FullPath);
+            }
+
+            continue;
+        }
 
         if (parsedProject.IsWebApplication() && parsedProject.IsNetFramework)
         {
@@ -424,6 +455,7 @@ BuildParameters.Tasks.DefaultTask = Task("Default")
 BuildParameters.Tasks.ContinuousIntegrationTask = Task("CI")
     .IsDependentOn("Publish-PreRelease-Packages")
     .IsDependentOn("Publish-Release-Packages")
+    .IsDependentOn("Publish-AWS-Lambdas")
     .IsDependentOn("Publish-GitHub-Release")
     .Finally(() =>
 {

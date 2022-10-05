@@ -13,6 +13,7 @@ public class BuildPaths
         var publishedWebsitesDirectory     = tempBuildDirectoryPath + "/_PublishedWebsites";
         var publishedApplicationsDirectory = tempBuildDirectoryPath + "/_PublishedApps";
         var publishedLibrariesDirectory    = tempBuildDirectoryPath + "/_PublishedLibs";
+        var publishedLambdasDirectory      = tempBuildDirectoryPath + "/_PublishedLambdas";
         var tempNuspecDirectory            = tempBuildDirectoryPath + "/nuspec";
         var publishedDocumentationDirectory= buildDirectoryPath + "/Documentation";
         var environmentSettingsDirectory   = "./settings";
@@ -49,6 +50,7 @@ public class BuildPaths
             publishedWebsitesDirectory,
             publishedApplicationsDirectory,
             publishedLibrariesDirectory,
+            publishedLambdasDirectory,
             chocolateyNuspecDirectory,
             nugetNuspecDirectory,
             testResultsDirectory,
@@ -122,6 +124,7 @@ public class BuildDirectories
     public DirectoryPath PublishedWebsites { get; private set; }
     public DirectoryPath PublishedApplications { get; private set; }
     public DirectoryPath PublishedLibraries { get; private set; }
+    public DirectoryPath PublishedLambdas { get; private set; }
     public DirectoryPath PublishedDocumentation { get; private set; }
     public DirectoryPath ChocolateyNuspecDirectory { get; private set; }
     public DirectoryPath NuGetNuspecDirectory { get; private set; }
@@ -144,6 +147,7 @@ public class BuildDirectories
         DirectoryPath publishedWebsites,
         DirectoryPath publishedApplications,
         DirectoryPath publishedLibraries,
+        DirectoryPath publishedLambdas,
         DirectoryPath chocolateyNuspecDirectory,
         DirectoryPath nugetNuspecDirectory,
         DirectoryPath testResults,
@@ -164,6 +168,7 @@ public class BuildDirectories
         PublishedWebsites = publishedWebsites;
         PublishedApplications = publishedApplications;
         PublishedLibraries = publishedLibraries;
+        PublishedLambdas = publishedLambdas;
         ChocolateyNuspecDirectory = chocolateyNuspecDirectory;
         NuGetNuspecDirectory = nugetNuspecDirectory;
         TestResults = testResults;

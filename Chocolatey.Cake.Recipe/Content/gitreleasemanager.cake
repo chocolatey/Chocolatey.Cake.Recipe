@@ -22,7 +22,7 @@ BuildParameters.Tasks.CreateReleaseNotesTask = Task("Create-Release-Notes")
         }
         else
         {
-            Warning("Unable to use GitReleaseManager, as necessary credentials are not available");
+            Warning("Unable to use GitReleaseManager, as necessary credentials are not available. Token not set in environment variable");
         }
     })
 );

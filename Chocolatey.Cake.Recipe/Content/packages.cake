@@ -184,6 +184,39 @@ BuildParameters.Tasks.PublishReleasePackagesTask = Task("Publish-Release-Package
     publishingError = true;
 });
 
+BuildParameters.Tasks.PublishAwsLambdasTask = Task("Publish-AWS-Lambdas")
+    .WithCriteria(() => BuildParameters.ShouldPublishAwsLambdas, "Skipping because publishing of AWS Lambdas is not enabled")
+    .WithCriteria(() => !BuildParameters.IsLocalBuild || BuildParameters.ForceContinuousIntegration, "Skipping because this is a local build, and force isn't being applied")
+    .WithCriteria(() => !BuildParameters.IsPullRequest, "Skipping because current build is from a Pull Request")
+    .WithCriteria(() => BuildParameters.IsTagged, "Skipping because current commit is not tagged")
+    .IsDependentOn("DotNetBuild")
+    .Does(() => RequireTool(ToolSettings.AmazonLambdaGlobalTool, () => {
+        if (DirectoryExists(BuildParameters.Paths.Directories.PublishedLambdas))
+        {
+            var lambdaPackages = GetFiles(BuildParameters.Paths.Directories.PublishedLambdas + "/**/*.zip");
+
+            foreach (var lambdaPackage in lambdaPackages)
+            {
+                Information("Deploying Lambda package from zip file: {0}", lambdaPackage);
+
+                var functionName = lambdaPackage.GetFilenameWithoutExtension().FullPath.ToLower();
+
+               StartProcess("./tools/dotnet-lambda.exe", new ProcessSettings { Arguments = string.Format("deploy-function --package-type zip --package {0} --disable-interactive true --function-name {1}-test", lambdaPackage, functionName) });
+            }
+        }
+        else
+        {
+            Information("Unable to publish AWS Lambdas as AWS Lambdas Directory doesn't exist.");
+        }
+    })
+)
+.OnError(exception =>
+{
+    Error(exception.Message);
+    Information("Publish-AWS-Lambdas Task failed, but continuing with next Task...");
+    publishingError = true;
+});
+
 public void PushChocolateyPackages(ICakeContext context, bool isRelease, List<PackageSourceData> chocolateySources)
 {
     if (BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows && DirectoryExists(BuildParameters.Paths.Directories.ChocolateyPackages))
