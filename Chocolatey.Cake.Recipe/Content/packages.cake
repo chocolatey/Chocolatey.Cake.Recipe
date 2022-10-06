@@ -194,6 +194,7 @@ BuildParameters.Tasks.PublishAwsLambdasTask = Task("Publish-AWS-Lambdas")
         if (DirectoryExists(BuildParameters.Paths.Directories.PublishedLambdas))
         {
             var lambdaPackages = GetFiles(BuildParameters.Paths.Directories.PublishedLambdas + "/**/*.zip");
+            var regexPattern = new System.Text.RegularExpressions.Regex(@"(.*).((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$)");
 
             foreach (var lambdaPackage in lambdaPackages)
             {
@@ -201,7 +202,17 @@ BuildParameters.Tasks.PublishAwsLambdasTask = Task("Publish-AWS-Lambdas")
 
                 var functionName = lambdaPackage.GetFilenameWithoutExtension().FullPath.ToLower();
 
-               StartProcess("./tools/dotnet-lambda.exe", new ProcessSettings { Arguments = string.Format("deploy-function --package-type zip --package {0} --disable-interactive true --function-name {1}-test", lambdaPackage, functionName) });
+                // We need to test if the lambda package contains a semantic version, and if it does, remove it.
+                // We "remove" it, by using the first matching group of the regular expression
+                var matches = regexPattern.Matches(functionName);
+                if (matches.Count == 1)
+                {
+                    functionName = matches[0].Groups[1].Value;
+                }
+
+                Information("AWS Function Name: {0}", functionName);
+
+                StartProcess("./tools/dotnet-lambda.exe", new ProcessSettings { Arguments = string.Format("deploy-function --package-type zip --package {0} --disable-interactive true --function-name {1}-test", lambdaPackage, functionName) });
             }
         }
         else
