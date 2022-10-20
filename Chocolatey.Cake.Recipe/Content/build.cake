@@ -141,7 +141,8 @@ BuildParameters.Tasks.BuildTask = Task("Build")
             var xbuildSettings = new XBuildSettings()
                 .SetConfiguration(BuildParameters.Configuration)
                 .WithTarget("Build")
-                .WithProperty("TreatWarningsAsErrors", BuildParameters.TreatWarningsAsErrors.ToString());
+                .WithProperty("TreatWarningsAsErrors", BuildParameters.TreatWarningsAsErrors.ToString())
+                .WithProperty("Platform", ToolSettings.XBuildPlatformTarget);
 
             xbuildSettings.ArgumentCustomization = args => args.Append(string.Format("/filelogger /flp1:LogFile={0};Append;Encoding=ASCII", BuildParameters.Paths.Files.BuildLogFilePath.FullPath));
 

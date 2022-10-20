@@ -7,6 +7,7 @@ public static class ToolSettings
 
     public static MSBuildToolVersion BuildMSBuildToolVersion { get; private set; }
     public static PlatformTarget BuildPlatformTarget { get; private set; }
+    public static string XBuildPlatformTarget { get; private set; }
     public static FilePath EazfuscatorToolLocation { get; private set; }
     public static string AmazonLambdaGlobalTool { get; private set; }
     public static string GitVersionGlobalTool { get; private set; }
@@ -70,6 +71,7 @@ public static class ToolSettings
     public static void SetToolSettings(
         ICakeContext context,
         PlatformTarget? buildPlatformTarget = null,
+        string xBuildPlatformTarget = "Any CPU",
         MSBuildToolVersion buildMSBuildToolVersion = MSBuildToolVersion.Default,
         FilePath eazfuscatorToolLocation = null,
         int? maxCpuCount = null,
@@ -82,6 +84,7 @@ public static class ToolSettings
         context.Information("Setting up tools...");
 
         BuildPlatformTarget = buildPlatformTarget ?? PlatformTarget.MSIL;
+        XBuildPlatformTarget = xBuildPlatformTarget;
         BuildMSBuildToolVersion = buildMSBuildToolVersion;
         EazfuscatorToolLocation = eazfuscatorToolLocation ?? "./lib/Eazfuscator.NET/Eazfuscator.NET.exe";
         MaxCpuCount = maxCpuCount ?? 0;
