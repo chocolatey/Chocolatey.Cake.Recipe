@@ -1,3 +1,18 @@
+// Copyright © 2022 Chocolatey Software, Inc
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+//
+// You may obtain a copy of the License at
+//
+// 	http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 public static class ToolSettings
 {
     static ToolSettings()
@@ -7,6 +22,7 @@ public static class ToolSettings
 
     public static MSBuildToolVersion BuildMSBuildToolVersion { get; private set; }
     public static PlatformTarget BuildPlatformTarget { get; private set; }
+    public static string XBuildPlatformTarget { get; private set; }
     public static FilePath EazfuscatorToolLocation { get; private set; }
     public static string AmazonLambdaGlobalTool { get; private set; }
     public static string GitVersionGlobalTool { get; private set; }
@@ -70,6 +86,7 @@ public static class ToolSettings
     public static void SetToolSettings(
         ICakeContext context,
         PlatformTarget? buildPlatformTarget = null,
+        string xBuildPlatformTarget = "Any CPU",
         MSBuildToolVersion buildMSBuildToolVersion = MSBuildToolVersion.Default,
         FilePath eazfuscatorToolLocation = null,
         int? maxCpuCount = null,
@@ -82,6 +99,7 @@ public static class ToolSettings
         context.Information("Setting up tools...");
 
         BuildPlatformTarget = buildPlatformTarget ?? PlatformTarget.MSIL;
+        XBuildPlatformTarget = xBuildPlatformTarget;
         BuildMSBuildToolVersion = buildMSBuildToolVersion;
         EazfuscatorToolLocation = eazfuscatorToolLocation ?? "./lib/Eazfuscator.NET/Eazfuscator.NET.exe";
         MaxCpuCount = maxCpuCount ?? 0;
