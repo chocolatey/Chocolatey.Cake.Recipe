@@ -90,6 +90,7 @@ BuildParameters.Tasks.RestoreTask = Task("Restore")
 });
 
 BuildParameters.Tasks.DotNetRestoreTask = Task("DotNetRestore")
+    .WithCriteria(() => BuildParameters.IsDotNetBuild, "Skipping since running DotNet related tasks hasn't been selected in the recipe.cake file.")
     .IsDependentOn("Clean")
     .Does(() =>
 {
@@ -173,6 +174,7 @@ BuildParameters.Tasks.BuildTask = Task("Build")
     }));
 
 BuildParameters.Tasks.DotNetBuildTask = Task("DotNetBuild")
+    .WithCriteria(() => BuildParameters.IsDotNetBuild, "Skipping since running DotNet related tasks hasn't been selected in the recipe.cake file.")
     .IsDependentOn("Clean")
     .IsDependentOn("DotNetRestore")
     .Does(() => {
@@ -581,6 +583,7 @@ public class Builder
             BuildParameters.Tasks.TestTask.IsDependentOn("Generate-FriendlyCoverageReport");
             BuildParameters.Tasks.TestTask.IsDependentOn("Report-UnitTestResults");
             BuildParameters.Tasks.TestTask.IsDependentOn("Report-Code-Coverage-Metrics");
+            BuildParameters.Tasks.PublishAwsLambdasTask.IsDependentOn("DotNetBuild");
         }
     }
 }
