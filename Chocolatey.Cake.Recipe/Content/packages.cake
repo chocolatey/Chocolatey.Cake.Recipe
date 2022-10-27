@@ -201,10 +201,10 @@ BuildParameters.Tasks.PublishReleasePackagesTask = Task("Publish-Release-Package
 
 BuildParameters.Tasks.PublishAwsLambdasTask = Task("Publish-AWS-Lambdas")
     .WithCriteria(() => BuildParameters.ShouldPublishAwsLambdas, "Skipping because publishing of AWS Lambdas is not enabled")
+    .WithCriteria(() => BuildParameters.IsDotNetBuild, "Skipping since runing DotNet related tasks hasn't been selected in the recipe.cake file.")
     .WithCriteria(() => !BuildParameters.IsLocalBuild || BuildParameters.ForceContinuousIntegration, "Skipping because this is a local build, and force isn't being applied")
     .WithCriteria(() => !BuildParameters.IsPullRequest, "Skipping because current build is from a Pull Request")
     .WithCriteria(() => BuildParameters.IsTagged, "Skipping because current commit is not tagged")
-    .IsDependentOn("DotNetBuild")
     .Does(() => RequireTool(ToolSettings.AmazonLambdaGlobalTool, () => {
         if (DirectoryExists(BuildParameters.Paths.Directories.PublishedLambdas))
         {
