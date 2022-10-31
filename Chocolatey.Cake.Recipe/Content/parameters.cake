@@ -47,6 +47,8 @@ public static class BuildParameters
     public static Func<FilePathCollection> GetProjectsToPack { get; private set; }
     public static Func<FilePathCollection> GetScriptsToSign { get; private set; }
     public static GitHubCredentials GitHub { get; private set; }
+    public static string IntegrationTestAssemblyFilePattern { get; private set; }
+    public static string IntegrationTestAssemblyProjectPattern { get; private set; }
     public static FilePath IntegrationTestScriptPath { get; private set; }
     public static bool IsDotNetBuild { get; set; }
     public static bool IsLocalBuild { get; private set; }
@@ -114,8 +116,6 @@ public static class BuildParameters
     public static string StrongNameKeyPath { get; private set; }
     public static string Target { get; private set; }
     public static BuildTasks Tasks { get; set; }
-    public static string TestAssemblyFilePattern { get; private set; }
-    public static string TestAssemblyProjectPattern { get; private set; }
     public static DirectoryPath TestDirectoryPath { get; private set; }
     public static string TestExecutionType { get; private set; }
     public static string Title { get; private set; }
@@ -123,6 +123,8 @@ public static class BuildParameters
     public static TransifexMode TransifexPullMode { get; private set; }
     public static int TransifexPullPercentage { get; private set; }
     public static bool TreatWarningsAsErrors { get; set; }
+    public static string UnitTestAssemblyFilePattern { get; private set; }
+    public static string UnitTestAssemblyProjectPattern { get; private set; }
     public static bool UseChocolateyGuiStrongNameKey { get; private set; }
     public static BuildVersion Version { get; private set; }
 
@@ -158,6 +160,8 @@ public static class BuildParameters
         context.Information("BuildProviderRepositoryName: {0}", BuildProvider.Repository.Name);
         context.Information("Configuration: {0}", Configuration);
         context.Information("ForceContinuousIntegration: {0}", ForceContinuousIntegration);
+        context.Information("IntegrationTestAssemblyFilePattern: {0}", IntegrationTestAssemblyFilePattern);
+        context.Information("IntegrationTestAssemblyProjectPattern: {0}", IntegrationTestAssemblyProjectPattern);
         context.Information("IsLocalBuild: {0}", IsLocalBuild);
         context.Information("IsPullRequest: {0}", IsPullRequest);
         context.Information("IsTagged: {0}", IsTagged);
@@ -221,8 +225,6 @@ public static class BuildParameters
         context.Information("SourceDirectoryPath: {0}", context.MakeAbsolute(SourceDirectoryPath));
         context.Information("StrongNameDependentAssembliesInputPath: {0}", StrongNameDependentAssembliesInputPath);
         context.Information("Target: {0}", Target);
-        context.Information("TestAssemblyFilePattern: {0}", TestAssemblyFilePattern);
-        context.Information("TestAssemblyProjectPattern: {0}", TestAssemblyProjectPattern);
         context.Information("TestExecutionType: {0}", TestExecutionType);
 
         if (ShouldRunTransifex)
@@ -232,6 +234,8 @@ public static class BuildParameters
         }
 
         context.Information("TreatWarningsAsErrors: {0}", TreatWarningsAsErrors);
+        context.Information("UnitTestAssemblyFilePattern: {0}", UnitTestAssemblyFilePattern);
+        context.Information("UnitTestAssemblyProjectPattern: {0}", UnitTestAssemblyProjectPattern);
         context.Information("UseChocolateyGuiStrongNameKey: {0}", UseChocolateyGuiStrongNameKey);
 
         context.Information("------------------------------------------------------------------------------------------");
@@ -251,6 +255,8 @@ public static class BuildParameters
         Func<FilePathCollection> getMsisToSign = null,
         Func<FilePathCollection> getProjectsToPack = null,
         Func<FilePathCollection> getScriptsToSign = null,
+        string integrationTestAssemblyFilePattern = null,
+        string integrationTestAssemblyProjectPattern = null,
         string integrationTestScriptPath = null,
         string masterBranchName = "master",
         FilePath milestoneReleaseNotesFilePath = null,
@@ -305,12 +311,12 @@ public static class BuildParameters
         DirectoryPath solutionDirectoryPath = null,
         FilePath solutionFilePath = null,
         string strongNameDependentAssembliesInputPath = null,
-        string testAssemblyFilePattern = null,
-        string testAssemblyProjectPattern = null,
         DirectoryPath testDirectoryPath = null,
         TransifexMode transifexPullMode = TransifexMode.OnlyTranslated,
         int transifexPullPercentage = 60,
         bool treatWarningsAsErrors = true,
+        string unitTestAssemblyFilePattern = null,
+        string unitTestAssemblyProjectPattern = null,
         bool useChocolateyGuiStrongNameKey = false
         )
     {
@@ -359,6 +365,8 @@ public static class BuildParameters
         GetProjectsToPack = getProjectsToPack;
         GetScriptsToSign = getScriptsToSign;
         GitHub = GetGitHubCredentials(context);
+        IntegrationTestAssemblyFilePattern = integrationTestAssemblyFilePattern ?? "/**/*[tT]ests.[iI]ntegration.dll";
+        IntegrationTestAssemblyProjectPattern = integrationTestAssemblyProjectPattern ?? "/**/*[tT]ests.[iI]ntegration.csproj";
         IntegrationTestScriptPath = integrationTestScriptPath ?? context.MakeAbsolute((FilePath)"test.cake");
         IsLocalBuild = buildSystem.IsLocalBuild;
         IsPullRequest = BuildProvider.PullRequest.IsPullRequest;
@@ -432,6 +440,8 @@ public static class BuildParameters
         TransifexPullMode = transifexPullMode;
         TransifexPullPercentage = transifexPullPercentage;
         TreatWarningsAsErrors = treatWarningsAsErrors;
+        UnitTestAssemblyFilePattern = unitTestAssemblyFilePattern ?? "/**/*.[tT]ests/**/*.[tT]ests.dll";
+        UnitTestAssemblyProjectPattern = unitTestAssemblyProjectPattern ?? "/**/*.[tT]ests/**/*.[tT]ests.csproj";
         UseChocolateyGuiStrongNameKey = useChocolateyGuiStrongNameKey;
 
         SetBuildPaths(BuildPaths.GetPaths());
@@ -550,22 +560,6 @@ public static class BuildParameters
 
                 StrongNameKeyPath = newChocolateyUnofficialKey.FullPath;
             }
-        }
-
-        if (TestExecutionType == "unit")
-        {
-            TestAssemblyFilePattern = testAssemblyFilePattern ?? "/**/*[tT]ests.dll";
-            TestAssemblyProjectPattern = testAssemblyProjectPattern ?? "/**/*[tT]ests.csproj";
-        }
-        else if (TestExecutionType == "integration")
-        {
-            TestAssemblyFilePattern = testAssemblyFilePattern ?? "/**/*[tT]ests.[iI]ntegration.dll";
-            TestAssemblyProjectPattern = testAssemblyProjectPattern ?? "/**/*[tT]ests.[iI]ntegration.csproj";
-        }
-        else if (TestExecutionType == "all")
-        {
-            TestAssemblyFilePattern = testAssemblyFilePattern ?? "/**/*{[tT]ests|[tT]ests.[iI]ntegration}.dll";
-            TestAssemblyProjectPattern = testAssemblyProjectPattern ?? "/**/*{[tT]ests|[tT]ests.[iI]ntegration}.csproj";
         }
     }
 }

@@ -38,12 +38,28 @@ BuildParameters.Tasks.TestNUnitTask = Task("Test-NUnit")
             return;
         }
 
+        var assembliesToTest = new FilePathCollection();
+
+        if (BuildParameters.TestExecutionType == "unit")
+        {
+            assembliesToTest = GetFiles(BuildParameters.Paths.Directories.PublishedNUnitTests + BuildParameters.UnitTestAssemblyFilePattern);
+        }
+        else if (BuildParameters.TestExecutionType == "integration")
+        {
+            assembliesToTest = GetFiles(BuildParameters.Paths.Directories.PublishedNUnitTests + BuildParameters.IntegrationTestAssemblyFilePattern);
+        }
+        else if (BuildParameters.TestExecutionType == "all")
+        {
+            assembliesToTest = GetFiles(BuildParameters.Paths.Directories.PublishedNUnitTests + BuildParameters.UnitTestAssemblyFilePattern)
+                            + GetFiles(BuildParameters.Paths.Directories.PublishedNUnitTests + BuildParameters.IntegrationTestAssemblyFilePattern);
+        }
+
         if (BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows && BuildParameters.ShouldRunOpenCover)
         {
             Information("Running OpenCover and NUnit...");
 
             OpenCover(tool => {
-                tool.NUnit3(GetFiles(BuildParameters.Paths.Directories.PublishedNUnitTests + BuildParameters.TestAssemblyFilePattern), new NUnit3Settings {
+                tool.NUnit3(assembliesToTest, new NUnit3Settings {
                     Work = BuildParameters.Paths.Directories.NUnitTestResults
                 });
             },
@@ -62,7 +78,7 @@ BuildParameters.Tasks.TestNUnitTask = Task("Test-NUnit")
             Information("Running NUnit...");
 
             // OpenCover doesn't work on anything non-windows, so let's just run NUnit by itself
-            NUnit3(GetFiles(BuildParameters.Paths.Directories.PublishedNUnitTests + BuildParameters.TestAssemblyFilePattern), new NUnit3Settings {
+            NUnit3(assembliesToTest, new NUnit3Settings {
                 Work = BuildParameters.Paths.Directories.NUnitTestResults
             });
         }
@@ -82,12 +98,28 @@ BuildParameters.Tasks.TestxUnitTask = Task("Test-xUnit")
             return;
         }
 
+        var assembliesToTest = new FilePathCollection();
+
+        if (BuildParameters.TestExecutionType == "unit")
+        {
+            assembliesToTest = GetFiles(BuildParameters.Paths.Directories.PublishedxUnitTests + BuildParameters.UnitTestAssemblyFilePattern);
+        }
+        else if (BuildParameters.TestExecutionType == "integration")
+        {
+            assembliesToTest = GetFiles(BuildParameters.Paths.Directories.PublishedxUnitTests + BuildParameters.IntegrationTestAssemblyFilePattern);
+        }
+        else if (BuildParameters.TestExecutionType == "all")
+        {
+            assembliesToTest = GetFiles(BuildParameters.Paths.Directories.PublishedxUnitTests + BuildParameters.UnitTestAssemblyFilePattern)
+                            + GetFiles(BuildParameters.Paths.Directories.PublishedxUnitTests + BuildParameters.IntegrationTestAssemblyFilePattern);
+        }
+
         if (BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows && BuildParameters.ShouldRunOpenCover)
         {
             Information("Running OpenCover and xUnit...");
 
             OpenCover(tool => {
-                tool.XUnit2(GetFiles(BuildParameters.Paths.Directories.PublishedxUnitTests + BuildParameters.TestAssemblyFilePattern), new XUnit2Settings {
+                tool.XUnit2(assembliesToTest, new XUnit2Settings {
                     OutputDirectory = BuildParameters.Paths.Directories.xUnitTestResults,
                     XmlReport = true,
                     NoAppDomain = true
@@ -108,7 +140,7 @@ BuildParameters.Tasks.TestxUnitTask = Task("Test-xUnit")
             Information("Running xUnit...");
 
             // OpenCover doesn't work on anything non-windows, so let's just run xUnit by itself
-            XUnit2(GetFiles(BuildParameters.Paths.Directories.PublishedxUnitTests + BuildParameters.TestAssemblyFilePattern), new XUnit2Settings {
+            XUnit2(assembliesToTest, new XUnit2Settings {
                 OutputDirectory = BuildParameters.Paths.Directories.xUnitTestResults,
                 XmlReport = true,
                 NoAppDomain = true
@@ -142,7 +174,22 @@ BuildParameters.Tasks.DotNetTestTask = Task("DotNetTest")
             msBuildSettings.WithProperty("FrameworkPathOverride", frameworkPathOverride);
         }
 
-        var projects = GetFiles(BuildParameters.TestDirectoryPath + BuildParameters.TestAssemblyProjectPattern);
+        var projectsToTest = new FilePathCollection();
+
+        if (BuildParameters.TestExecutionType == "unit")
+        {
+            projectsToTest = GetFiles(BuildParameters.TestDirectoryPath + BuildParameters.UnitTestAssemblyProjectPattern);
+        }
+        else if (BuildParameters.TestExecutionType == "integration")
+        {
+            projectsToTest = GetFiles(BuildParameters.TestDirectoryPath + BuildParameters.IntegrationTestAssemblyProjectPattern);
+        }
+        else if (BuildParameters.TestExecutionType == "all")
+        {
+            projectsToTest = GetFiles(BuildParameters.TestDirectoryPath + BuildParameters.UnitTestAssemblyProjectPattern)
+                            + GetFiles(BuildParameters.TestDirectoryPath + BuildParameters.IntegrationTestAssemblyProjectPattern);
+        }
+
         // We create the coverlet settings here so we don't have to create the filters several times
         var coverletSettings = new CoverletSettings
         {
@@ -171,7 +218,7 @@ BuildParameters.Tasks.DotNetTestTask = Task("DotNetTest")
             NoBuild = true
         };
 
-        foreach (var project in projects)
+        foreach (var project in projectsToTest)
         {
             Action<ICakeContext> testAction = tool =>
             {
