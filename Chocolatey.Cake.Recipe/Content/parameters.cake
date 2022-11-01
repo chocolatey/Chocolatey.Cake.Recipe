@@ -455,11 +455,11 @@ public static class BuildParameters
         {
             BranchType = BranchType.Develop;
         }
-        else if (branchName.StartsWith("release", StringComparison.OrdinalIgnoreCase))
+        else if (branchName != null && branchName.StartsWith("release", StringComparison.OrdinalIgnoreCase))
         {
             BranchType = BranchType.Release;
         }
-        else if (branchName.StartsWith("hotfix", StringComparison.OrdinalIgnoreCase))
+        else if (branchName != null && branchName.StartsWith("hotfix", StringComparison.OrdinalIgnoreCase))
         {
             BranchType = BranchType.HotFix;
         }
