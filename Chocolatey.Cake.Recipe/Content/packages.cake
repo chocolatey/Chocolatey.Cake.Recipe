@@ -37,7 +37,7 @@ BuildParameters.Tasks.CreateChocolateyPackagesTask = Task("Create-Chocolatey-Pac
     .WithCriteria(() => DirectoryExists(BuildParameters.Paths.Directories.ChocolateyNuspecDirectory), "Skipping because Chocolatey nuspec directory is missing")
     .Does(() =>
 {
-    var nuspecFiles = GetFiles(BuildParameters.Paths.Directories.ChocolateyNuspecDirectory + "/**/*.nuspec");
+    var nuspecFiles = GetFiles(BuildParameters.Paths.Directories.ChocolateyNuspecDirectory + BuildParameters.ChocolateyNuspecGlobbingPattern);
 
     EnsureDirectoryExists(BuildParameters.Paths.Directories.ChocolateyPackages);
 
@@ -63,7 +63,7 @@ BuildParameters.Tasks.CreateNuGetPackagesTask = Task("Create-NuGet-Packages")
     .WithCriteria(() => DirectoryExists(BuildParameters.Paths.Directories.NuGetNuspecDirectory), "Skipping because NuGet nuspec directory does not exist")
     .Does(() =>
 {
-    var nuspecFiles = GetFiles(BuildParameters.Paths.Directories.NuGetNuspecDirectory + "/**/*.nuspec");
+    var nuspecFiles = GetFiles(BuildParameters.Paths.Directories.NuGetNuspecDirectory + BuildParameters.NuGetNuspecGlobbingPattern);
 
     EnsureDirectoryExists(BuildParameters.Paths.Directories.NuGetPackages);
 
@@ -251,7 +251,7 @@ public void PushChocolateyPackages(ICakeContext context, bool isRelease, List<Pa
 
         foreach (var chocolateySource in chocolateySources)
         {
-            var nupkgFiles = GetFiles(BuildParameters.Paths.Directories.ChocolateyPackages + "/**/*.nupkg");
+            var nupkgFiles = GetFiles(BuildParameters.Paths.Directories.ChocolateyPackages + BuildParameters.ChocolateyNupkgGlobbingPattern);
 
             var chocolateyPushSettings = new ChocolateyPushSettings
                 {
@@ -317,7 +317,7 @@ public void PushNuGetPackages(ICakeContext context, bool isRelease, List<Package
 
         foreach (var nugetSource in nugetSources)
         {
-            var nupkgFiles = GetFiles(BuildParameters.Paths.Directories.NuGetPackages + "/**/*.nupkg");
+            var nupkgFiles = GetFiles(BuildParameters.Paths.Directories.NuGetPackages + BuildParameters.NuGetNupkgGlobbingPattern);
 
             var nugetPushSettings = new NuGetPushSettings
                 {
@@ -376,12 +376,12 @@ public void PushNuGetPackages(ICakeContext context, bool isRelease, List<Package
 BuildParameters.Tasks.PackageTask = Task("Package")
     .IsDependentOn("Export-Release-Notes")
     .Does(() => {
-        foreach (var nuGetPackage in GetFiles(BuildParameters.Paths.Directories.NuGetPackages + "/**/*.nupkg"))
+        foreach (var nuGetPackage in GetFiles(BuildParameters.Paths.Directories.NuGetPackages + BuildParameters.NuGetNupkgGlobbingPattern))
         {
             BuildParameters.BuildProvider.UploadArtifact(nuGetPackage);
         }
 
-        foreach (var chocolateyPackage in GetFiles(BuildParameters.Paths.Directories.ChocolateyPackages + "/*.nupkg"))
+        foreach (var chocolateyPackage in GetFiles(BuildParameters.Paths.Directories.ChocolateyPackages + BuildParameters.ChocolateyNupkgGlobbingPattern))
         {
             BuildParameters.BuildProvider.UploadArtifact(chocolateyPackage);
         }
