@@ -35,6 +35,8 @@ public static class BuildParameters
     public static string CertificatePassword { get; private set; }
     public static string CertificateSubjectName { get; private set; }
     public static string CertificateTimestampUrl { get; private set; }
+    public static string ChocolateyNupkgGlobbingPattern { get; private set; }
+    public static string ChocolateyNuspecGlobbingPattern { get; private set; }
     public static string Configuration { get; private set; }
     public static string DeploymentEnvironment { get; private set; }
     public static string DevelopBranchName { get; private set; }
@@ -59,6 +61,8 @@ public static class BuildParameters
     public static bool IsTagged { get; private set; }
     public static string MasterBranchName { get; private set; }
     public static FilePath MilestoneReleaseNotesFilePath { get; private set; }
+    public static string NuGetNupkgGlobbingPattern { get; private set; }
+    public static string NuGetNuspecGlobbingPattern { get; private set; }
     public static ICollection<string> NuGetSources { get; private set; }
     public static bool ObfuscateAssembly { get; private set; }
     public static List<PackageSourceData> PackageSources { get; private set; }
@@ -158,6 +162,8 @@ public static class BuildParameters
         context.Information("BuildCounter: {0}", BuildCounter);
         context.Information("BuildDirectoryPath: {0}", context.MakeAbsolute(Paths.Directories.Build));
         context.Information("BuildProviderRepositoryName: {0}", BuildProvider.Repository.Name);
+        context.Information("ChocolateyNupkgGlobbingPattern: {0}", ChocolateyNupkgGlobbingPattern);
+        context.Information("ChocolateyNuspecGlobbingPattern: {0}", ChocolateyNuspecGlobbingPattern);
         context.Information("Configuration: {0}", Configuration);
         context.Information("ForceContinuousIntegration: {0}", ForceContinuousIntegration);
         context.Information("IntegrationTestAssemblyFilePattern: {0}", IntegrationTestAssemblyFilePattern);
@@ -165,6 +171,8 @@ public static class BuildParameters
         context.Information("IsLocalBuild: {0}", IsLocalBuild);
         context.Information("IsPullRequest: {0}", IsPullRequest);
         context.Information("IsTagged: {0}", IsTagged);
+        context.Information("NuGetNupkgGlobbingPattern: {0}", NuGetNupkgGlobbingPattern);
+        context.Information("NuGetNuspecGlobbingPattern: {0}", NuGetNuspecGlobbingPattern);
         context.Information("NuGetSources: {0}", string.Join(", ", NuGetSources));
         context.Information("ObfuscateAssembly: {0}", ObfuscateAssembly);
         context.Information("PreferDotNetGlobalToolUsage: {0}", PreferDotNetGlobalToolUsage);
@@ -247,6 +255,8 @@ public static class BuildParameters
         DirectoryPath sourceDirectoryPath,
         string title,
         string certificateSubjectName = null,
+        string chocolateyNupkgGlobbingPattern = "/**/*.nupkg",
+        string chocolateyNuspecGlobbingPattern = "/**/*.nuspec",
         string developBranchName = "develop",
         FilePath fullReleaseNotesFilePath = null,
         Func<FilePathCollection> getFilesToObfuscate = null,
@@ -260,6 +270,8 @@ public static class BuildParameters
         string integrationTestScriptPath = null,
         string masterBranchName = "master",
         FilePath milestoneReleaseNotesFilePath = null,
+        string nuGetNupkgGlobbingPattern = "/**/*.nupkg",
+        string nuGetNuspecGlobbingPattern = "/**/*.nuspec",
         ICollection<string> nuGetSources = null,
         bool obfuscateAssembly = false,
         List<PackageSourceData> packageSourceDatas = null,
@@ -353,6 +365,8 @@ public static class BuildParameters
         CertificatePassword = context.EnvironmentVariable("CHOCOLATEY_OFFICIAL_CERT_PASSWORD") ?? "";
         CertificateSubjectName = certificateSubjectName ?? "Chocolatey Software, Inc.";
         CertificateTimestampUrl = context.EnvironmentVariable("CERT_TIMESTAMP_URL") ?? "http://timestamp.digicert.com";
+        ChocolateyNupkgGlobbingPattern = chocolateyNupkgGlobbingPattern;
+        ChocolateyNuspecGlobbingPattern = chocolateyNuspecGlobbingPattern;
         Configuration = context.Argument("configuration", "Release");
         DeploymentEnvironment = context.Argument("environment", "Release");
         DevelopBranchName = developBranchName;
@@ -375,6 +389,8 @@ public static class BuildParameters
         IsTagged = BuildProvider.Repository.Tag.IsTag;
         MasterBranchName = masterBranchName;
         MilestoneReleaseNotesFilePath = milestoneReleaseNotesFilePath ?? RootDirectoryPath.CombineWithFilePath("CHANGELOG.md");
+        NuGetNupkgGlobbingPattern = nuGetNupkgGlobbingPattern;
+        NuGetNuspecGlobbingPattern = nuGetNuspecGlobbingPattern;
         NuGetSources = nuGetSources;
         ObfuscateAssembly = obfuscateAssembly;
         PreferDotNetGlobalToolUsage = preferDotNetGlobalToolUsage;
