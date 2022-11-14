@@ -20,6 +20,8 @@ using System.Xml.XPath;
 // TASK DEFINITIONS
 ///////////////////////////////////////////////////////////////////////////////
 
+Tuple<string, Exception> testsException = null;
+
 BuildParameters.Tasks.InstallOpenCoverTask = Task("Install-OpenCover")
     .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping because not running on windows")
     .Does(() => RequireTool(ToolSettings.OpenCoverTool, () => {
@@ -83,7 +85,11 @@ BuildParameters.Tasks.TestNUnitTask = Task("Test-NUnit")
             });
         }
     })
-);
+).OnError((exception) =>
+{
+    Warning("Task Test-NUnit failed with the exception message {0}", exception.Message);
+    testsException = new Tuple<string, Exception>("Test-NUnit", exception);
+});
 
 BuildParameters.Tasks.TestxUnitTask = Task("Test-xUnit")
     .IsDependentOn("Install-OpenCover")
@@ -147,7 +153,11 @@ BuildParameters.Tasks.TestxUnitTask = Task("Test-xUnit")
             });
         }
     })
-);
+).OnError((exception) =>
+{
+    Warning("Task Test-xUnit failed with the exception message {0}", exception.Message);
+    testsException = new Tuple<string, Exception>("Test-xUnit", exception);
+});
 
 BuildParameters.Tasks.DotNetTestTask = Task("DotNetTest")
     .IsDependentOn("Install-OpenCover")
@@ -280,6 +290,10 @@ BuildParameters.Tasks.DotNetTestTask = Task("DotNetTest")
                 }
             }
         }
+}).OnError((exception) =>
+{
+    Warning("Task DotNetTest failed with the exception message {0}", exception.Message);
+    testsException = new Tuple<string, Exception>("DotNetTest", exception);
 });
 
 BuildParameters.Tasks.GenerateFriendlyTestReportTask = Task("Generate-FriendlyTestReport")
@@ -287,6 +301,7 @@ BuildParameters.Tasks.GenerateFriendlyTestReportTask = Task("Generate-FriendlyTe
     .IsDependentOn("Test-xUnit")
     .WithCriteria(() => BuildParameters.ShouldRunReportUnit, "Skipping because ReportUnit is not enabled")
     .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping due to not running on Windows")
+    .ContinueOnError() // We do not want this task to fail the build
     .Does(() => RequireTool(ToolSettings.ReportUnitTool, () =>
     {
         var possibleDirectories = new[] {
@@ -311,6 +326,7 @@ BuildParameters.Tasks.GenerateFriendlyTestReportTask = Task("Generate-FriendlyTe
 BuildParameters.Tasks.ReportUnitTestResultsTask = Task("Report-UnitTestResults")
     .WithCriteria(() => BuildParameters.ShouldReportUnitTestResults, "Skipping because reporting of unit test results is not enabled")
     .WithCriteria(() => BuildSystem.IsRunningOnTeamCity, "Skipping due to not running on TeamCity")
+    .ContinueOnError() // We do not want this task to fail the build
     .Does(() => {
         Information("Reporting Unit Test results to TeamCity if any exist...");
         foreach (var xUnitResultFile in GetFiles(BuildParameters.Paths.Directories.xUnitTestResults + "/*.xml"))
@@ -330,6 +346,7 @@ BuildParameters.Tasks.ReportCodeCoverageMetricsTask = Task("Report-Code-Coverage
     .IsDependentOn("Convert-OpenCoverToLcov")
     .WithCriteria(() => BuildParameters.ShouldReportCodeCoverageMetrics, "Skipping because reporting of code coverage metrics is not enabled")
     .WithCriteria(() => BuildSystem.IsRunningOnTeamCity, "Skipping due to not running on TeamCity")
+    .ContinueOnError() // We do not want this task to fail the build
     .Does(() => {
         var coverageFiles = GetFiles(BuildParameters.Paths.Directories.TestCoverage + "/coverlet/*.xml");
         if (FileExists(BuildParameters.Paths.Files.TestCoverageOutputFilePath))
@@ -410,6 +427,7 @@ private void ReportCoverageMetric(
 
 BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Generate-FriendlyCoverageReport")
     .WithCriteria(() => BuildParameters.ShouldRunReportGenerator, "Skipping because ReportGenarator is not enabled")
+    .ContinueOnError() // We do not want this task to fail the build
     .Does(() => RequireTool(BuildParameters.IsDotNetBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.ReportGeneratorGlobalTool : ToolSettings.ReportGeneratorTool, () => {
         var coverageFiles = GetFiles(BuildParameters.Paths.Directories.TestCoverage + "/coverlet/*.xml");
         if (FileExists(BuildParameters.Paths.Files.TestCoverageOutputFilePath))
@@ -450,6 +468,7 @@ BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Generate-FriendlyC
 BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Convert-OpenCoverToLcov")
     .WithCriteria(() => BuildParameters.ShouldRunReportGenerator, "Skipping because ReportGenarator is not enabled")
     .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping due to not running on Windows")
+    .ContinueOnError() // We do not want this task to fail the build
     .Does(() => RequireTool(BuildParameters.IsDotNetBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.ReportGeneratorGlobalTool : ToolSettings.ReportGeneratorTool, () => {
         if (FileExists(BuildParameters.Paths.Files.TestCoverageOutputFilePath))
         {
@@ -500,5 +519,13 @@ BuildParameters.Tasks.TestTask = Task("Test")
         if (FileExists(BuildParameters.Paths.Directories.TestCoverage + "/lcov.info"))
         {
             BuildParameters.BuildProvider.UploadArtifact(BuildParameters.Paths.Directories.TestCoverage + "/lcov.info");
+        }
+
+        // Let us check and rethrow any exception that occurred while
+        // running the unit tests.
+        if (testsException != null)
+        {
+            Error("The Task {0} failed!", testsException.Item1);
+            throw testsException.Item2;
         }
 });
