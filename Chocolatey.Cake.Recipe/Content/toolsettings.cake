@@ -21,6 +21,7 @@ public static class ToolSettings
     }
 
     public static MSBuildToolVersion BuildMSBuildToolVersion { get; private set; }
+    public static FilePath MSBuildToolPath { get; private set; }
     public static PlatformTarget BuildPlatformTarget { get; private set; }
     public static string XBuildPlatformTarget { get; private set; }
     public static FilePath EazfuscatorToolLocation { get; private set; }
@@ -88,6 +89,7 @@ public static class ToolSettings
         PlatformTarget? buildPlatformTarget = null,
         string xBuildPlatformTarget = "Any CPU",
         MSBuildToolVersion buildMSBuildToolVersion = MSBuildToolVersion.Default,
+        FilePath msBuildToolPath = null,
         FilePath eazfuscatorToolLocation = null,
         int? maxCpuCount = null,
         DirectoryPath outputDirectory = null,
@@ -107,5 +109,157 @@ public static class ToolSettings
         TestCoverageExcludeByAttribute = testCoverageExcludeByAttribute ?? "*.ExcludeFromCodeCoverage*";
         TestCoverageExcludeByFile = testCoverageExcludeByFile ?? "*/*Designer.cs;*/*.g.cs;*/*.g.i.cs";
         TestCoverageFilter = testCoverageFilter ?? string.Format("+[{0}*]* +[{1}*]* -[*.tests]* -[*.Tests]*", BuildParameters.Title, BuildParameters.Title.ToLowerInvariant());
+
+        if (msBuildToolPath == null)
+        {
+            msBuildToolPath = ResolveVisualStudioMsBuildPath(context, BuildMSBuildToolVersion);
+
+            if (msBuildToolPath == null)
+            {
+                context.Warning("No supported MSBuild Tool was found! Continuing with automatic detection!");
+            }
+            else
+            {
+                context.Information("Found MSBuild Tool: {0}", msBuildToolPath);
+                MSBuildToolPath = msBuildToolPath;
+            }
+        }
+    }
+
+    private static string GetVersionRange(MSBuildToolVersion toolVersion, bool minimumRange)
+    {
+        string minimumVersion = string.Empty;
+        string maximumVersion = string.Empty;
+
+        switch (toolVersion)
+        {
+            case MSBuildToolVersion.VS2005:
+                minimumVersion = "8.0";
+                maximumVersion = "9.0";
+                break;
+
+            case MSBuildToolVersion.VS2008:
+                minimumVersion = "9.0";
+                maximumVersion = "10.0";
+                break;
+
+            case MSBuildToolVersion.VS2010:
+                minimumVersion = "10.0";
+                maximumVersion = "12.0";
+                break;
+
+            case MSBuildToolVersion.VS2013:
+                minimumVersion = "12.0";
+                maximumVersion = "14.0";
+                break;
+
+            case MSBuildToolVersion.VS2015:
+                minimumVersion = "14.0";
+                maximumVersion = "16.0";
+                break;
+
+            case MSBuildToolVersion.VS2017:
+                minimumVersion = "15.0";
+                maximumVersion = "16.0";
+                break;
+
+            case MSBuildToolVersion.VS2019:
+                minimumVersion = "16.0";
+                maximumVersion = "17.0";
+                break;
+        }
+
+        if (string.IsNullOrEmpty(minimumVersion) && string.IsNullOrEmpty(maximumVersion))
+        {
+            return null;
+        }
+        else if (minimumRange)
+        {
+            return minimumVersion;
+        }
+        else
+        {
+            return string.Format("[{0},{1})", minimumVersion, maximumVersion);
+        }
+    }
+
+    private static FilePath ResolveVisualStudioMsBuildPath(ICakeContext context, MSBuildToolVersion toolVersion, string versionRange = null)
+    {
+        var canUseMinimumFallback = false;
+
+        if (string.IsNullOrEmpty(versionRange))
+        {
+            canUseMinimumFallback = true;
+            versionRange = GetVersionRange(toolVersion, minimumRange: false);
+        }
+
+        var vsWhereProductSettings = new VSWhereProductSettings
+        {
+            Version = versionRange,
+        };
+
+        if (!string.IsNullOrEmpty(versionRange))
+        {
+            context.Information("Resolving Visual Studio products using version range '{0}'.", versionRange);
+        }
+        else
+        {
+            context.Information("Resolving Visual Studio products without using a version range.");
+        }
+
+        var msBuildPath = GetMsBuildToolPath(context, context.VSWhereProducts("*", vsWhereProductSettings));
+
+        if (msBuildPath != null || (versionRange == null && toolVersion == MSBuildToolVersion.VS2019))
+        {
+            return msBuildPath;
+        }
+
+        var vsWhereLegacySettings = new VSWhereLegacySettings
+        {
+            Version = versionRange
+        };
+
+        if (!string.IsNullOrEmpty(versionRange))
+        {
+            context.Information("Resolving Legacy Visual Studio installation using version range '{0}'.", versionRange);
+        }
+        else
+        {
+            context.Information("Resolving Legacy Visual Studio installation without using a version range.");
+        }
+
+        msBuildPath = GetMsBuildToolPath(context, context.VSWhereLegacy(vsWhereLegacySettings));
+
+        if (msBuildPath != null || versionRange == null)
+        {
+            return msBuildPath;
+        }
+
+        if (canUseMinimumFallback)
+        {
+            return ResolveVisualStudioMsBuildPath(context, toolVersion, GetVersionRange(toolVersion, minimumRange: true));
+        }
+
+        return null;
+    }
+
+    private static FilePath GetMsBuildToolPath(ICakeContext context, DirectoryPathCollection directories)
+    {
+        if (directories == null)
+        {
+            return null;
+        }
+
+        foreach (var installation in directories)
+        {
+            var path = context.GetFiles(installation + "/MSBuild/*/Bin/amd64/MSBuild.exe").FirstOrDefault();
+
+            if (path != null)
+            {
+                return path;
+            }
+        }
+
+        return null;
     }
 }
