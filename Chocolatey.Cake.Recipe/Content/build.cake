@@ -125,7 +125,10 @@ BuildParameters.Tasks.BuildTask = Task("Build")
 
         if (BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows)
         {
-            var msbuildSettings = new MSBuildSettings()
+            var msbuildSettings = new MSBuildSettings
+            {
+                ToolPath = ToolSettings.MSBuildToolPath
+            }
                 .SetPlatformTarget(ToolSettings.BuildPlatformTarget)
                 .UseToolVersion(ToolSettings.BuildMSBuildToolVersion)
                 .WithProperty("TreatWarningsAsErrors", BuildParameters.TreatWarningsAsErrors.ToString())
@@ -298,7 +301,10 @@ public void CopyBuildOutput()
 
             EnsureDirectoryExists(outputFolder);
 
-            var msbuildSettings = new MSBuildSettings()
+            var msbuildSettings = new MSBuildSettings
+            {
+                ToolPath = ToolSettings.MSBuildToolPath
+            }
                 .SetPlatformTarget(ToolSettings.BuildPlatformTarget)
                 .UseToolVersion(ToolSettings.BuildMSBuildToolVersion)
                 .WithProperty("TreatWarningsAsErrors", BuildParameters.TreatWarningsAsErrors.ToString())
@@ -447,7 +453,10 @@ BuildParameters.Tasks.BuildMsiTask = Task("Build-MSI")
     .Does(() => RequireTool(ToolSettings.MSBuildExtensionPackTool, () => {
         Information("Building MSI from the following solution: {0}", BuildParameters.SolutionFilePath);
 
-        var msbuildSettings = new MSBuildSettings()
+        var msbuildSettings = new MSBuildSettings
+        {
+            ToolPath = ToolSettings.MSBuildToolPath
+        }
                 .SetPlatformTarget(PlatformTarget.x86)
                 .UseToolVersion(ToolSettings.BuildMSBuildToolVersion)
                 .WithProperty("TreatWarningsAsErrors", BuildParameters.TreatWarningsAsErrors.ToString())
