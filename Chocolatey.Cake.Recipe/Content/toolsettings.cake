@@ -110,7 +110,10 @@ public static class ToolSettings
         TestCoverageExcludeByFile = testCoverageExcludeByFile ?? "*/*Designer.cs;*/*.g.cs;*/*.g.i.cs";
         TestCoverageFilter = testCoverageFilter ?? string.Format("+[{0}*]* +[{1}*]* -[*.tests]* -[*.Tests]*", BuildParameters.Title, BuildParameters.Title.ToLowerInvariant());
 
-        if (msBuildToolPath == null)
+        // We only use MSBuild when running on Windows. Elsewhere, we use XBuild when required. As a result,
+        // we only need to detect the correct version of MSBuild when running on WIndows, and when it hasn't
+        // been explicitly set.
+        if (msBuildToolPath == null && BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows)
         {
             msBuildToolPath = ResolveVisualStudioMsBuildPath(context, BuildMSBuildToolVersion);
 
