@@ -109,12 +109,16 @@ public static class BuildParameters
     public static bool ShouldRunOpenCover { get; private set; }
     public static bool ShouldRunReportGenerator { get; private set; }
     public static bool ShouldRunReportUnit { get; private set; }
+    public static bool ShouldRunSonarQube { get; private set; }
     public static bool ShouldRunTransifex { get; set; }
     public static bool ShouldRunxUnit { get; private set; }
     public static bool ShouldStrongNameOutputAssemblies { get; private set; }
     public static bool ShouldStrongNameSignDependentAssemblies { get; private set; }
     public static DirectoryPath SolutionDirectoryPath { get; private set; }
     public static FilePath SolutionFilePath { get; private set; }
+    public static string SonarQubeId { get; private set; }
+    public static string SonarQubeToken { get; private set; }
+    public static string SonarQubeUrl { get; private set; }
     public static DirectoryPath SourceDirectoryPath { get; private set; }
     public static string StrongNameDependentAssembliesInputPath { get; private set; }
     public static string StrongNameKeyPath { get; private set; }
@@ -224,12 +228,15 @@ public static class BuildParameters
         context.Information("ShouldRunOpenCover: {0}", BuildParameters.ShouldRunOpenCover);
         context.Information("ShouldRunReportGenerator: {0}", BuildParameters.ShouldRunReportGenerator);
         context.Information("ShouldRunReportUnit: {0}", BuildParameters.ShouldRunReportUnit);
+        context.Information("ShouldRunSonarQube: {0}", BuildParameters.ShouldRunSonarQube);
         context.Information("ShouldRunTransifex: {0}", BuildParameters.ShouldRunTransifex);
         context.Information("ShouldRunxUnit: {0}", BuildParameters.ShouldRunxUnit);
         context.Information("ShouldStrongNameOutputAssemblies: {0}", BuildParameters.ShouldStrongNameOutputAssemblies);
         context.Information("ShouldStrongNameSignDependentAssemblies: {0}", BuildParameters.ShouldStrongNameSignDependentAssemblies);
-        context.Information("SolutionFilePath: {0}", context.MakeAbsolute((FilePath)SolutionFilePath));
         context.Information("SolutionDirectoryPath: {0}", context.MakeAbsolute((DirectoryPath)SolutionDirectoryPath));
+        context.Information("SolutionFilePath: {0}", context.MakeAbsolute((FilePath)SolutionFilePath));
+        context.Information("SonarQubeId: {0}", BuildParameters.SonarQubeId);
+        context.Information("SonarQubeUrl: {0}", BuildParameters.SonarQubeUrl);
         context.Information("SourceDirectoryPath: {0}", context.MakeAbsolute(SourceDirectoryPath));
         context.Information("StrongNameDependentAssembliesInputPath: {0}", StrongNameDependentAssembliesInputPath);
         context.Information("Target: {0}", Target);
@@ -316,12 +323,15 @@ public static class BuildParameters
         bool shouldRunOpenCover = true,
         bool shouldRunReportGenerator = true,
         bool shouldRunReportUnit = true,
+        bool shouldRunSonarQube = false,
         bool? shouldRunTransifex = null,
         bool shouldRunxUnit = true,
         bool shouldStrongNameOutputAssemblies = true,
         bool shouldStrongNameSignDependentAssemblies = true,
         DirectoryPath solutionDirectoryPath = null,
         FilePath solutionFilePath = null,
+        string sonarQubeId = null,
+        string sonarQubeUrl = null,
         string strongNameDependentAssembliesInputPath = null,
         DirectoryPath testDirectoryPath = null,
         TransifexMode transifexPullMode = TransifexMode.OnlyTranslated,
@@ -440,12 +450,28 @@ public static class BuildParameters
 
         ShouldRunReportGenerator = shouldRunReportGenerator;
         ShouldRunReportUnit = shouldRunReportUnit;
+
+        if (context.HasArgument("shouldRunSonarQube"))
+        {
+            ShouldRunSonarQube = context.Argument<bool>("shouldRunSonarQube");
+        }
+        else
+        {
+            if (BuildParameters.IsTagged && !BuildParameters.IsLocalBuild)
+            {
+                ShouldRunSonarQube = true;
+            }
+        }
+
         ShouldRunTransifex = shouldRunTransifex ?? TransifexIsConfiguredForRepository(context);
         ShouldRunxUnit = shouldRunxUnit;
         ShouldStrongNameOutputAssemblies = shouldStrongNameOutputAssemblies;
         ShouldStrongNameSignDependentAssemblies = shouldStrongNameSignDependentAssemblies;
         SolutionDirectoryPath = solutionDirectoryPath ?? sourceDirectoryPath.Combine(title);
         SolutionFilePath = solutionFilePath ?? sourceDirectoryPath.CombineWithFilePath(title + ".sln");
+        SonarQubeId = sonarQubeId ?? context.EnvironmentVariable(Environment.SonarQubeIdVariable) ?? RootDirectoryPath.GetDirectoryName().ToLower();
+        SonarQubeToken = GetSonarQubeCredentials(context).Token;
+        SonarQubeUrl = sonarQubeUrl ?? context.EnvironmentVariable(Environment.SonarQubeUrlVariable) ?? null;
         SourceDirectoryPath = sourceDirectoryPath;
         StrongNameDependentAssembliesInputPath = strongNameDependentAssembliesInputPath ?? sourceDirectoryPath.Combine("packages").FullPath;
         Target = context.Argument("target", "Default");

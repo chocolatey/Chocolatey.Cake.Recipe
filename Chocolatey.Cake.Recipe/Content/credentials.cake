@@ -52,6 +52,16 @@ public class PackageSourceCredentials
     }
 }
 
+public class SonarQubeCredentials
+{
+    public string Token { get; private set; }
+
+    public SonarQubeCredentials(string token)
+    {
+        Token = token;
+    }
+}
+
 public static GitHubCredentials GetGitHubCredentials(ICakeContext context)
 {
     string token = null;
@@ -73,5 +83,12 @@ public static TransifexCredentials GetTransifexCredentials(ICakeContext context)
 {
     return new TransifexCredentials(
         context.EnvironmentVariable(Environment.TransifexApiTokenVariable)
+    );
+}
+
+public static SonarQubeCredentials GetSonarQubeCredentials(ICakeContext context)
+{
+    return new SonarQubeCredentials(
+        context.EnvironmentVariable(Environment.SonarQubeTokenVariable)
     );
 }

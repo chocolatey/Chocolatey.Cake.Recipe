@@ -69,6 +69,10 @@ public class BuildTasks
     public CakeTaskBuilder SignAssembliesTask { get; set; }
     public CakeTaskBuilder SignMsisTask { get; set; }
 
+    // SonarQube Tasks
+    public CakeTaskBuilder InitializeSonarQubeTask { get; set; }
+    public CakeTaskBuilder FinaliseSonarQubeTask { get; set; }
+
     // GitReleaseManager Tasks
     public CakeTaskBuilder ReleaseNotesTask { get; set; }
     public CakeTaskBuilder CreateReleaseNotesTask { get; set; }
