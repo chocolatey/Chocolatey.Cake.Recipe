@@ -40,6 +40,7 @@ public static class BuildParameters
     public static string Configuration { get; private set; }
     public static string DeploymentEnvironment { get; private set; }
     public static string DevelopBranchName { get; private set; }
+    public static DockerCredentials DockerCredentials { get; private set; }
     public static bool ForceContinuousIntegration { get; private set; }
     public static FilePath FullReleaseNotesFilePath { get; private set; }
     public static Func<FilePathCollection> GetFilesToObfuscate { get; private set; }
@@ -378,6 +379,7 @@ public static class BuildParameters
         ChocolateyNupkgGlobbingPattern = chocolateyNupkgGlobbingPattern;
         ChocolateyNuspecGlobbingPattern = chocolateyNuspecGlobbingPattern;
         Configuration = context.Argument("configuration", "Release");
+        DockerCredentials = GetDockerCredentials(context);
         DeploymentEnvironment = context.Argument("environment", "Release");
         DevelopBranchName = developBranchName;
         ForceContinuousIntegration = context.Argument("forceContinuousIntegration", false);
