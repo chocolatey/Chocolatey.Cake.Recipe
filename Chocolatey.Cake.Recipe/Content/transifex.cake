@@ -42,7 +42,7 @@ BuildParameters.Tasks.TransifexSetupTask = Task("Transifex-Setup")
     {
         var path = GetTransifexUserSettingsPath();
         var encoding = new System.Text.UTF8Encoding(false);
-        var text = string.Format("[https://www.transifex.com]\r\nhostname = https://www.transifex.com\r\npassword = {0}\r\nusername = api", BuildParameters.Transifex.ApiToken);
+        var text = string.Format("[https://www.transifex.com]\r\nrest_hostname = https://rest.api.transifex.com\r\ntoken = {0}", BuildParameters.Transifex.ApiToken);
         System.IO.File.WriteAllText(path, text, encoding);
     });
 
