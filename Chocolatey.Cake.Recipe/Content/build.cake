@@ -450,7 +450,7 @@ BuildParameters.Tasks.BuildMsiTask = Task("Build-MSI")
     .IsDependentOn("Sign-Assemblies")
     .IsDependeeOf("Sign-Msis")
     .WithCriteria(() => BuildParameters.ShouldBuildMsi, "Skipping because building of MSI has been disabled")
-    .Does(() => RequireTool(ToolSettings.MSBuildExtensionPackTool, () => {
+    .Does(() => RequireTool(ToolSettings.WixTool, () => RequireTool(ToolSettings.MSBuildExtensionPackTool, () => {
         Information("Building MSI from the following solution: {0}", BuildParameters.SolutionFilePath);
 
         var msbuildSettings = new MSBuildSettings
@@ -473,7 +473,7 @@ BuildParameters.Tasks.BuildMsiTask = Task("Build-MSI")
 
         MSBuild(BuildParameters.SolutionFilePath, msbuildSettings);
     })
-);
+));
 
 BuildParameters.Tasks.DefaultTask = Task("Default")
     .IsDependentOn("Package");
