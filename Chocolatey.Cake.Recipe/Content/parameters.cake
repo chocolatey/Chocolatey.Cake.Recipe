@@ -40,6 +40,7 @@ public static class BuildParameters
     public static string Configuration { get; private set; }
     public static string DeploymentEnvironment { get; private set; }
     public static string DevelopBranchName { get; private set; }
+    public static DockerCredentials DockerCredentials { get; private set; }
     public static bool ForceContinuousIntegration { get; private set; }
     public static FilePath FullReleaseNotesFilePath { get; private set; }
     public static Func<FilePathCollection> GetFilesToObfuscate { get; private set; }
@@ -61,6 +62,7 @@ public static class BuildParameters
     public static bool IsTagged { get; private set; }
     public static string MasterBranchName { get; private set; }
     public static FilePath MilestoneReleaseNotesFilePath { get; private set; }
+    public static bool MsiUsedWithinNupkg { get; private set; }
     public static string NuGetNupkgGlobbingPattern { get; private set; }
     public static string NuGetNuspecGlobbingPattern { get; private set; }
     public static ICollection<string> NuGetSources { get; private set; }
@@ -109,12 +111,16 @@ public static class BuildParameters
     public static bool ShouldRunOpenCover { get; private set; }
     public static bool ShouldRunReportGenerator { get; private set; }
     public static bool ShouldRunReportUnit { get; private set; }
+    public static bool ShouldRunSonarQube { get; private set; }
     public static bool ShouldRunTransifex { get; set; }
     public static bool ShouldRunxUnit { get; private set; }
     public static bool ShouldStrongNameOutputAssemblies { get; private set; }
     public static bool ShouldStrongNameSignDependentAssemblies { get; private set; }
     public static DirectoryPath SolutionDirectoryPath { get; private set; }
     public static FilePath SolutionFilePath { get; private set; }
+    public static string SonarQubeId { get; private set; }
+    public static string SonarQubeToken { get; private set; }
+    public static string SonarQubeUrl { get; private set; }
     public static DirectoryPath SourceDirectoryPath { get; private set; }
     public static string StrongNameDependentAssembliesInputPath { get; private set; }
     public static string StrongNameKeyPath { get; private set; }
@@ -224,12 +230,15 @@ public static class BuildParameters
         context.Information("ShouldRunOpenCover: {0}", BuildParameters.ShouldRunOpenCover);
         context.Information("ShouldRunReportGenerator: {0}", BuildParameters.ShouldRunReportGenerator);
         context.Information("ShouldRunReportUnit: {0}", BuildParameters.ShouldRunReportUnit);
+        context.Information("ShouldRunSonarQube: {0}", BuildParameters.ShouldRunSonarQube);
         context.Information("ShouldRunTransifex: {0}", BuildParameters.ShouldRunTransifex);
         context.Information("ShouldRunxUnit: {0}", BuildParameters.ShouldRunxUnit);
         context.Information("ShouldStrongNameOutputAssemblies: {0}", BuildParameters.ShouldStrongNameOutputAssemblies);
         context.Information("ShouldStrongNameSignDependentAssemblies: {0}", BuildParameters.ShouldStrongNameSignDependentAssemblies);
-        context.Information("SolutionFilePath: {0}", context.MakeAbsolute((FilePath)SolutionFilePath));
         context.Information("SolutionDirectoryPath: {0}", context.MakeAbsolute((DirectoryPath)SolutionDirectoryPath));
+        context.Information("SolutionFilePath: {0}", context.MakeAbsolute((FilePath)SolutionFilePath));
+        context.Information("SonarQubeId: {0}", BuildParameters.SonarQubeId);
+        context.Information("SonarQubeUrl: {0}", BuildParameters.SonarQubeUrl);
         context.Information("SourceDirectoryPath: {0}", context.MakeAbsolute(SourceDirectoryPath));
         context.Information("StrongNameDependentAssembliesInputPath: {0}", StrongNameDependentAssembliesInputPath);
         context.Information("Target: {0}", Target);
@@ -270,6 +279,7 @@ public static class BuildParameters
         string integrationTestScriptPath = null,
         string masterBranchName = "master",
         FilePath milestoneReleaseNotesFilePath = null,
+        bool msiUsedWithinNupkg = true,
         string nuGetNupkgGlobbingPattern = "/**/*.nupkg",
         string nuGetNuspecGlobbingPattern = "/**/*.nuspec",
         ICollection<string> nuGetSources = null,
@@ -316,12 +326,15 @@ public static class BuildParameters
         bool shouldRunOpenCover = true,
         bool shouldRunReportGenerator = true,
         bool shouldRunReportUnit = true,
+        bool shouldRunSonarQube = false,
         bool? shouldRunTransifex = null,
         bool shouldRunxUnit = true,
         bool shouldStrongNameOutputAssemblies = true,
         bool shouldStrongNameSignDependentAssemblies = true,
         DirectoryPath solutionDirectoryPath = null,
         FilePath solutionFilePath = null,
+        string sonarQubeId = null,
+        string sonarQubeUrl = null,
         string strongNameDependentAssembliesInputPath = null,
         DirectoryPath testDirectoryPath = null,
         TransifexMode transifexPullMode = TransifexMode.OnlyTranslated,
@@ -368,6 +381,7 @@ public static class BuildParameters
         ChocolateyNupkgGlobbingPattern = chocolateyNupkgGlobbingPattern;
         ChocolateyNuspecGlobbingPattern = chocolateyNuspecGlobbingPattern;
         Configuration = context.Argument("configuration", "Release");
+        DockerCredentials = GetDockerCredentials(context);
         DeploymentEnvironment = context.Argument("environment", "Release");
         DevelopBranchName = developBranchName;
         ForceContinuousIntegration = context.Argument("forceContinuousIntegration", false);
@@ -389,6 +403,7 @@ public static class BuildParameters
         IsTagged = BuildProvider.Repository.Tag.IsTag;
         MasterBranchName = masterBranchName;
         MilestoneReleaseNotesFilePath = milestoneReleaseNotesFilePath ?? RootDirectoryPath.CombineWithFilePath("CHANGELOG.md");
+        MsiUsedWithinNupkg = msiUsedWithinNupkg;
         NuGetNupkgGlobbingPattern = nuGetNupkgGlobbingPattern;
         NuGetNuspecGlobbingPattern = nuGetNuspecGlobbingPattern;
         NuGetSources = nuGetSources;
@@ -440,12 +455,28 @@ public static class BuildParameters
 
         ShouldRunReportGenerator = shouldRunReportGenerator;
         ShouldRunReportUnit = shouldRunReportUnit;
+
+        if (context.HasArgument("shouldRunSonarQube"))
+        {
+            ShouldRunSonarQube = context.Argument<bool>("shouldRunSonarQube");
+        }
+        else
+        {
+            if (BuildParameters.IsTagged && !BuildParameters.IsLocalBuild)
+            {
+                ShouldRunSonarQube = true;
+            }
+        }
+
         ShouldRunTransifex = shouldRunTransifex ?? TransifexIsConfiguredForRepository(context);
         ShouldRunxUnit = shouldRunxUnit;
         ShouldStrongNameOutputAssemblies = shouldStrongNameOutputAssemblies;
         ShouldStrongNameSignDependentAssemblies = shouldStrongNameSignDependentAssemblies;
         SolutionDirectoryPath = solutionDirectoryPath ?? sourceDirectoryPath.Combine(title);
         SolutionFilePath = solutionFilePath ?? sourceDirectoryPath.CombineWithFilePath(title + ".sln");
+        SonarQubeId = sonarQubeId ?? context.EnvironmentVariable(Environment.SonarQubeIdVariable) ?? RootDirectoryPath.GetDirectoryName().ToLower();
+        SonarQubeToken = GetSonarQubeCredentials(context).Token;
+        SonarQubeUrl = sonarQubeUrl ?? context.EnvironmentVariable(Environment.SonarQubeUrlVariable) ?? null;
         SourceDirectoryPath = sourceDirectoryPath;
         StrongNameDependentAssembliesInputPath = strongNameDependentAssembliesInputPath ?? sourceDirectoryPath.Combine("packages").FullPath;
         Target = context.Argument("target", "Default");

@@ -18,6 +18,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #addin nuget:?package=Cake.Coverlet&version=2.5.4
+#addin nuget:?package=Cake.Docker&version=1.0.0
 #addin nuget:?package=Cake.Eazfuscator.Net&version=0.1.0
 #addin nuget:?package=Cake.Figlet&version=1.2.0
 #addin nuget:?package=Cake.FileHelpers&version=3.2.0
@@ -34,6 +35,7 @@
 #addin nuget:?package=Cake.Npm&version=0.16.0
 #addin nuget:?package=Cake.PowerShell&version=0.4.8
 #addin nuget:?package=Cake.ReSharperReports&version=0.10.0
+#addin nuget:?package=Cake.Sonar&version=1.1.26
 #addin nuget:?package=Cake.StrongNameSigner&version=0.1.0
 #addin nuget:?package=Cake.StrongNameTool&version=0.0.5
 #addin nuget:?package=Cake.Transifex&version=1.0.1

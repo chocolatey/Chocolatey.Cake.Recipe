@@ -18,14 +18,32 @@ public static class Environment
     public static string DefaultPushSourceUrlVariable { get; private set; }
     public static string GitHubTokenVariable { get; private set; }
     public static string TransifexApiTokenVariable { get; private set; }
+    public static string SonarQubeTokenVariable { get; private set; }
+    public static string SonarQubeIdVariable { get; private set; }
+    public static string SonarQubeUrlVariable { get; private set; }
+    public static string DockerUserVariable { get; private set; }
+    public static string DockerPasswordVariable { get; private set; }
+    public static string DockerServerVariable { get; private set; }
 
     public static void SetVariableNames(
         string defaultPushSourceUrlVariable = null,
         string gitHubTokenVariable = null,
-        string transifexApiTokenVariable = null)
+        string transifexApiTokenVariable = null,
+        string sonarQubeTokenVariable = null,
+        string sonarQubeIdVariable = null,
+        string sonarQubeUrlVariable = null,
+        string dockerUserVariable = null,
+        string dockerPasswordVariable = null,
+        string dockerServerVariable = null)
     {
         DefaultPushSourceUrlVariable = defaultPushSourceUrlVariable ?? "NUGETDEVPUSH_SOURCE";
         GitHubTokenVariable = gitHubTokenVariable ?? "GITHUB_PAT";
         TransifexApiTokenVariable = transifexApiTokenVariable ?? "TRANSIFEX_API_TOKEN";
+        SonarQubeTokenVariable = sonarQubeTokenVariable ?? "SONARQUBE_TOKEN";
+        SonarQubeIdVariable = sonarQubeIdVariable ?? "SONARQUBE_ID";
+        SonarQubeUrlVariable = sonarQubeUrlVariable ?? "SONARQUBE_URL";
+        DockerUserVariable = dockerUserVariable ?? "DOCKER_USER";
+        DockerPasswordVariable = dockerPasswordVariable ?? "DOCKER_PASSWORD";
+        DockerServerVariable = dockerServerVariable ?? "DOCKER_SERVER";
     }
 }

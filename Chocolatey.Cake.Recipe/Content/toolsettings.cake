@@ -41,10 +41,12 @@ public static class ToolSettings
     public static string ReportUnitTool { get; private set; }
     public static string ReSharperReportsTool { get; private set; }
     public static string ReSharperTools { get; private set; }
+    public static string SonarQubeTool { get; private set; }
     public static string StrongNameSignerTool { get; private set; }
     public static string TestCoverageExcludeByAttribute { get; private set; }
     public static string TestCoverageExcludeByFile { get; private set; }
     public static string TestCoverageFilter { get; private set; }
+    public static string WixTool { get; private set; }
     public static string XUnitTool { get; private set; }
 
     public static void SetToolPreprocessorDirectives(
@@ -62,7 +64,9 @@ public static class ToolSettings
         string reportUnitTool = "#tool nuget:?package=ReportUnit&version=1.2.1",
         string reSharperReportsTool = "#tool nuget:?package=ReSharperReports&version=0.2.0",
         string reSharperTools = "#tool nuget:?package=JetBrains.ReSharper.CommandLineTools&version=2017.2.0",
+        string sonarQubeTool = "#tool nuget:?package=MSBuild.SonarQube.Runner.Tool&version=4.8.0",
         string strongNameSignerTool = "#tool nuget:?package=Brutal.Dev.StrongNameSigner&version=2.6.0",
+        string wixTool = "#tool nuget:?package=WiX&version=3.11.2",
         string xunitTool = "#tool nuget:?package=xunit.runner.console&version=2.4.1"
     )
     {
@@ -80,7 +84,9 @@ public static class ToolSettings
         ReportUnitTool = reportUnitTool;
         ReSharperReportsTool = reSharperReportsTool;
         ReSharperTools = reSharperTools;
+        SonarQubeTool = sonarQubeTool;
         StrongNameSignerTool = strongNameSignerTool;
+        WixTool = wixTool;
         XUnitTool = xunitTool;
     }
 
@@ -113,7 +119,7 @@ public static class ToolSettings
         // We only use MSBuild when running on Windows. Elsewhere, we use XBuild when required. As a result,
         // we only need to detect the correct version of MSBuild when running on WIndows, and when it hasn't
         // been explicitly set.
-        if (msBuildToolPath == null && BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows)
+        if (msBuildToolPath == null && BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows && !BuildParameters.Target.StartsWith("Docker"))
         {
             msBuildToolPath = ResolveVisualStudioMsBuildPath(context, BuildMSBuildToolVersion);
 
