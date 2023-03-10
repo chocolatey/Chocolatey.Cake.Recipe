@@ -116,7 +116,7 @@ public static class ToolSettings
         // We only use MSBuild when running on Windows. Elsewhere, we use XBuild when required. As a result,
         // we only need to detect the correct version of MSBuild when running on WIndows, and when it hasn't
         // been explicitly set.
-        if (msBuildToolPath == null && BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows)
+        if (msBuildToolPath == null && BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows && !BuildParameters.Target.StartsWith("Docker"))
         {
             msBuildToolPath = ResolveVisualStudioMsBuildPath(context, BuildMSBuildToolVersion);
 

@@ -38,6 +38,14 @@ public class BuildTasks
     public CakeTaskBuilder CreateIssuesReportTask { get; set; }
     public CakeTaskBuilder AnalyzeTask { get; set; }
 
+    // Docker Tasks
+    public CakeTaskBuilder DockerLogin { get; set; }
+    public CakeTaskBuilder DockerBuild { get; set; }
+    public CakeTaskBuilder DockerTagAsLatest { get; set; }
+    public CakeTaskBuilder DockerPush { get; set; }
+    public CakeTaskBuilder DockerManifest { get; set; }
+    public CakeTaskBuilder Docker { get; set; }
+
     // Eazfuscator Tasks
     public CakeTaskBuilder ObfuscateAssembliesTask { get; set; }
 

@@ -62,6 +62,25 @@ public class SonarQubeCredentials
     }
 }
 
+public class DockerCredentials
+{
+    public string Server { get; private set; }
+    public string User { get; private set; }
+    public string Password { get; private set; }
+
+    public bool HasCredentials
+    {
+        get { return !string.IsNullOrEmpty(User) && !string.IsNullOrEmpty(Password); }
+    }
+
+    public DockerCredentials(string user, string password, string server = null)
+    {
+        Server = server;
+        User = user;
+        Password = password;
+    }
+}
+
 public static GitHubCredentials GetGitHubCredentials(ICakeContext context)
 {
     string token = null;
@@ -90,5 +109,14 @@ public static SonarQubeCredentials GetSonarQubeCredentials(ICakeContext context)
 {
     return new SonarQubeCredentials(
         context.EnvironmentVariable(Environment.SonarQubeTokenVariable)
+    );
+}
+
+public static DockerCredentials GetDockerCredentials(ICakeContext context)
+{
+    return new DockerCredentials(
+        context.EnvironmentVariable(Environment.DockerUserVariable),
+        context.EnvironmentVariable(Environment.DockerPasswordVariable),
+        context.EnvironmentVariable(Environment.DockerServerVariable)
     );
 }
