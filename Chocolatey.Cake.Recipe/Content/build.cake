@@ -450,7 +450,7 @@ BuildParameters.Tasks.BuildMsiTask = Task("Build-MSI")
     .IsDependentOn("Sign-Assemblies")
     .IsDependeeOf("Sign-Msis")
     .WithCriteria(() => BuildParameters.ShouldBuildMsi, "Skipping because building of MSI has been disabled")
-    .Does(() => RequireTool(ToolSettings.MSBuildExtensionPackTool, () => {
+    .Does(() => RequireTool(ToolSettings.WixTool, () => RequireTool(ToolSettings.MSBuildExtensionPackTool, () => {
         Information("Building MSI from the following solution: {0}", BuildParameters.SolutionFilePath);
 
         var msbuildSettings = new MSBuildSettings
@@ -473,7 +473,7 @@ BuildParameters.Tasks.BuildMsiTask = Task("Build-MSI")
 
         MSBuild(BuildParameters.SolutionFilePath, msbuildSettings);
     })
-);
+));
 
 BuildParameters.Tasks.DefaultTask = Task("Default")
     .IsDependentOn("Package");
@@ -551,7 +551,6 @@ public class Builder
         BuildParameters.Tasks.CreateNuGetPackagesTask.IsDependentOn("Sign-PowerShellScripts");
         BuildParameters.Tasks.CreateNuGetPackagesTask.IsDependentOn("Sign-Assemblies");
         BuildParameters.Tasks.CreateChocolateyPackagesTask.IsDependentOn("Sign-PowerShellScripts");
-        BuildParameters.Tasks.CreateChocolateyPackagesTask.IsDependentOn("Sign-Msis");
         BuildParameters.Tasks.SignMsisTask.IsDependentOn("Sign-Assemblies");
         BuildParameters.Tasks.CreateChocolateyPackagesTask.IsDependentOn(prefix + "Build");
         BuildParameters.Tasks.ObfuscateAssembliesTask.IsDependeeOf("Sign-Assemblies");
@@ -561,6 +560,16 @@ public class Builder
         BuildParameters.Tasks.InspectCodeTask.IsDependentOn(prefix + "Build");
         BuildParameters.Tasks.ConfigurationBuilderTask.IsDependentOn(prefix + "Build");
         BuildParameters.Tasks.TestTask.IsDependentOn(prefix + "Build");
+
+        if (BuildParameters.MsiUsedWithinNupkg)
+        {
+            BuildParameters.Tasks.CreateChocolateyPackagesTask.IsDependentOn("Sign-Msis");
+        }
+        else
+        {
+            BuildParameters.Tasks.BuildMsiTask.IsDependentOn("Create-Chocolatey-Packages");
+            BuildParameters.Tasks.PackageTask.IsDependentOn("Sign-Msis");
+        }
 
         if (!isDotNetBuild)
         {

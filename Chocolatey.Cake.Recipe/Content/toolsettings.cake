@@ -41,11 +41,12 @@ public static class ToolSettings
     public static string ReportUnitTool { get; private set; }
     public static string ReSharperReportsTool { get; private set; }
     public static string ReSharperTools { get; private set; }
-    public static string StrongNameSignerTool { get; private set; }
     public static string SonarQubeTool { get; private set; }
+    public static string StrongNameSignerTool { get; private set; }
     public static string TestCoverageExcludeByAttribute { get; private set; }
     public static string TestCoverageExcludeByFile { get; private set; }
     public static string TestCoverageFilter { get; private set; }
+    public static string WixTool { get; private set; }
     public static string XUnitTool { get; private set; }
 
     public static void SetToolPreprocessorDirectives(
@@ -65,6 +66,7 @@ public static class ToolSettings
         string reSharperTools = "#tool nuget:?package=JetBrains.ReSharper.CommandLineTools&version=2017.2.0",
         string sonarQubeTool = "#tool nuget:?package=MSBuild.SonarQube.Runner.Tool&version=4.8.0",
         string strongNameSignerTool = "#tool nuget:?package=Brutal.Dev.StrongNameSigner&version=2.6.0",
+        string wixTool = "#tool nuget:?package=WiX&version=3.11.2",
         string xunitTool = "#tool nuget:?package=xunit.runner.console&version=2.4.1"
     )
     {
@@ -82,8 +84,9 @@ public static class ToolSettings
         ReportUnitTool = reportUnitTool;
         ReSharperReportsTool = reSharperReportsTool;
         ReSharperTools = reSharperTools;
-        StrongNameSignerTool = strongNameSignerTool;
         SonarQubeTool = sonarQubeTool;
+        StrongNameSignerTool = strongNameSignerTool;
+        WixTool = wixTool;
         XUnitTool = xunitTool;
     }
 

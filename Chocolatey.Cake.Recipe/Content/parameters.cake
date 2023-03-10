@@ -62,6 +62,7 @@ public static class BuildParameters
     public static bool IsTagged { get; private set; }
     public static string MasterBranchName { get; private set; }
     public static FilePath MilestoneReleaseNotesFilePath { get; private set; }
+    public static bool MsiUsedWithinNupkg { get; private set; }
     public static string NuGetNupkgGlobbingPattern { get; private set; }
     public static string NuGetNuspecGlobbingPattern { get; private set; }
     public static ICollection<string> NuGetSources { get; private set; }
@@ -278,6 +279,7 @@ public static class BuildParameters
         string integrationTestScriptPath = null,
         string masterBranchName = "master",
         FilePath milestoneReleaseNotesFilePath = null,
+        bool msiUsedWithinNupkg = true,
         string nuGetNupkgGlobbingPattern = "/**/*.nupkg",
         string nuGetNuspecGlobbingPattern = "/**/*.nuspec",
         ICollection<string> nuGetSources = null,
@@ -401,6 +403,7 @@ public static class BuildParameters
         IsTagged = BuildProvider.Repository.Tag.IsTag;
         MasterBranchName = masterBranchName;
         MilestoneReleaseNotesFilePath = milestoneReleaseNotesFilePath ?? RootDirectoryPath.CombineWithFilePath("CHANGELOG.md");
+        MsiUsedWithinNupkg = msiUsedWithinNupkg;
         NuGetNupkgGlobbingPattern = nuGetNupkgGlobbingPattern;
         NuGetNuspecGlobbingPattern = nuGetNuspecGlobbingPattern;
         NuGetSources = nuGetSources;
