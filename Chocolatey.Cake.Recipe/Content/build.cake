@@ -453,6 +453,7 @@ BuildParameters.Tasks.BuildMsiTask = Task("Build-MSI")
     .Does(() => RequireTool(ToolSettings.WixTool, () => RequireTool(ToolSettings.MSBuildExtensionPackTool, () => {
         Information("Building MSI from the following solution: {0}", BuildParameters.SolutionFilePath);
 
+        var msbuildLogFile = BuildParameters.Paths.Directories.Build + "/MSBuild.msi.log";
         var msbuildSettings = new MSBuildSettings
         {
             ToolPath = ToolSettings.MSBuildToolPath
@@ -467,11 +468,15 @@ BuildParameters.Tasks.BuildMsiTask = Task("Build-MSI")
                     Context.Tools.Resolve("MSBuild.ExtensionPack.Loggers.dll").FullPath,
                     "XmlFileLogger",
                     string.Format(
-                        "logfile=\"{0}\";invalidCharReplacement=_;verbosity=Detailed;encoding=UTF-8",
-                            BuildParameters.Paths.Directories.Build + "/MSBuild.msi.log")
+                        "logfile=\"{0}\";invalidCharReplacement=_;verbosity=Detailed;encoding=UTF-8", msbuildLogFile
+                    )
                 );
 
         MSBuild(BuildParameters.SolutionFilePath, msbuildSettings);
+
+        if (FileExists(msbuildLogFile)) {
+            BuildParameters.BuildProvider.UploadArtifact(msbuildLogFile);
+        }
     })
 ));
 

@@ -150,6 +150,11 @@ BuildParameters.Tasks.SignMsisTask = Task("Sign-Msis")
                         TimeStampDigestAlgorithm = (SignToolDigestAlgorithm)Enum.Parse(typeof(SignToolDigestAlgorithm), BuildParameters.CertificateAlgorithm, true)
                     });
             }
+
+            if (FileExists(msiToSign))
+            {
+                BuildParameters.BuildProvider.UploadArtifact(msiToSign);
+            }
         }
     }
     else
