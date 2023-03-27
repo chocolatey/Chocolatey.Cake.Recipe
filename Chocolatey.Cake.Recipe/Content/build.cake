@@ -477,6 +477,26 @@ BuildParameters.Tasks.BuildMsiTask = Task("Build-MSI")
         if (FileExists(msbuildLogFile)) {
             BuildParameters.BuildProvider.UploadArtifact(msbuildLogFile);
         }
+
+        if (BuildSystem.IsLocalBuild && BuildParameters.GetMsisToSign != null)
+        {
+            foreach (var msiToUpload in BuildParameters.GetMsisToSign())
+            {
+                if (FileExists(msiToUpload))
+                {
+                    var msiDirectory = msiToUpload.GetDirectory();
+                    var unsignedMsiToUpload = msiDirectory.CombineWithFilePath(msiToUpload.GetFilenameWithoutExtension() + "-unsigned" + msiToUpload.GetExtension());
+                    // Copy the MSI to upload the unsigned variant. This ensures the original file is in place for the Sign step.
+                    CopyFile(msiToUpload, unsignedMsiToUpload);
+                    BuildParameters.BuildProvider.UploadArtifact(unsignedMsiToUpload);
+                    DeleteFile(unsignedMsiToUpload);
+                }
+                else
+                {
+                    Warning("The MSI expected ({0}) was not found for upload.", msiToUpload);
+                }
+            }
+        }
     })
 ));
 
