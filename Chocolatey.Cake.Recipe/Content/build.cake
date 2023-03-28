@@ -453,6 +453,7 @@ BuildParameters.Tasks.BuildMsiTask = Task("Build-MSI")
     .Does(() => RequireTool(ToolSettings.WixTool, () => RequireTool(ToolSettings.MSBuildExtensionPackTool, () => {
         Information("Building MSI from the following solution: {0}", BuildParameters.SolutionFilePath);
 
+        var msbuildLogFile = BuildParameters.Paths.Directories.Build + "/MSBuild.msi.log";
         var msbuildSettings = new MSBuildSettings
         {
             ToolPath = ToolSettings.MSBuildToolPath
@@ -467,11 +468,35 @@ BuildParameters.Tasks.BuildMsiTask = Task("Build-MSI")
                     Context.Tools.Resolve("MSBuild.ExtensionPack.Loggers.dll").FullPath,
                     "XmlFileLogger",
                     string.Format(
-                        "logfile=\"{0}\";invalidCharReplacement=_;verbosity=Detailed;encoding=UTF-8",
-                            BuildParameters.Paths.Directories.Build + "/MSBuild.msi.log")
+                        "logfile=\"{0}\";invalidCharReplacement=_;verbosity=Detailed;encoding=UTF-8", msbuildLogFile
+                    )
                 );
 
         MSBuild(BuildParameters.SolutionFilePath, msbuildSettings);
+
+        if (FileExists(msbuildLogFile)) {
+            BuildParameters.BuildProvider.UploadArtifact(msbuildLogFile);
+        }
+
+        if (BuildSystem.IsLocalBuild && BuildParameters.GetMsisToSign != null)
+        {
+            foreach (var msiToUpload in BuildParameters.GetMsisToSign())
+            {
+                if (FileExists(msiToUpload))
+                {
+                    var msiDirectory = msiToUpload.GetDirectory();
+                    var unsignedMsiToUpload = msiDirectory.CombineWithFilePath(msiToUpload.GetFilenameWithoutExtension() + "-unsigned" + msiToUpload.GetExtension());
+                    // Copy the MSI to upload the unsigned variant. This ensures the original file is in place for the Sign step.
+                    CopyFile(msiToUpload, unsignedMsiToUpload);
+                    BuildParameters.BuildProvider.UploadArtifact(unsignedMsiToUpload);
+                    DeleteFile(unsignedMsiToUpload);
+                }
+                else
+                {
+                    Warning("The MSI expected ({0}) was not found for upload.", msiToUpload);
+                }
+            }
+        }
     })
 ));
 
