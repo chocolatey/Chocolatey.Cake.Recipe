@@ -97,4 +97,7 @@ public class BuildTasks
 
     // ILMerge Tasks
     public CakeTaskBuilder ILMergeTask { get; set; }
+
+    // Notification Tasks
+    public CakeTaskBuilder SendNotificationsTask { get; set; }
 }
