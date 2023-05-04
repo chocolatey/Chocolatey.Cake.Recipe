@@ -26,6 +26,7 @@ public static class ToolSettings
     public static string XBuildPlatformTarget { get; private set; }
     public static FilePath EazfuscatorToolLocation { get; private set; }
     public static string AmazonLambdaGlobalTool { get; private set; }
+    public static string DependencyCheckTool { get; private set; }
     public static string GitVersionGlobalTool { get; private set; }
     public static string GitVersionTool { get; private set; }
     public static string GitReleaseManagerGlobalTool { get; private set; }
@@ -51,6 +52,7 @@ public static class ToolSettings
 
     public static void SetToolPreprocessorDirectives(
         string amazonLambdaGlobalTool = "#tool dotnet:?package=amazon.lambda.tools&version=5.4.5",
+        string dependencyCheckTool = "#tool nuget:?package=DependencyCheck.Runner.Tool&version=3.2.1&include=./**/dependency-check.sh&include=./**/dependency-check.bat",
         string gitVersionGlobalTool = "#tool dotnet:?package=GitVersion.Tool&version=5.10.1",
         string gitVersionTool = "#tool nuget:?package=GitVersion.CommandLine&version=5.10.1",
         string gitReleaseManagerGlobalTool = "#tool dotnet:?package=GitReleaseManager.Tool&version=0.13.0",
@@ -71,6 +73,7 @@ public static class ToolSettings
     )
     {
         AmazonLambdaGlobalTool = amazonLambdaGlobalTool;
+        DependencyCheckTool = dependencyCheckTool;
         GitVersionGlobalTool = gitVersionGlobalTool;
         GitVersionTool = gitVersionTool;
         GitReleaseManagerGlobalTool = gitReleaseManagerGlobalTool;
