@@ -24,11 +24,67 @@ public enum BranchType
 
 public static class BuildParameters
 {
+    private static Func<BuildVersion, object[]> _defaultNotificationArguments = (x) => 
+    {
+        var firstPortionOfQueryString = string.Empty;
+
+        if (x.PackageVersion.Contains("-"))
+        {
+            var betaVersionNumber = x.PackageVersion.Substring(x.PackageVersion.IndexOf('-') + 1);
+            firstPortionOfQueryString = betaVersionNumber + "-";
+        }
+
+        var dateForQueryString = DateTime.Now.ToString("MMMMM-d-yyyy").ToLower();
+
+        var arguments = new object[] { x.PackageVersion, string.Format("{0}{1}", firstPortionOfQueryString, dateForQueryString) };
+        return arguments;
+    };
+
     public static BranchType BranchType { get; private set; }
     public static PlatformFamily BuildAgentOperatingSystem { get; private set; }
     public static string BuildCounter { get; private set; }
     public static IBuildProvider BuildProvider { get; private set; }
     public static Cake.Core.Configuration.ICakeConfiguration CakeConfiguration { get; private set; }
+
+    public static bool CanPostToDiscord
+    {
+        get
+        {
+            return !string.IsNullOrEmpty(BuildParameters.Discord.WebHookUrl) &&
+                !string.IsNullOrEmpty(BuildParameters.Discord.UserName) &&
+                !string.IsNullOrEmpty(BuildParameters.Discord.AvatarUrl);
+        }
+    }
+
+    public static bool CanPostToMastodon
+    {
+        get
+        {
+            return !string.IsNullOrEmpty(BuildParameters.Mastodon.Token) &&
+                !string.IsNullOrEmpty(BuildParameters.Mastodon.HostName);
+        }
+    }
+
+    public static bool CanPostToSlack
+    {
+        get
+        {
+            return !string.IsNullOrEmpty(BuildParameters.Slack.WebHookUrl) &&
+                !string.IsNullOrEmpty(BuildParameters.Slack.Channel);
+        }
+    }
+
+    public static bool CanPostToTwitter
+    {
+        get
+        {
+            return !string.IsNullOrEmpty(BuildParameters.Twitter.ConsumerKey) &&
+                !string.IsNullOrEmpty(BuildParameters.Twitter.ConsumerSecret) &&
+                !string.IsNullOrEmpty(BuildParameters.Twitter.AccessToken) &&
+                !string.IsNullOrEmpty(BuildParameters.Twitter.AccessTokenSecret);
+        }
+    }
+
     public static bool CanRunGitReleaseManager { get { return !string.IsNullOrEmpty(BuildParameters.GitHub.Token); } }
     public static string CertificateAlgorithm { get; private set; }
     public static string CertificateFilePath { get; private set; }
@@ -40,6 +96,8 @@ public static class BuildParameters
     public static string Configuration { get; private set; }
     public static string DeploymentEnvironment { get; private set; }
     public static string DevelopBranchName { get; private set; }
+    public static DiscordCredentials Discord { get; private set; }
+    public static Func<BuildVersion, object[]> DiscordMessageArguments { get; private set; }
     public static DockerCredentials DockerCredentials { get; private set; }
     public static bool ForceContinuousIntegration { get; private set; }
     public static FilePath FullReleaseNotesFilePath { get; private set; }
@@ -61,6 +119,8 @@ public static class BuildParameters
     public static bool IsRunningOnTeamCity { get; private set; }
     public static bool IsTagged { get; private set; }
     public static string MasterBranchName { get; private set; }
+    public static MastodonCredentials Mastodon { get; private set; }
+    public static Func<BuildVersion, object[]> MastodonMessageArguments { get; private set; }
     public static FilePath MilestoneReleaseNotesFilePath { get; private set; }
     public static bool MsiUsedWithinNupkg { get; private set; }
     public static string NuGetNupkgGlobbingPattern { get; private set; }
@@ -94,6 +154,10 @@ public static class BuildParameters
     public static bool ShouldDownloadMilestoneReleaseNotes { get; private set; }
     public static bool ShouldGenerateSolutionVersionCSharpFile { get; private set; }
     public static bool ShouldObfuscateOutputAssemblies { get; private set; }
+    public static bool ShouldPostToDiscord { get; private set; }
+    public static bool ShouldPostToMastodon { get; private set; }
+    public static bool ShouldPostToSlack { get; private set; }
+    public static bool ShouldPostToTwitter { get; private set; }
     public static bool ShouldPublishAwsLambdas { get; private set; }
     public static bool ShouldPublishPreReleasePackages { get; private set; }
     public static bool ShouldPublishReleasePackages { get; private set; }
@@ -116,6 +180,8 @@ public static class BuildParameters
     public static bool ShouldRunxUnit { get; private set; }
     public static bool ShouldStrongNameOutputAssemblies { get; private set; }
     public static bool ShouldStrongNameSignDependentAssemblies { get; private set; }
+    public static SlackCredentials Slack { get; private set; }
+    public static Func<BuildVersion, object[]> SlackMessageArguments { get; private set; }
     public static DirectoryPath SolutionDirectoryPath { get; private set; }
     public static FilePath SolutionFilePath { get; private set; }
     public static string SonarQubeId { get; private set; }
@@ -133,6 +199,8 @@ public static class BuildParameters
     public static TransifexMode TransifexPullMode { get; private set; }
     public static int TransifexPullPercentage { get; private set; }
     public static bool TreatWarningsAsErrors { get; set; }
+    public static TwitterCredentials Twitter { get; private set; }
+    public static Func<BuildVersion, object[]> TwitterMessageArguments { get; private set; }
     public static string UnitTestAssemblyFilePattern { get; private set; }
     public static string UnitTestAssemblyProjectPattern { get; private set; }
     public static bool UseChocolateyGuiStrongNameKey { get; private set; }
@@ -213,6 +281,10 @@ public static class BuildParameters
         context.Information("ShouldDownloadMilestoneReleaseNotes: {0}", BuildParameters.ShouldDownloadMilestoneReleaseNotes);
         context.Information("ShouldGenerateSolutionVersionCSharpFile: {0}", BuildParameters.ShouldGenerateSolutionVersionCSharpFile);
         context.Information("ShouldObfuscateOutputAssemblies: {0}", BuildParameters.ShouldObfuscateOutputAssemblies);
+        context.Information("ShouldPostToDiscord: {0}", BuildParameters.ShouldPostToDiscord);
+        context.Information("ShouldPostToMastodon: {0}", BuildParameters.ShouldPostToMastodon);
+        context.Information("ShouldPostToSlack: {0}", BuildParameters.ShouldPostToSlack);
+        context.Information("ShouldPostToTwitter: {0}", BuildParameters.ShouldPostToTwitter);
         context.Information("ShouldPublishAwsLambdas: {0}", BuildParameters.ShouldPublishAwsLambdas);
         context.Information("ShouldPublishPreReleasePackages: {0}", BuildParameters.ShouldPublishPreReleasePackages);
         context.Information("ShouldPublishReleasePackages: {0}", BuildParameters.ShouldPublishReleasePackages);
@@ -267,6 +339,7 @@ public static class BuildParameters
         string chocolateyNupkgGlobbingPattern = "/**/*.nupkg",
         string chocolateyNuspecGlobbingPattern = "/**/*.nuspec",
         string developBranchName = "develop",
+        Func<BuildVersion, object[]> discordMessageArguments = null,
         FilePath fullReleaseNotesFilePath = null,
         Func<FilePathCollection> getFilesToObfuscate = null,
         Func<FilePathCollection> getFilesToSign = null,
@@ -278,6 +351,7 @@ public static class BuildParameters
         string integrationTestAssemblyProjectPattern = null,
         string integrationTestScriptPath = null,
         string masterBranchName = "master",
+        Func<BuildVersion, object[]> mastodonMessageArguments = null,
         FilePath milestoneReleaseNotesFilePath = null,
         bool msiUsedWithinNupkg = true,
         string nuGetNupkgGlobbingPattern = "/**/*.nupkg",
@@ -309,6 +383,10 @@ public static class BuildParameters
         bool shouldDownloadMilestoneReleaseNotes = false,
         bool shouldGenerateSolutionVersionCSharpFile = true,
         bool shouldObfuscateOutputAssemblies = true,
+        bool shouldPostToDiscord = true,
+        bool shouldPostToMastodon = true,
+        bool shouldPostToSlack = true,
+        bool shouldPostToTwitter = true,
         bool shouldPublishAwsLambdas = true,
         bool shouldPublishPreReleasePackages = true,
         bool shouldPublishReleasePackages = true,
@@ -331,6 +409,7 @@ public static class BuildParameters
         bool shouldRunxUnit = true,
         bool shouldStrongNameOutputAssemblies = true,
         bool shouldStrongNameSignDependentAssemblies = true,
+        Func<BuildVersion, object[]> slackMessageArguments = null,
         DirectoryPath solutionDirectoryPath = null,
         FilePath solutionFilePath = null,
         string sonarQubeId = null,
@@ -340,6 +419,7 @@ public static class BuildParameters
         TransifexMode transifexPullMode = TransifexMode.OnlyTranslated,
         int transifexPullPercentage = 60,
         bool treatWarningsAsErrors = true,
+        Func<BuildVersion, object[]> twitterMessageArguments = null,
         string unitTestAssemblyFilePattern = null,
         string unitTestAssemblyProjectPattern = null,
         bool useChocolateyGuiStrongNameKey = false
@@ -381,6 +461,8 @@ public static class BuildParameters
         ChocolateyNupkgGlobbingPattern = chocolateyNupkgGlobbingPattern;
         ChocolateyNuspecGlobbingPattern = chocolateyNuspecGlobbingPattern;
         Configuration = context.Argument("configuration", "Release");
+        Discord = GetDiscordCredentials(context);
+        DiscordMessageArguments = discordMessageArguments ?? _defaultNotificationArguments;
         DockerCredentials = GetDockerCredentials(context);
         DeploymentEnvironment = context.Argument("environment", "Release");
         DevelopBranchName = developBranchName;
@@ -402,6 +484,8 @@ public static class BuildParameters
         IsRunningOnTeamCity = BuildProvider.Type == BuildProviderType.TeamCity;
         IsTagged = BuildProvider.Repository.Tag.IsTag;
         MasterBranchName = masterBranchName;
+        Mastodon = GetMastodonCredentials(context);
+        MastodonMessageArguments = mastodonMessageArguments ?? _defaultNotificationArguments;
         MilestoneReleaseNotesFilePath = milestoneReleaseNotesFilePath ?? RootDirectoryPath.CombineWithFilePath("CHANGELOG.md");
         MsiUsedWithinNupkg = msiUsedWithinNupkg;
         NuGetNupkgGlobbingPattern = nuGetNupkgGlobbingPattern;
@@ -432,6 +516,34 @@ public static class BuildParameters
         ShouldDownloadMilestoneReleaseNotes = shouldDownloadMilestoneReleaseNotes;
         ShouldGenerateSolutionVersionCSharpFile = shouldGenerateSolutionVersionCSharpFile;
         ShouldObfuscateOutputAssemblies = shouldObfuscateOutputAssemblies;
+        ShouldPostToDiscord = shouldPostToDiscord;
+
+        if (context.HasArgument("shouldPostToDiscord"))
+        {
+            ShouldPostToDiscord = context.Argument<bool>("shouldPostToDiscord");
+        }
+
+        ShouldPostToMastodon = shouldPostToMastodon;
+
+        if (context.HasArgument("shouldPostToMastodon"))
+        {
+            ShouldPostToMastodon = context.Argument<bool>("shouldPostToMastodon");
+        }
+
+        ShouldPostToSlack = shouldPostToSlack;
+
+        if (context.HasArgument("shouldPostToSlack"))
+        {
+            ShouldPostToSlack = context.Argument<bool>("shouldPostToSlack");
+        }
+
+        ShouldPostToTwitter = shouldPostToTwitter;
+
+        if (context.HasArgument("shouldPostToTwitter"))
+        {
+            ShouldPostToTwitter = context.Argument<bool>("shouldPostToTwitter");
+        }
+
         ShouldPublishAwsLambdas = shouldPublishAwsLambdas;
         ShouldPublishPreReleasePackages = shouldPublishPreReleasePackages;
         ShouldPublishReleasePackages = shouldPublishReleasePackages;
@@ -472,6 +584,8 @@ public static class BuildParameters
         ShouldRunxUnit = shouldRunxUnit;
         ShouldStrongNameOutputAssemblies = shouldStrongNameOutputAssemblies;
         ShouldStrongNameSignDependentAssemblies = shouldStrongNameSignDependentAssemblies;
+        Slack = GetSlackCredentials(context);
+        SlackMessageArguments = slackMessageArguments ?? _defaultNotificationArguments;
         SolutionDirectoryPath = solutionDirectoryPath ?? sourceDirectoryPath.Combine(title);
         SolutionFilePath = solutionFilePath ?? sourceDirectoryPath.CombineWithFilePath(title + ".sln");
         SonarQubeId = sonarQubeId ?? context.EnvironmentVariable(Environment.SonarQubeIdVariable) ?? RootDirectoryPath.GetDirectoryName().ToLower();
@@ -487,6 +601,8 @@ public static class BuildParameters
         TransifexPullMode = transifexPullMode;
         TransifexPullPercentage = transifexPullPercentage;
         TreatWarningsAsErrors = treatWarningsAsErrors;
+        Twitter = GetTwitterCredentials(context);
+        TwitterMessageArguments = twitterMessageArguments ?? _defaultNotificationArguments;
         UnitTestAssemblyFilePattern = unitTestAssemblyFilePattern ?? "/**/*.[tT]ests/**/*.[tT]ests.dll";
         UnitTestAssemblyProjectPattern = unitTestAssemblyProjectPattern ?? "/**/*.[tT]ests/**/*.[tT]ests.csproj";
         UseChocolateyGuiStrongNameKey = useChocolateyGuiStrongNameKey;
