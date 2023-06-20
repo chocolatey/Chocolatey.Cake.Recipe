@@ -16,8 +16,19 @@
 public static class Environment
 {
     public static string DefaultPushSourceUrlVariable { get; private set; }
+    public static string DiscordWebHookUrlVariable { get; private set; }
+    public static string DiscordUserNameVariable { get; private set; }
+    public static string DiscordAvatarUrlVariable { get; private set; }
     public static string GitHubTokenVariable { get; private set; }
+    public static string MastodonHostNameVariable { get; private set; }
+    public static string MastodonTokenVariable { get; private set; }
+    public static string SlackChannelVariable { get; private set; }
+    public static string SlackWebHookUrlVariable { get; private set; }
     public static string TransifexApiTokenVariable { get; private set; }
+    public static string TwitterConsumerKeyVariable { get; private set; }
+    public static string TwitterConsumerSecretVariable { get; private set; }
+    public static string TwitterAccessTokenVariable { get; private set; }
+    public static string TwitterAccessTokenSecretVariable { get; private set; }    
     public static string SonarQubeTokenVariable { get; private set; }
     public static string SonarQubeIdVariable { get; private set; }
     public static string SonarQubeUrlVariable { get; private set; }
@@ -27,8 +38,19 @@ public static class Environment
 
     public static void SetVariableNames(
         string defaultPushSourceUrlVariable = null,
+        string discordWebHookUrlVariable = null,
+        string discordUserNameVariable = null,
+        string discordAvatarUrlVariable = null,
         string gitHubTokenVariable = null,
+        string mastodonHostNameVariable = null,
+        string mastodonTokenVariable = null,
+        string slackChannelVariable = null,
+        string slackWebHookUrlVariable = null,
         string transifexApiTokenVariable = null,
+        string twitterConsumerKeyVariable = null,
+        string twitterConsumerSecretVariable = null,
+        string twitterAccessTokenVariable = null,
+        string twitterAccessTokenSecretVariable = null,
         string sonarQubeTokenVariable = null,
         string sonarQubeIdVariable = null,
         string sonarQubeUrlVariable = null,
@@ -37,8 +59,19 @@ public static class Environment
         string dockerServerVariable = null)
     {
         DefaultPushSourceUrlVariable = defaultPushSourceUrlVariable ?? "NUGETDEVPUSH_SOURCE";
+        DiscordWebHookUrlVariable = discordWebHookUrlVariable ?? "DISCORD_WEBHOOKURL";
+        DiscordUserNameVariable = discordUserNameVariable ?? "DISCORD_USERNAME";
+        DiscordAvatarUrlVariable = discordAvatarUrlVariable ?? "DISCORD_AVATARURL";
         GitHubTokenVariable = gitHubTokenVariable ?? "GITHUB_PAT";
+        MastodonHostNameVariable = mastodonHostNameVariable ?? "MASTODON_HOSTNAME";
+        MastodonTokenVariable = mastodonTokenVariable ?? "MASTODON_TOKEN";
+        SlackChannelVariable = slackChannelVariable ?? "SLACK_CHANNEL";
+        SlackWebHookUrlVariable = slackWebHookUrlVariable ?? "SLACK_WEBHOOKURL";
         TransifexApiTokenVariable = transifexApiTokenVariable ?? "TRANSIFEX_API_TOKEN";
+        TwitterConsumerKeyVariable = twitterConsumerKeyVariable ?? "TWITTER_CONSUMER_KEY";
+        TwitterConsumerSecretVariable = twitterConsumerSecretVariable ?? "TWITTER_CONSUMER_SECRET";
+        TwitterAccessTokenVariable = twitterAccessTokenVariable ?? "TWITTER_ACCESS_TOKEN";
+        TwitterAccessTokenSecretVariable = twitterAccessTokenSecretVariable ?? "TWITTER_ACCESS_TOKEN_SECRET";        
         SonarQubeTokenVariable = sonarQubeTokenVariable ?? "SONARQUBE_TOKEN";
         SonarQubeIdVariable = sonarQubeIdVariable ?? "SONARQUBE_ID";
         SonarQubeUrlVariable = sonarQubeUrlVariable ?? "SONARQUBE_URL";
