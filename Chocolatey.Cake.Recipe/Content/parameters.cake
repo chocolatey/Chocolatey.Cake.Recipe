@@ -163,6 +163,7 @@ public static class BuildParameters
     public static bool ShouldPublishReleasePackages { get; private set; }
     public static bool ShouldReportCodeCoverageMetrics { get; private set; }
     public static bool ShouldReportUnitTestResults { get; private set; }
+    public static bool ShouldRunAnalyze { get; private set; }
     public static bool ShouldRunChocolatey { get; private set; }
     public static bool ShouldRunDotNetPack { get; private set; }
     public static bool ShouldRunDotNetTest { get; private set; }
@@ -290,6 +291,7 @@ public static class BuildParameters
         context.Information("ShouldPublishReleasePackages: {0}", BuildParameters.ShouldPublishReleasePackages);
         context.Information("ShouldReportCodeCoverageMetrics: {0}", BuildParameters.ShouldReportCodeCoverageMetrics);
         context.Information("ShouldReportUnitTestResults: {0}", BuildParameters.ShouldReportUnitTestResults);
+        context.Information("ShouldRunAnalyze: {0}", BuildParameters.ShouldRunAnalyze);
         context.Information("ShouldRunChocolatey: {0}", BuildParameters.ShouldRunChocolatey);
         context.Information("ShouldRunDotNetPack: {0}", BuildParameters.ShouldRunDotNetPack);
         context.Information("ShouldRunDotNetTest: {0}", BuildParameters.ShouldRunDotNetTest);
@@ -392,6 +394,7 @@ public static class BuildParameters
         bool shouldPublishReleasePackages = true,
         bool shouldReportCodeCoverageMetrics = true,
         bool shouldReportUnitTestResults = true,
+        bool shouldRunAnalyze = true,
         bool shouldRunChocolatey = true,
         bool shouldRunDotNetPack = false,
         bool shouldRunDotNetTest = true,
@@ -549,6 +552,14 @@ public static class BuildParameters
         ShouldPublishReleasePackages = shouldPublishReleasePackages;
         ShouldReportCodeCoverageMetrics = shouldReportCodeCoverageMetrics;
         ShouldReportUnitTestResults = shouldReportUnitTestResults;
+
+        ShouldRunAnalyze = shouldRunAnalyze;
+
+        if (context.HasArgument("shouldRunAnalyze"))
+        {
+            ShouldRunAnalyze = context.Argument<bool>("shouldRunAnalyze");
+        }
+
         ShouldRunChocolatey = shouldRunChocolatey;
         ShouldRunDotNetPack = shouldRunDotNetPack;
         ShouldRunDotNetTest = shouldRunDotNetTest;
