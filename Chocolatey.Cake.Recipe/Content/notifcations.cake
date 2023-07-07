@@ -172,8 +172,8 @@ BuildParameters.Tasks.SendNotificationsTask = Task("Send-Notifications")
             var formattedMessage = System.IO.File.ReadAllText("./.notifications/twitter.txt");
             var messageArguments = BuildParameters.TwitterMessageArguments(BuildParameters.Version);
 
-            Information(formattedMessage, messageArguments);
-            //SendMessageToTwitter(string.Format(formattedMessage, messageArguments));
+            //Information(formattedMessage, messageArguments);
+            SendMessageToTwitter(string.Format(formattedMessage, messageArguments));
         }
         else
         {
