@@ -165,6 +165,7 @@ public static class BuildParameters
     public static bool ShouldReportUnitTestResults { get; private set; }
     public static bool ShouldRunAnalyze { get; private set; }
     public static bool ShouldRunChocolatey { get; private set; }
+    public static bool ShouldRunDocker { get; private set; }
     public static bool ShouldRunDotNetPack { get; private set; }
     public static bool ShouldRunDotNetTest { get; private set; }
     public static bool ShouldRunGitReleaseManager { get; private set; }
@@ -294,6 +295,7 @@ public static class BuildParameters
         context.Information("ShouldReportUnitTestResults: {0}", BuildParameters.ShouldReportUnitTestResults);
         context.Information("ShouldRunAnalyze: {0}", BuildParameters.ShouldRunAnalyze);
         context.Information("ShouldRunChocolatey: {0}", BuildParameters.ShouldRunChocolatey);
+        context.Information("ShouldRunDocker: {0}", BuildParameters.ShouldRunDocker);
         context.Information("ShouldRunDotNetPack: {0}", BuildParameters.ShouldRunDotNetPack);
         context.Information("ShouldRunDotNetTest: {0}", BuildParameters.ShouldRunDotNetTest);
         context.Information("ShouldRunGitReleaseManager: {0}", BuildParameters.ShouldRunGitReleaseManager);
@@ -398,6 +400,7 @@ public static class BuildParameters
         bool shouldReportUnitTestResults = true,
         bool shouldRunAnalyze = true,
         bool shouldRunChocolatey = true,
+        bool shouldRunDocker = true,
         bool shouldRunDotNetPack = false,
         bool shouldRunDotNetTest = true,
         bool shouldRunGitReleaseManager = false,
@@ -564,6 +567,13 @@ public static class BuildParameters
         }
 
         ShouldRunChocolatey = shouldRunChocolatey;
+
+        ShouldRunDocker = shouldRunDocker;
+
+        if (context.HasArgument("shouldRunDocker"))
+        {
+            ShouldRunDocker = context.Argument<bool>("shouldRunDocker");
+        }
         ShouldRunDotNetPack = shouldRunDotNetPack;
         ShouldRunDotNetTest = shouldRunDotNetTest;
         ShouldRunGitReleaseManager = shouldRunGitReleaseManager;
