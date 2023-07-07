@@ -24,12 +24,14 @@ Tuple<string, Exception> testsException = null;
 
 BuildParameters.Tasks.InstallOpenCoverTask = Task("Install-OpenCover")
     .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping because not running on windows")
+    .WithCriteria(() => BuildParameters.ShouldRunTests, "Skipping because running tests is not enabled")
     .Does(() => RequireTool(ToolSettings.OpenCoverTool, () => {
     }));
 
 BuildParameters.Tasks.TestNUnitTask = Task("Test-NUnit")
     .IsDependentOn("Install-OpenCover")
     .WithCriteria(() => BuildParameters.ShouldRunNUnit, "Skipping because NUnit is not enabled")
+    .WithCriteria(() => BuildParameters.ShouldRunTests, "Skipping because running tests is not enabled")
     .WithCriteria(() => DirectoryExists(BuildParameters.Paths.Directories.PublishedNUnitTests), "Skipping because there are no published NUnit tests")
     .Does(() => RequireTool(ToolSettings.NUnitTool, () => {
         EnsureDirectoryExists(BuildParameters.Paths.Directories.NUnitTestResults);
@@ -94,6 +96,7 @@ BuildParameters.Tasks.TestNUnitTask = Task("Test-NUnit")
 BuildParameters.Tasks.TestxUnitTask = Task("Test-xUnit")
     .IsDependentOn("Install-OpenCover")
     .WithCriteria(() => BuildParameters.ShouldRunxUnit, "Skipping because xUnit is not enabled")
+    .WithCriteria(() => BuildParameters.ShouldRunTests, "Skipping because running tests is not enabled")
     .WithCriteria(() => DirectoryExists(BuildParameters.Paths.Directories.PublishedxUnitTests), "Skipping because there are no published xUnit tests")
     .Does(() => RequireTool(ToolSettings.XUnitTool, () => {
         EnsureDirectoryExists(BuildParameters.Paths.Directories.xUnitTestResults);
@@ -162,6 +165,7 @@ BuildParameters.Tasks.TestxUnitTask = Task("Test-xUnit")
 BuildParameters.Tasks.DotNetTestTask = Task("DotNetTest")
     .IsDependentOn("Install-OpenCover")
     .WithCriteria(() => BuildParameters.ShouldRunDotNetTest, "Skipping because dotnet test is not enabled")
+    .WithCriteria(() => BuildParameters.ShouldRunTests, "Skipping because running tests is not enabled")
     .Does(() => {
         if (BuildParameters.TestExecutionType == "none")
         {
@@ -300,6 +304,7 @@ BuildParameters.Tasks.GenerateFriendlyTestReportTask = Task("Generate-FriendlyTe
     .IsDependentOn("Test-NUnit")
     .IsDependentOn("Test-xUnit")
     .WithCriteria(() => BuildParameters.ShouldRunReportUnit, "Skipping because ReportUnit is not enabled")
+    .WithCriteria(() => BuildParameters.ShouldRunTests, "Skipping because running tests is not enabled")
     .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping due to not running on Windows")
     .ContinueOnError() // We do not want this task to fail the build
     .Does(() => RequireTool(ToolSettings.ReportUnitTool, () =>
@@ -325,6 +330,7 @@ BuildParameters.Tasks.GenerateFriendlyTestReportTask = Task("Generate-FriendlyTe
 
 BuildParameters.Tasks.ReportUnitTestResultsTask = Task("Report-UnitTestResults")
     .WithCriteria(() => BuildParameters.ShouldReportUnitTestResults, "Skipping because reporting of unit test results is not enabled")
+    .WithCriteria(() => BuildParameters.ShouldRunTests, "Skipping because running tests is not enabled")
     .WithCriteria(() => BuildSystem.IsRunningOnTeamCity, "Skipping due to not running on TeamCity")
     .ContinueOnError() // We do not want this task to fail the build
     .Does(() => {
@@ -345,6 +351,7 @@ BuildParameters.Tasks.ReportUnitTestResultsTask = Task("Report-UnitTestResults")
 BuildParameters.Tasks.ReportCodeCoverageMetricsTask = Task("Report-Code-Coverage-Metrics")
     .IsDependentOn("Convert-OpenCoverToLcov")
     .WithCriteria(() => BuildParameters.ShouldReportCodeCoverageMetrics, "Skipping because reporting of code coverage metrics is not enabled")
+    .WithCriteria(() => BuildParameters.ShouldRunTests, "Skipping because running tests is not enabled")
     .WithCriteria(() => BuildSystem.IsRunningOnTeamCity, "Skipping due to not running on TeamCity")
     .ContinueOnError() // We do not want this task to fail the build
     .Does(() => {
@@ -427,6 +434,7 @@ private void ReportCoverageMetric(
 
 BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Generate-FriendlyCoverageReport")
     .WithCriteria(() => BuildParameters.ShouldRunReportGenerator, "Skipping because ReportGenarator is not enabled")
+    .WithCriteria(() => BuildParameters.ShouldRunTests, "Skipping because running tests is not enabled")
     .ContinueOnError() // We do not want this task to fail the build
     .Does(() => RequireTool(BuildParameters.IsDotNetBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.ReportGeneratorGlobalTool : ToolSettings.ReportGeneratorTool, () => {
         var coverageFiles = GetFiles(BuildParameters.Paths.Directories.TestCoverage + "/coverlet/*.xml");
@@ -467,6 +475,7 @@ BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Generate-FriendlyC
 
 BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Convert-OpenCoverToLcov")
     .WithCriteria(() => BuildParameters.ShouldRunReportGenerator, "Skipping because ReportGenarator is not enabled")
+    .WithCriteria(() => BuildParameters.ShouldRunTests, "Skipping because running tests is not enabled")
     .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping due to not running on Windows")
     .ContinueOnError() // We do not want this task to fail the build
     .Does(() => RequireTool(BuildParameters.IsDotNetBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.ReportGeneratorGlobalTool : ToolSettings.ReportGeneratorTool, () => {
@@ -494,6 +503,7 @@ BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Convert-OpenCoverT
 );
 
 BuildParameters.Tasks.TestTask = Task("Test")
+    .WithCriteria(() => BuildParameters.ShouldRunTests, "Skipping because running tests is not enabled")
     .Does(() => {
         var coverageFiles = GetFiles(BuildParameters.Paths.Directories.TestCoverage + "/coverlet/*.xml");
         if (FileExists(BuildParameters.Paths.Files.TestCoverageOutputFilePath))

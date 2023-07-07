@@ -177,6 +177,7 @@ public static class BuildParameters
     public static bool ShouldRunReportGenerator { get; private set; }
     public static bool ShouldRunReportUnit { get; private set; }
     public static bool ShouldRunSonarQube { get; private set; }
+    public static bool ShouldRunTests { get; private set ;}
     public static bool ShouldRunTransifex { get; set; }
     public static bool ShouldRunxUnit { get; private set; }
     public static bool ShouldStrongNameOutputAssemblies { get; private set; }
@@ -305,6 +306,7 @@ public static class BuildParameters
         context.Information("ShouldRunReportGenerator: {0}", BuildParameters.ShouldRunReportGenerator);
         context.Information("ShouldRunReportUnit: {0}", BuildParameters.ShouldRunReportUnit);
         context.Information("ShouldRunSonarQube: {0}", BuildParameters.ShouldRunSonarQube);
+        context.Information("ShouldRunTests: {0}", BuildParameters.ShouldRunTests);
         context.Information("ShouldRunTransifex: {0}", BuildParameters.ShouldRunTransifex);
         context.Information("ShouldRunxUnit: {0}", BuildParameters.ShouldRunxUnit);
         context.Information("ShouldStrongNameOutputAssemblies: {0}", BuildParameters.ShouldStrongNameOutputAssemblies);
@@ -408,6 +410,7 @@ public static class BuildParameters
         bool shouldRunReportGenerator = true,
         bool shouldRunReportUnit = true,
         bool shouldRunSonarQube = false,
+        bool shouldRunTests = true,
         bool? shouldRunTransifex = null,
         bool shouldRunxUnit = true,
         bool shouldStrongNameOutputAssemblies = true,
@@ -591,6 +594,12 @@ public static class BuildParameters
             }
         }
 
+        ShouldRunTests = shouldRunTests;
+
+        if (context.HasArgument("shouldRunTests"))
+        {
+            ShouldRunTests = context.Argument<bool>("shouldRunTests");
+        }
         ShouldRunTransifex = shouldRunTransifex ?? TransifexIsConfiguredForRepository(context);
         ShouldRunxUnit = shouldRunxUnit;
         ShouldStrongNameOutputAssemblies = shouldStrongNameOutputAssemblies;
