@@ -517,14 +517,68 @@ public static class BuildParameters
         ResharperSettingsFileName = resharperSettingsFileName ?? string.Format("{0}.sln.DotSettings", title);
         RestorePackagesDirectory = restorePackagesDirectory;
         ShouldAuthenticodeSignMsis = shouldAuthenticodeSignMsis;
+
+        if (context.HasArgument("shouldAuthenticodeSignMsis"))
+        {
+            ShouldAuthenticodeSignMsis = context.Argument<bool>("shouldAuthenticodeSignMsis");
+        }
+
         ShouldAuthenticodeSignOutputAssemblies = shouldAuthenticodeSignOutputAssemblies;
+
+        if (context.HasArgument("shouldAuthenticodeSignOutputAssemblies"))
+        {
+            ShouldAuthenticodeSignOutputAssemblies = context.Argument<bool>("shouldAuthenticodeSignOutputAssemblies");
+        }
+
         ShouldAuthenticodeSignPowerShellScripts = shouldAuthenticodeSignPowerShellScripts;
+
+        if (context.HasArgument("shouldAuthenticodeSignPowerShellScripts"))
+        {
+            ShouldAuthenticodeSignPowerShellScripts = context.Argument<bool>("shouldAuthenticodeSignPowerShellScripts");
+        }
+
         ShouldBuildMsi = shouldBuildMsi;
+
+        if (context.HasArgument("shouldBuildMsi"))
+        {
+            ShouldBuildMsi = context.Argument<bool>("shouldBuildMsi");
+        }
+
         ShouldBuildNuGetSourcePackage = shouldBuildNuGetSourcePackage;
+
+        if (context.HasArgument("shouldBuildNuGetSourcePackage"))
+        {
+            ShouldBuildNuGetSourcePackage = context.Argument<bool>("shouldBuildNuGetSourcePackage");
+        }
+
         ShouldDownloadFullReleaseNotes = shouldDownloadFullReleaseNotes;
+
+        if (context.HasArgument("shouldDownloadFullReleaseNotes"))
+        {
+            ShouldDownloadFullReleaseNotes = context.Argument<bool>("shouldDownloadFullReleaseNotes");
+        }
+
         ShouldDownloadMilestoneReleaseNotes = shouldDownloadMilestoneReleaseNotes;
+
+        if (context.HasArgument("shouldDownloadMilestoneReleaseNotes"))
+        {
+            ShouldDownloadMilestoneReleaseNotes = context.Argument<bool>("shouldDownloadMilestoneReleaseNotes");
+        }
+
         ShouldGenerateSolutionVersionCSharpFile = shouldGenerateSolutionVersionCSharpFile;
+
+        if (context.HasArgument("shouldGenerateSolutionVersionCSharpFile"))
+        {
+            ShouldGenerateSolutionVersionCSharpFile = context.Argument<bool>("shouldGenerateSolutionVersionCSharpFile");
+        }
+
         ShouldObfuscateOutputAssemblies = shouldObfuscateOutputAssemblies;
+
+        if (context.HasArgument("shouldObfuscateOutputAssemblies"))
+        {
+            ShouldObfuscateOutputAssemblies = context.Argument<bool>("shouldObfuscateOutputAssemblies");
+        }
+
         ShouldPostToDiscord = shouldPostToDiscord;
 
         if (context.HasArgument("shouldPostToDiscord"))
@@ -554,10 +608,39 @@ public static class BuildParameters
         }
 
         ShouldPublishAwsLambdas = shouldPublishAwsLambdas;
+
+        if (context.HasArgument("shouldPublishAwsLambdas"))
+        {
+            ShouldPublishAwsLambdas = context.Argument<bool>("shouldPublishAwsLambdas");
+        }
+
         ShouldPublishPreReleasePackages = shouldPublishPreReleasePackages;
+
+        if (context.HasArgument("shouldPublishPreReleasePackages"))
+        {
+            ShouldPublishPreReleasePackages = context.Argument<bool>("shouldPublishPreReleasePackages");
+        }
+
         ShouldPublishReleasePackages = shouldPublishReleasePackages;
+        
+        if (context.HasArgument("shouldPublishReleasePackages"))
+        {
+            ShouldPublishReleasePackages = context.Argument<bool>("shouldPublishReleasePackages");
+        }
+
         ShouldReportCodeCoverageMetrics = shouldReportCodeCoverageMetrics;
+
+        if (context.HasArgument("shouldReportCodeCoverageMetrics"))
+        {
+            ShouldReportCodeCoverageMetrics = context.Argument<bool>("shouldReportCodeCoverageMetrics");
+        }
+
         ShouldReportUnitTestResults = shouldReportUnitTestResults;
+
+        if (context.HasArgument("shouldReportUnitTestResults"))
+        {
+            ShouldReportUnitTestResults = context.Argument<bool>("shouldReportUnitTestResults");
+        }
 
         ShouldRunAnalyze = shouldRunAnalyze;
 
@@ -568,20 +651,74 @@ public static class BuildParameters
 
         ShouldRunChocolatey = shouldRunChocolatey;
 
+        if (context.HasArgument("shouldRunChocolatey"))
+        {
+            ShouldRunChocolatey = context.Argument<bool>("shouldRunChocolatey");
+        }
+
         ShouldRunDocker = shouldRunDocker;
 
         if (context.HasArgument("shouldRunDocker"))
         {
             ShouldRunDocker = context.Argument<bool>("shouldRunDocker");
         }
+
         ShouldRunDotNetPack = shouldRunDotNetPack;
+
+        if (context.HasArgument("shouldRunDotNetPack"))
+        {
+            ShouldRunDotNetPack = context.Argument<bool>("shouldRunDotNetPack");
+        }
+
         ShouldRunDotNetTest = shouldRunDotNetTest;
+
+        if (context.HasArgument("shouldRunDotNetTest"))
+        {
+            ShouldRunDotNetTest = context.Argument<bool>("shouldRunDotNetTest");
+        }
+
         ShouldRunGitReleaseManager = shouldRunGitReleaseManager;
+
+        if (context.HasArgument("shouldRunGitReleaseManager"))
+        {
+            ShouldRunGitReleaseManager = context.Argument<bool>("shouldRunGitReleaseManager");
+        }
+
         ShouldRunGitVersion = shouldRunGitVersion;
+
+        if (context.HasArgument("shouldRunGitVersion"))
+        {
+            ShouldRunGitVersion = context.Argument<bool>("shouldRunGitVersion");
+        }
+
         ShouldRunILMerge = shouldRunILMerge;
+
+        if (context.HasArgument("shouldRunILMerge"))
+        {
+            ShouldRunILMerge = context.Argument<bool>("shouldRunILMerge");
+        }
+
         ShouldRunInspectCode = shouldRunInspectCode;
+
+        if (context.HasArgument("shouldRunInspectCode"))
+        {
+            ShouldRunInspectCode = context.Argument<bool>("shouldRunInspectCode");
+        }
+
         ShouldRunNuGet = shouldRunNuGet;
+
+        if (context.HasArgument("shouldRunNuGet"))
+        {
+            ShouldRunNuGet = context.Argument<bool>("shouldRunNuGet");
+        }
+
         ShouldRunNUnit = shouldRunNUnit;
+
+        if (context.HasArgument("shouldRunNUnit"))
+        {
+            ShouldRunNUnit = context.Argument<bool>("shouldRunNUnit");
+        }
+
         ShouldRunOpenCover = shouldRunOpenCover;
 
         if (context.HasArgument("shouldRunOpenCover"))
@@ -590,7 +727,18 @@ public static class BuildParameters
         }
 
         ShouldRunReportGenerator = shouldRunReportGenerator;
+
+        if (context.HasArgument("shouldRunReportGenerator"))
+        {
+            ShouldRunReportGenerator = context.Argument<bool>("shouldRunReportGenerator");
+        }
+
         ShouldRunReportUnit = shouldRunReportUnit;
+
+        if (context.HasArgument("shouldRunReportUnit"))
+        {
+            ShouldRunReportUnit = context.Argument<bool>("shouldRunReportUnit");
+        }
 
         if (context.HasArgument("shouldRunSonarQube"))
         {
@@ -610,10 +758,35 @@ public static class BuildParameters
         {
             ShouldRunTests = context.Argument<bool>("shouldRunTests");
         }
+
         ShouldRunTransifex = shouldRunTransifex ?? TransifexIsConfiguredForRepository(context);
+
+        if (context.HasArgument("shouldRunTransifex"))
+        {
+            ShouldRunTransifex = context.Argument<bool>("shouldRunTransifex");
+        }
+
         ShouldRunxUnit = shouldRunxUnit;
+
+        if (context.HasArgument("shouldRunxUnit"))
+        {
+            ShouldRunxUnit = context.Argument<bool>("shouldRunxUnit");
+        }
+
         ShouldStrongNameOutputAssemblies = shouldStrongNameOutputAssemblies;
+
+        if (context.HasArgument("shouldStrongNameOutputAssemblies"))
+        {
+            ShouldStrongNameOutputAssemblies = context.Argument<bool>("shouldStrongNameOutputAssemblies");
+        }
+
         ShouldStrongNameSignDependentAssemblies = shouldStrongNameSignDependentAssemblies;
+
+        if (context.HasArgument("shouldStrongNameSignDependentAssemblies"))
+        {
+            ShouldStrongNameSignDependentAssemblies = context.Argument<bool>("shouldStrongNameSignDependentAssemblies");
+        }
+
         Slack = GetSlackCredentials(context);
         SlackMessageArguments = slackMessageArguments ?? _defaultNotificationArguments;
         SolutionDirectoryPath = solutionDirectoryPath ?? sourceDirectoryPath.Combine(title);
