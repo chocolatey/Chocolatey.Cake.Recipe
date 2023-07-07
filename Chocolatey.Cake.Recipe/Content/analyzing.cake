@@ -42,6 +42,7 @@ public void LaunchDefaultProgram(FilePath file) {
 BuildParameters.Tasks.InspectCodeTask = Task("InspectCode")
     .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping due to not running on Windows")
     .WithCriteria(() => BuildParameters.ShouldRunInspectCode, "Skipping because InspectCode has been disabled")
+    .WithCriteria(() => BuildParameters.ShouldRunAnalyze, "Skipping because running analysis tasks is not enabled")
     .Does<BuildData>(data => RequireTool(ToolSettings.ReSharperTools, () => {
         var inspectCodeLogFilePath = BuildParameters.Paths.Directories.InspectCodeTestResults.CombineWithFilePath("inspectcode.xml");
 
@@ -74,6 +75,7 @@ BuildParameters.Tasks.InspectCodeTask = Task("InspectCode")
 
 BuildParameters.Tasks.CreateIssuesReportTask = Task("CreateIssuesReport")
     .IsDependentOn("InspectCode")
+    .WithCriteria(() => BuildParameters.ShouldRunAnalyze, "Skipping because running analysis tasks is not enabled")
     .Does<BuildData>(data => {
         var issueReportFile = BuildParameters.Paths.Directories.TestResults.CombineWithFilePath("issues-report.html");
 
@@ -91,4 +93,5 @@ BuildParameters.Tasks.CreateIssuesReportTask = Task("CreateIssuesReport")
 
 BuildParameters.Tasks.AnalyzeTask = Task("Analyze")
     .IsDependentOn("InspectCode")
-    .IsDependentOn("CreateIssuesReport");
+    .IsDependentOn("CreateIssuesReport")
+    .WithCriteria(() => BuildParameters.ShouldRunAnalyze, "Skipping because running analysis tasks is not enabled");
