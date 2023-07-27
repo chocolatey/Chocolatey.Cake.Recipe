@@ -47,10 +47,14 @@ public class BuildPaths
         var nuGetPackagesOutputDirectory = packagesDirectory + "/NuGet";
         var chocolateyPackagesOutputDirectory = packagesDirectory + "/Chocolatey";
 
+        var dependencyCheckReportsDirectory = buildDirectoryPath + "/DependencyCheckReports";
+
         // Files
         var testCoverageOutputFilePath = ((DirectoryPath)testCoverageDirectory).CombineWithFilePath("OpenCover.xml");
         var solutionInfoFilePath = ((DirectoryPath)BuildParameters.SourceDirectoryPath).CombineWithFilePath("SolutionVersion.cs");
         var buildLogFilePath = ((DirectoryPath)buildDirectoryPath).CombineWithFilePath("MsBuild.log");
+        var dependencyCheckJsonReportFilePath = ((DirectoryPath)dependencyCheckReportsDirectory).CombineWithFilePath("dependency-check-report.json");
+        var dependencyCheckHtmlReportFilePath = ((DirectoryPath)dependencyCheckReportsDirectory).CombineWithFilePath("dependency-check-report.html");
 
         var repoFilesPaths = new FilePath[] {
             "LICENSE",
@@ -76,14 +80,17 @@ public class BuildPaths
             nuGetPackagesOutputDirectory,
             chocolateyPackagesOutputDirectory,
             packagesDirectory,
-            environmentSettingsDirectory
+            environmentSettingsDirectory,
+            dependencyCheckReportsDirectory
             );
 
         var buildFiles = new BuildFiles(
             repoFilesPaths,
             testCoverageOutputFilePath,
             solutionInfoFilePath,
-            buildLogFilePath
+            buildLogFilePath,
+            dependencyCheckJsonReportFilePath,
+            dependencyCheckHtmlReportFilePath
             );
 
         return new BuildPaths
@@ -108,13 +115,17 @@ public class BuildFiles
         FilePath[] repoFilesPaths,
         FilePath testCoverageOutputFilePath,
         FilePath solutionInfoFilePath,
-        FilePath buildLogFilePath
+        FilePath buildLogFilePath,
+        FilePath dependencyCheckJsonReportFilePath,
+        FilePath dependencyCheckHtmlReportFilePath
         )
     {
         RepoFilesPaths = Filter(repoFilesPaths);
         TestCoverageOutputFilePath = testCoverageOutputFilePath;
         SolutionInfoFilePath = solutionInfoFilePath;
         BuildLogFilePath = buildLogFilePath;
+        DependencyCheckJsonReportFilePath = dependencyCheckJsonReportFilePath;
+        DependencyCheckHtmlReportFilePath = dependencyCheckHtmlReportFilePath;
     }
 
     private static FilePath[] Filter(FilePath[] files)
@@ -152,6 +163,7 @@ public class BuildDirectories
     public DirectoryPath ChocolateyPackages { get; private set; }
     public DirectoryPath Packages { get; private set; }
     public DirectoryPath EnvironmentSettings { get; private set; }
+    public DirectoryPath DependencyCheckReports { get; private set; }
     public ICollection<DirectoryPath> ToClean { get; private set; }
 
     public BuildDirectories(
@@ -173,7 +185,8 @@ public class BuildDirectories
         DirectoryPath nuGetPackages,
         DirectoryPath chocolateyPackages,
         DirectoryPath packages,
-        DirectoryPath environmentSettings
+        DirectoryPath environmentSettings,
+        DirectoryPath dependencyCheckReports
         )
     {
         Build = build;
@@ -194,6 +207,7 @@ public class BuildDirectories
         NuGetPackages = nuGetPackages;
         ChocolateyPackages = chocolateyPackages;
         EnvironmentSettings = environmentSettings;
+        DependencyCheckReports = dependencyCheckReports;
         Packages = packages;
 
         ToClean = new[] {

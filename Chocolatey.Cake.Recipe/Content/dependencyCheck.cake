@@ -49,7 +49,7 @@ BuildParameters.Tasks.DependencyCheckTask = Task("Dependency-Check")
         Project = BuildParameters.ProductName,
         Scan    = BuildParameters.SourceDirectoryPath.FullPath,
         Format  = "ALL",
-        Out     = BuildParameters.RootDirectoryPath.FullPath
+        Out     = BuildParameters.Paths.Directories.DependencyCheckReports
     };
 
     DependencyCheck(DependencyCheckSettings);

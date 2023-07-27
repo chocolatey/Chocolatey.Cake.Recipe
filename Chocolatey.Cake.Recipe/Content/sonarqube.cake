@@ -33,8 +33,8 @@ BuildParameters.Tasks.InitializeSonarQubeTask = Task("Initialize-SonarQube")
     if (BuildParameters.ShouldRunDependencyCheck)
     {
         SonarQubeSettings.ArgumentCustomization = args => args
-            .Append(string.Format("/d:sonar.dependencyCheck.jsonReportPath={0}", BuildParameters.RootDirectoryPath.CombineWithFilePath("dependency-check-report.json")))
-            .Append(string.Format("/d:sonar.dependencyCheck.htmlReportPath={0}", BuildParameters.RootDirectoryPath.CombineWithFilePath("dependency-check-report.html")));
+            .Append(string.Format("/d:sonar.dependencyCheck.jsonReportPath={0}", BuildParameters.Paths.Files.DependencyCheckJsonReportFilePath))
+            .Append(string.Format("/d:sonar.dependencyCheck.htmlReportPath={0}", BuildParameters.Paths.Files.DependencyCheckHtmlReportFilePath));
     };
 
     SonarBegin(SonarQubeSettings);
