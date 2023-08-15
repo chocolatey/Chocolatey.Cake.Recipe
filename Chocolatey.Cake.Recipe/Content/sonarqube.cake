@@ -16,7 +16,6 @@
 BuildParameters.Tasks.InitializeSonarQubeTask = Task("Initialize-SonarQube")
     .WithCriteria(() => BuildParameters.ShouldRunSonarQube, "Skipping because SonarQube has been disabled")
     .WithCriteria(() => !string.IsNullOrEmpty(BuildParameters.SonarQubeToken), "Skipping because SonarQube Token is undefined")
-    .IsDependeeOf("Build")
     .Does(() => RequireTool(ToolSettings.SonarQubeTool, () =>
 {
     var SonarQubeSettings = new SonarBeginSettings
@@ -38,7 +37,6 @@ BuildParameters.Tasks.FinaliseSonarQubeTask = Task("Finalise-SonarQube")
     .WithCriteria(() => BuildParameters.ShouldRunSonarQube, "Skipping because SonarQube has been disabled")
     .WithCriteria(() => !string.IsNullOrEmpty(BuildParameters.SonarQubeToken), "Skipping because SonarQube Token is undefined")
     .IsDependentOn("Initialize-SonarQube")
-    .IsDependentOn("Build")
     .IsDependeeOf("Package")
     .Does(() => RequireTool(ToolSettings.SonarQubeTool, () =>
 {
