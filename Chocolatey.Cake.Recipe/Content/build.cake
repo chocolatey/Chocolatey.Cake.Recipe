@@ -587,6 +587,9 @@ public class Builder
         BuildParameters.Tasks.ConfigurationBuilderTask.IsDependentOn(prefix + "Build");
         BuildParameters.Tasks.TestTask.IsDependentOn(prefix + "Build");
 
+        BuildParameters.Tasks.InitializeSonarQubeTask.IsDependeeOf(prefix + "Build");
+        BuildParameters.Tasks.FinaliseSonarQubeTask.IsDependentOn(prefix + "Build");
+
         if (BuildParameters.MsiUsedWithinNupkg)
         {
             BuildParameters.Tasks.CreateChocolateyPackagesTask.IsDependentOn("Sign-Msis");
