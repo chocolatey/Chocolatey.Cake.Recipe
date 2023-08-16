@@ -115,8 +115,6 @@ public static class BuildParameters
     public static bool IsLocalBuild { get; private set; }
     public static bool IsPullRequest { get; private set; }
     public static bool IsRepositoryHostedOnGitHub { get; private set; }
-    public static bool IsRunningOnGitHubActions { get; private set; }
-    public static bool IsRunningOnTeamCity { get; private set; }
     public static bool IsTagged { get; private set; }
     public static string MasterBranchName { get; private set; }
     public static MastodonCredentials Mastodon { get; private set; }
@@ -490,8 +488,6 @@ public static class BuildParameters
         IntegrationTestScriptPath = integrationTestScriptPath ?? context.MakeAbsolute((FilePath)"test.cake");
         IsLocalBuild = buildSystem.IsLocalBuild;
         IsPullRequest = BuildProvider.PullRequest.IsPullRequest;
-        IsRunningOnGitHubActions = BuildProvider.Type == BuildProviderType.GitHubActions;
-        IsRunningOnTeamCity = BuildProvider.Type == BuildProviderType.TeamCity;
         IsTagged = BuildProvider.Repository.Tag.IsTag;
         MasterBranchName = masterBranchName;
         Mastodon = GetMastodonCredentials(context);
