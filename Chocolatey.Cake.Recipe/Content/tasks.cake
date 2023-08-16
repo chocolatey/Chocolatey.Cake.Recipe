@@ -36,6 +36,8 @@ public class BuildTasks
     // Analysing Tasks
     public CakeTaskBuilder InspectCodeTask { get; set; }
     public CakeTaskBuilder CreateIssuesReportTask { get; set; }
+    public CakeTaskBuilder DotNetFormatCheckTask { get; set; }
+    public CakeTaskBuilder DotNetFormatTask { get; set; }
     public CakeTaskBuilder AnalyzeTask { get; set; }
 
     // Dependency-Check Tasks

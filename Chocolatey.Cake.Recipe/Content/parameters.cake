@@ -165,6 +165,7 @@ public static class BuildParameters
     public static bool ShouldRunChocolatey { get; private set; }
     public static bool ShouldRunDependencyCheck { get; private set; }
     public static bool ShouldRunDocker { get; private set; }
+    public static bool ShouldRunDotNetFormat { get; private set; }
     public static bool ShouldRunDotNetPack { get; private set; }
     public static bool ShouldRunDotNetTest { get; private set; }
     public static bool ShouldRunGitReleaseManager { get; private set; }
@@ -296,6 +297,7 @@ public static class BuildParameters
         context.Information("ShouldRunChocolatey: {0}", BuildParameters.ShouldRunChocolatey);
         context.Information("ShouldRunDependencyCheck: {0}", BuildParameters.ShouldRunDependencyCheck);
         context.Information("ShouldRunDocker: {0}", BuildParameters.ShouldRunDocker);
+        context.Information("ShouldRunDotNetFormat: {0}", BuildParameters.ShouldRunDotNetFormat);
         context.Information("ShouldRunDotNetPack: {0}", BuildParameters.ShouldRunDotNetPack);
         context.Information("ShouldRunDotNetTest: {0}", BuildParameters.ShouldRunDotNetTest);
         context.Information("ShouldRunGitReleaseManager: {0}", BuildParameters.ShouldRunGitReleaseManager);
@@ -401,6 +403,7 @@ public static class BuildParameters
         bool shouldRunAnalyze = true,
         bool shouldRunChocolatey = true,
         bool shouldRunDocker = true,
+        bool shouldRunDotNetFormat = true,
         bool shouldRunDotNetPack = false,
         bool shouldRunDotNetTest = true,
         bool shouldRunGitReleaseManager = false,
@@ -663,6 +666,13 @@ public static class BuildParameters
         if (context.HasArgument("shouldRunDocker"))
         {
             ShouldRunDocker = context.Argument<bool>("shouldRunDocker");
+        }
+
+        ShouldRunDotNetFormat = shouldRunDotNetFormat;
+
+        if (context.HasArgument("shouldRunDotNetFormat"))
+        {
+            ShouldRunDotNetFormat = context.Argument<bool>("shouldRunDotNetFormat");
         }
 
         ShouldRunDotNetPack = shouldRunDotNetPack;

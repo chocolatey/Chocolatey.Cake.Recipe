@@ -50,6 +50,7 @@ public class BuildPaths
         var dependencyCheckReportsDirectory = buildDirectoryPath + "/DependencyCheckReports";
 
         // Files
+        var dotNetFormatOutputFilePath = ((DirectoryPath)testResultsDirectory).CombineWithFilePath("dotnet-format.json");
         var testCoverageOutputFilePath = ((DirectoryPath)testCoverageDirectory).CombineWithFilePath("OpenCover.xml");
         var solutionInfoFilePath = ((DirectoryPath)BuildParameters.SourceDirectoryPath).CombineWithFilePath("SolutionVersion.cs");
         var buildLogFilePath = ((DirectoryPath)buildDirectoryPath).CombineWithFilePath("MsBuild.log");
@@ -86,6 +87,7 @@ public class BuildPaths
 
         var buildFiles = new BuildFiles(
             repoFilesPaths,
+            dotNetFormatOutputFilePath,
             testCoverageOutputFilePath,
             solutionInfoFilePath,
             buildLogFilePath,
@@ -105,6 +107,7 @@ public class BuildFiles
 {
     public ICollection<FilePath> RepoFilesPaths { get; private set; }
 
+    public FilePath DotNetFormatOutputFilePath { get; private set; }
     public FilePath TestCoverageOutputFilePath { get; private set; }
 
     public FilePath SolutionInfoFilePath { get; private set; }
@@ -117,6 +120,7 @@ public class BuildFiles
 
     public BuildFiles(
         FilePath[] repoFilesPaths,
+        FilePath dotNetFormatOutputFilePath,
         FilePath testCoverageOutputFilePath,
         FilePath solutionInfoFilePath,
         FilePath buildLogFilePath,
@@ -125,6 +129,7 @@ public class BuildFiles
         )
     {
         RepoFilesPaths = Filter(repoFilesPaths);
+        DotNetFormatOutputFilePath = dotNetFormatOutputFilePath;
         TestCoverageOutputFilePath = testCoverageOutputFilePath;
         SolutionInfoFilePath = solutionInfoFilePath;
         BuildLogFilePath = buildLogFilePath;
