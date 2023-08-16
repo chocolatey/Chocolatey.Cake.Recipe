@@ -18,6 +18,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #addin nuget:?package=Cake.Coverlet&version=2.5.4
+#addin nuget:?package=Cake.DependencyCheck&version=1.2.0
 #addin nuget:?package=Cake.Discord&version=0.2.1
 #addin nuget:?package=Cake.Docker&version=1.0.0
 #addin nuget:?package=Cake.Eazfuscator.Net&version=0.1.0

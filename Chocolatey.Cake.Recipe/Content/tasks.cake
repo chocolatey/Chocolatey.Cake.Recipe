@@ -38,6 +38,9 @@ public class BuildTasks
     public CakeTaskBuilder CreateIssuesReportTask { get; set; }
     public CakeTaskBuilder AnalyzeTask { get; set; }
 
+    // Dependency-Check Tasks
+    public CakeTaskBuilder DependencyCheckTask { get; set; }
+
     // Docker Tasks
     public CakeTaskBuilder DockerLogin { get; set; }
     public CakeTaskBuilder DockerBuild { get; set; }
