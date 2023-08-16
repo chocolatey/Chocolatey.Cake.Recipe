@@ -402,7 +402,6 @@ public static class BuildParameters
         bool shouldReportUnitTestResults = true,
         bool shouldRunAnalyze = true,
         bool shouldRunChocolatey = true,
-        bool shouldRunDependencyCheck = false,
         bool shouldRunDocker = true,
         bool shouldRunDotNetPack = false,
         bool shouldRunDotNetTest = true,
@@ -415,7 +414,6 @@ public static class BuildParameters
         bool shouldRunOpenCover = true,
         bool shouldRunReportGenerator = true,
         bool shouldRunReportUnit = true,
-        bool shouldRunSonarQube = false,
         bool shouldRunTests = true,
         bool? shouldRunTransifex = null,
         bool shouldRunxUnit = true,
@@ -659,16 +657,9 @@ public static class BuildParameters
             ShouldRunChocolatey = context.Argument<bool>("shouldRunChocolatey");
         }
 
-        if (context.HasArgument("shouldRunDependencyCheck"))
+        if (buildSystem.IsRunningOnTeamCity && BranchType == BranchType.Develop && !IsPullRequest)
         {
-            ShouldRunDependencyCheck = context.Argument<bool>("shouldRunDependencyCheck");
-        }
-        else
-        {
-            if (BuildParameters.IsTagged && !BuildParameters.IsLocalBuild)
-            {
-                ShouldRunDependencyCheck = true;
-            }
+            ShouldRunDependencyCheck = true;
         }
 
         ShouldRunDocker = shouldRunDocker;
@@ -755,16 +746,9 @@ public static class BuildParameters
             ShouldRunReportUnit = context.Argument<bool>("shouldRunReportUnit");
         }
 
-        if (context.HasArgument("shouldRunSonarQube"))
+        if (buildSystem.IsRunningOnTeamCity && BranchType == BranchType.Develop && !IsPullRequest)
         {
-            ShouldRunSonarQube = context.Argument<bool>("shouldRunSonarQube");
-        }
-        else
-        {
-            if (BuildParameters.IsTagged && !BuildParameters.IsLocalBuild)
-            {
-                ShouldRunSonarQube = true;
-            }
+            ShouldRunSonarQube = true;
         }
 
         ShouldRunTests = shouldRunTests;
