@@ -111,6 +111,10 @@ public class BuildFiles
 
     public FilePath BuildLogFilePath { get; private set; }
 
+    public FilePath DependencyCheckJsonReportFilePath { get; private set; }
+
+    public FilePath DependencyCheckHtmlReportFilePath { get; private set; }
+
     public BuildFiles(
         FilePath[] repoFilesPaths,
         FilePath testCoverageOutputFilePath,
