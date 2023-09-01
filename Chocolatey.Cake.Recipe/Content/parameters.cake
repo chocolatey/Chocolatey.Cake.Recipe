@@ -320,6 +320,7 @@ public static class BuildParameters
         context.Information("SourceDirectoryPath: {0}", context.MakeAbsolute(SourceDirectoryPath));
         context.Information("StrongNameDependentAssembliesInputPath: {0}", StrongNameDependentAssembliesInputPath);
         context.Information("Target: {0}", Target);
+        context.Information("TestDirectoryPath: {0}", BuildParameters.TestDirectoryPath);
         context.Information("TestExecutionType: {0}", TestExecutionType);
 
         if (ShouldRunTransifex)
