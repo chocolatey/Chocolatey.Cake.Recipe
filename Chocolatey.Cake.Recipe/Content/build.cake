@@ -622,12 +622,16 @@ public class Builder
                 BuildParameters.Tasks.DotNetBuildTask.IsDependentOn("Transifex-Pull-Translations");
             }
 
-            BuildParameters.Tasks.PackageTask.IsDependentOn(prefix + "Pack");
+            BuildParameters.Tasks.DotNetTestTask.IsDependentOn(prefix + "Build");
+            BuildParameters.Tasks.TestTask.IsDependentOn(prefix + "Test");
             BuildParameters.Tasks.GenerateLocalCoverageReportTask.IsDependentOn(prefix + "Test");
             BuildParameters.Tasks.TestTask.IsDependentOn("Generate-FriendlyCoverageReport");
             BuildParameters.Tasks.TestTask.IsDependentOn("Report-UnitTestResults");
             BuildParameters.Tasks.TestTask.IsDependentOn("Report-Code-Coverage-Metrics");
+            
             BuildParameters.Tasks.PublishAwsLambdasTask.IsDependentOn("DotNetBuild");
+
+            BuildParameters.Tasks.PackageTask.IsDependentOn(prefix + "Pack");
         }
     }
 }
