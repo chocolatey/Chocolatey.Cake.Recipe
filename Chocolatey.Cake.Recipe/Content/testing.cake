@@ -22,14 +22,7 @@ using System.Xml.XPath;
 
 Tuple<string, Exception> testsException = null;
 
-BuildParameters.Tasks.InstallOpenCoverTask = Task("Install-OpenCover")
-    .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping because not running on windows")
-    .WithCriteria(() => BuildParameters.ShouldRunTests, "Skipping because running tests is not enabled")
-    .Does(() => RequireTool(ToolSettings.OpenCoverTool, () => {
-    }));
-
 BuildParameters.Tasks.TestNUnitTask = Task("Test-NUnit")
-    .IsDependentOn("Install-OpenCover")
     .WithCriteria(() => BuildParameters.ShouldRunNUnit, "Skipping because NUnit is not enabled")
     .WithCriteria(() => BuildParameters.ShouldRunTests, "Skipping because running tests is not enabled")
     .WithCriteria(() => DirectoryExists(BuildParameters.Paths.Directories.PublishedNUnitTests), "Skipping because there are no published NUnit tests")
@@ -68,20 +61,22 @@ BuildParameters.Tasks.TestNUnitTask = Task("Test-NUnit")
         {
             Information("Running OpenCover and NUnit...");
 
-            OpenCover(tool => {
-                tool.NUnit3(assembliesToTest, new NUnit3Settings {
-                    Work = BuildParameters.Paths.Directories.NUnitTestResults
-                });
-            },
-            BuildParameters.Paths.Files.TestCoverageOutputFilePath,
-            new OpenCoverSettings
-            {
-                OldStyle = true,
-                ReturnTargetCodeOffset = 0
-            }
-                .WithFilter(ToolSettings.TestCoverageFilter)
-                .ExcludeByAttribute(ToolSettings.TestCoverageExcludeByAttribute)
-                .ExcludeByFile(ToolSettings.TestCoverageExcludeByFile));
+            RequireTool(ToolSettings.OpenCoverTool, () => {
+                OpenCover(tool => {
+                    tool.NUnit3(assembliesToTest, new NUnit3Settings {
+                        Work = BuildParameters.Paths.Directories.NUnitTestResults
+                    });
+                },
+                BuildParameters.Paths.Files.TestCoverageOutputFilePath,
+                new OpenCoverSettings
+                {
+                    OldStyle = true,
+                    ReturnTargetCodeOffset = 0
+                }
+                    .WithFilter(ToolSettings.TestCoverageFilter)
+                    .ExcludeByAttribute(ToolSettings.TestCoverageExcludeByAttribute)
+                    .ExcludeByFile(ToolSettings.TestCoverageExcludeByFile));
+            });
         }
         else
         {
@@ -100,7 +95,6 @@ BuildParameters.Tasks.TestNUnitTask = Task("Test-NUnit")
 });
 
 BuildParameters.Tasks.TestxUnitTask = Task("Test-xUnit")
-    .IsDependentOn("Install-OpenCover")
     .WithCriteria(() => BuildParameters.ShouldRunxUnit, "Skipping because xUnit is not enabled")
     .WithCriteria(() => BuildParameters.ShouldRunTests, "Skipping because running tests is not enabled")
     .WithCriteria(() => DirectoryExists(BuildParameters.Paths.Directories.PublishedxUnitTests), "Skipping because there are no published xUnit tests")
@@ -139,22 +133,24 @@ BuildParameters.Tasks.TestxUnitTask = Task("Test-xUnit")
         {
             Information("Running OpenCover and xUnit...");
 
-            OpenCover(tool => {
-                tool.XUnit2(assembliesToTest, new XUnit2Settings {
-                    OutputDirectory = BuildParameters.Paths.Directories.xUnitTestResults,
-                    XmlReport = true,
-                    NoAppDomain = true
-                });
-            },
-            BuildParameters.Paths.Files.TestCoverageOutputFilePath,
-            new OpenCoverSettings
-            {
-                OldStyle = true,
-                ReturnTargetCodeOffset = 0
-            }
-                .WithFilter(ToolSettings.TestCoverageFilter)
-                .ExcludeByAttribute(ToolSettings.TestCoverageExcludeByAttribute)
-                .ExcludeByFile(ToolSettings.TestCoverageExcludeByFile));
+            RequireTool(ToolSettings.OpenCoverTool, () => {
+                OpenCover(tool => {
+                    tool.XUnit2(assembliesToTest, new XUnit2Settings {
+                        OutputDirectory = BuildParameters.Paths.Directories.xUnitTestResults,
+                        XmlReport = true,
+                        NoAppDomain = true
+                    });
+                },
+                BuildParameters.Paths.Files.TestCoverageOutputFilePath,
+                new OpenCoverSettings
+                {
+                    OldStyle = true,
+                    ReturnTargetCodeOffset = 0
+                }
+                    .WithFilter(ToolSettings.TestCoverageFilter)
+                    .ExcludeByAttribute(ToolSettings.TestCoverageExcludeByAttribute)
+                    .ExcludeByFile(ToolSettings.TestCoverageExcludeByFile));
+            });
         }
         else
         {
@@ -175,7 +171,6 @@ BuildParameters.Tasks.TestxUnitTask = Task("Test-xUnit")
 });
 
 BuildParameters.Tasks.DotNetTestTask = Task("DotNetTest")
-    .IsDependentOn("Install-OpenCover")
     .WithCriteria(() => BuildParameters.ShouldRunDotNetTest, "Skipping because dotnet test is not enabled")
     .WithCriteria(() => BuildParameters.ShouldRunTests, "Skipping because running tests is not enabled")
     .Does(() => {
@@ -282,14 +277,14 @@ BuildParameters.Tasks.DotNetTestTask = Task("DotNetTest")
                 return args;
             };
 
-            if (parsedProject.IsNetCore && coverletPackage != null)
+            if (coverletPackage != null)
             {
-                Information("Running DotNetCoreTest...");
+                Information("Running DotNetCoreTest along with Coverlet...");
 
                 coverletSettings.CoverletOutputName = parsedProject.RootNameSpace.Replace('.', '-');
                 DotNetCoreTest(project.FullPath, settings, coverletSettings);
             }
-            else if (BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
+            else if (BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows || !BuildParameters.ShouldRunOpenCover)
             {
                 Information("Invoking Test Action..");
 
@@ -297,12 +292,12 @@ BuildParameters.Tasks.DotNetTestTask = Task("DotNetTest")
             }
             else
             {
-                if (BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows && BuildParameters.ShouldRunOpenCover)
-                {
-                    Information("Running OpenCover...");
+                Information("Running OpenCover...");
 
-                    // We can not use msbuild properties together with opencover
-                    settings.ArgumentCustomization = null;
+                // We can not use msbuild properties together with opencover
+                settings.ArgumentCustomization = null;
+                
+                RequireTool(ToolSettings.OpenCoverTool, () => {
                     OpenCover(testAction,
                         BuildParameters.Paths.Files.TestCoverageOutputFilePath,
                         new OpenCoverSettings {
@@ -314,7 +309,7 @@ BuildParameters.Tasks.DotNetTestTask = Task("DotNetTest")
                         .WithFilter(ToolSettings.TestCoverageFilter)
                         .ExcludeByAttribute(ToolSettings.TestCoverageExcludeByAttribute)
                         .ExcludeByFile(ToolSettings.TestCoverageExcludeByFile));
-                }
+                });
             }
         }
 }).OnError((exception) =>

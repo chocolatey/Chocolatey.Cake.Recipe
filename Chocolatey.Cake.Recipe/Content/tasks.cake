@@ -64,7 +64,6 @@ public class BuildTasks
     public CakeTaskBuilder PublishAwsLambdasTask { get; set; }
 
     // Testing Tasks
-    public CakeTaskBuilder InstallOpenCoverTask { get; set; }
     public CakeTaskBuilder TestNUnitTask { get; set; }
     public CakeTaskBuilder TestxUnitTask { get; set; }
     public CakeTaskBuilder DotNetTestTask { get; set; }
