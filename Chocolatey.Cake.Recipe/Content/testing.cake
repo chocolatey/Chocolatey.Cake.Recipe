@@ -226,6 +226,7 @@ BuildParameters.Tasks.DotNetTestTask = Task("DotNetTest")
                 coverletSettings.WithFilter(filter.TrimStart('-'));
             }
         }
+
         var settings = new DotNetCoreTestSettings
         {
             Configuration = BuildParameters.Configuration,
@@ -240,9 +241,9 @@ BuildParameters.Tasks.DotNetTestTask = Task("DotNetTest")
             };
 
             var parsedProject = ParseProject(project, BuildParameters.Configuration);
-
             var coverletPackage = parsedProject.GetPackage("coverlet.msbuild");
             bool shouldAddSourceLinkArgument = false; // Set it to false by default due to OpenCover
+            
             if (coverletPackage != null)
             {
                 // If the version is a pre-release, we will assume that it is a later
