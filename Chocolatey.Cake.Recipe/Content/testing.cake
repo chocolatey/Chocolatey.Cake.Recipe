@@ -277,14 +277,14 @@ BuildParameters.Tasks.DotNetTestTask = Task("DotNetTest")
                 return args;
             };
 
-            if (parsedProject.IsNetCore && coverletPackage != null)
+            if (coverletPackage != null)
             {
-                Information("Running DotNetCoreTest...");
+                Information("Running DotNetCoreTest along with Coverlet...");
 
                 coverletSettings.CoverletOutputName = parsedProject.RootNameSpace.Replace('.', '-');
                 DotNetCoreTest(project.FullPath, settings, coverletSettings);
             }
-            else if (BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
+            else if (BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows || !BuildParameters.ShouldRunOpenCover)
             {
                 Information("Invoking Test Action..");
 
@@ -292,27 +292,24 @@ BuildParameters.Tasks.DotNetTestTask = Task("DotNetTest")
             }
             else
             {
-                if (BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows && BuildParameters.ShouldRunOpenCover)
-                {
-                    Information("Running OpenCover...");
+                Information("Running OpenCover...");
 
-                    // We can not use msbuild properties together with opencover
-                    settings.ArgumentCustomization = null;
-                    
-                    RequireTool(ToolSettings.OpenCoverTool, () => {
-                        OpenCover(testAction,
-                            BuildParameters.Paths.Files.TestCoverageOutputFilePath,
-                            new OpenCoverSettings {
-                                ReturnTargetCodeOffset = 0,
-                                OldStyle = true,
-                                Register = "user",
-                                MergeOutput = FileExists(BuildParameters.Paths.Files.TestCoverageOutputFilePath)
-                            }
-                            .WithFilter(ToolSettings.TestCoverageFilter)
-                            .ExcludeByAttribute(ToolSettings.TestCoverageExcludeByAttribute)
-                            .ExcludeByFile(ToolSettings.TestCoverageExcludeByFile));
-                    });
-                }
+                // We can not use msbuild properties together with opencover
+                settings.ArgumentCustomization = null;
+                
+                RequireTool(ToolSettings.OpenCoverTool, () => {
+                    OpenCover(testAction,
+                        BuildParameters.Paths.Files.TestCoverageOutputFilePath,
+                        new OpenCoverSettings {
+                            ReturnTargetCodeOffset = 0,
+                            OldStyle = true,
+                            Register = "user",
+                            MergeOutput = FileExists(BuildParameters.Paths.Files.TestCoverageOutputFilePath)
+                        }
+                        .WithFilter(ToolSettings.TestCoverageFilter)
+                        .ExcludeByAttribute(ToolSettings.TestCoverageExcludeByAttribute)
+                        .ExcludeByFile(ToolSettings.TestCoverageExcludeByFile));
+                });
             }
         }
 }).OnError((exception) =>
