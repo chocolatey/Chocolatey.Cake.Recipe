@@ -46,14 +46,20 @@ BuildParameters.Tasks.TestNUnitTask = Task("Test-NUnit")
 
         if (BuildParameters.TestExecutionType == "unit")
         {
+            Information("The TestExecutionType parameter has been set to 'unit'");
+
             assembliesToTest = GetFiles(BuildParameters.Paths.Directories.PublishedNUnitTests + BuildParameters.UnitTestAssemblyFilePattern);
         }
         else if (BuildParameters.TestExecutionType == "integration")
         {
+            Information("The TestExecutionType parameter has been set to 'integration'");
+
             assembliesToTest = GetFiles(BuildParameters.Paths.Directories.PublishedNUnitTests + BuildParameters.IntegrationTestAssemblyFilePattern);
         }
         else if (BuildParameters.TestExecutionType == "all")
         {
+            Information("The TestExecutionType parameter has been set to 'all'");
+
             assembliesToTest = GetFiles(BuildParameters.Paths.Directories.PublishedNUnitTests + BuildParameters.UnitTestAssemblyFilePattern)
                             + GetFiles(BuildParameters.Paths.Directories.PublishedNUnitTests + BuildParameters.IntegrationTestAssemblyFilePattern);
         }
@@ -111,14 +117,20 @@ BuildParameters.Tasks.TestxUnitTask = Task("Test-xUnit")
 
         if (BuildParameters.TestExecutionType == "unit")
         {
+            Information("The TestExecutionType parameter has been set to 'unit'");
+
             assembliesToTest = GetFiles(BuildParameters.Paths.Directories.PublishedxUnitTests + BuildParameters.UnitTestAssemblyFilePattern);
         }
         else if (BuildParameters.TestExecutionType == "integration")
         {
+            Information("The TestExecutionType parameter has been set to 'integration'");
+
             assembliesToTest = GetFiles(BuildParameters.Paths.Directories.PublishedxUnitTests + BuildParameters.IntegrationTestAssemblyFilePattern);
         }
         else if (BuildParameters.TestExecutionType == "all")
         {
+            Information("The TestExecutionType parameter has been set to 'all'");
+
             assembliesToTest = GetFiles(BuildParameters.Paths.Directories.PublishedxUnitTests + BuildParameters.UnitTestAssemblyFilePattern)
                             + GetFiles(BuildParameters.Paths.Directories.PublishedxUnitTests + BuildParameters.IntegrationTestAssemblyFilePattern);
         }
@@ -192,14 +204,17 @@ BuildParameters.Tasks.DotNetTestTask = Task("DotNetTest")
 
         if (BuildParameters.TestExecutionType == "unit")
         {
+            Information("The TestExecutionType parameter has been set to 'unit'");
             projectsToTest = GetFiles(BuildParameters.TestDirectoryPath + BuildParameters.UnitTestAssemblyProjectPattern);
         }
         else if (BuildParameters.TestExecutionType == "integration")
         {
+            Information("The TestExecutionType parameter has been set to 'integration'");
             projectsToTest = GetFiles(BuildParameters.TestDirectoryPath + BuildParameters.IntegrationTestAssemblyProjectPattern);
         }
         else if (BuildParameters.TestExecutionType == "all")
         {
+            Information("The TestExecutionType parameter has been set to 'all'");
             projectsToTest = GetFiles(BuildParameters.TestDirectoryPath + BuildParameters.UnitTestAssemblyProjectPattern)
                             + GetFiles(BuildParameters.TestDirectoryPath + BuildParameters.IntegrationTestAssemblyProjectPattern);
         }
@@ -235,6 +250,7 @@ BuildParameters.Tasks.DotNetTestTask = Task("DotNetTest")
 
         foreach (var project in projectsToTest)
         {
+            Information("Inspecting Unit Test configuration for project: {0}", project);
             Action<ICakeContext> testAction = tool =>
             {
                 tool.DotNetCoreTest(project.FullPath, settings);
@@ -268,17 +284,23 @@ BuildParameters.Tasks.DotNetTestTask = Task("DotNetTest")
 
             if (parsedProject.IsNetCore && coverletPackage != null)
             {
+                Information("Running DotNetCoreTest...");
+
                 coverletSettings.CoverletOutputName = parsedProject.RootNameSpace.Replace('.', '-');
                 DotNetCoreTest(project.FullPath, settings, coverletSettings);
             }
             else if (BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
             {
+                Information("Invoking Test Action..");
+
                 testAction(Context);
             }
             else
             {
                 if (BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows && BuildParameters.ShouldRunOpenCover)
                 {
+                    Information("Running OpenCover...");
+
                     // We can not use msbuild properties together with opencover
                     settings.ArgumentCustomization = null;
                     OpenCover(testAction,
@@ -317,6 +339,8 @@ BuildParameters.Tasks.GenerateFriendlyTestReportTask = Task("Generate-FriendlyTe
 
         foreach (var directory in possibleDirectories.Where((d) => DirectoryExists(d)))
         {
+            Information("Generating Friendly Test Report from directory: {0}", directory);
+
             ReportUnit(directory, directory, new ReportUnitSettings());
 
             var reportUnitFiles = GetFiles(directory + "/*.html");
@@ -446,6 +470,8 @@ BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Generate-FriendlyC
 
         if (coverageFiles.Any())
         {
+            Information("Generating Friendly Coverage Report...");
+
             var settings = new ReportGeneratorSettings();
             if (BuildParameters.IsDotNetBuild && BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
             {
@@ -482,6 +508,8 @@ BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Convert-OpenCoverT
     .Does(() => RequireTool(BuildParameters.IsDotNetBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.ReportGeneratorGlobalTool : ToolSettings.ReportGeneratorTool, () => {
         if (FileExists(BuildParameters.Paths.Files.TestCoverageOutputFilePath))
         {
+            Information("Converting OpenCover TestCoverage file to lcov format...");
+
             var settings = new ReportGeneratorSettings();
 
             // Workaround until 0.38.5+ version of Cake is used in the Recipe
@@ -514,21 +542,25 @@ BuildParameters.Tasks.TestTask = Task("Test")
 
         foreach (var coverageFile in coverageFiles)
         {
+            Information("Uploading Test Coverage file: {0}", coverageFile);
             BuildParameters.BuildProvider.UploadArtifact(coverageFile);
         }
 
         foreach (var nUnitResultFile in GetFiles(BuildParameters.Paths.Directories.NUnitTestResults + "/*.xml"))
         {
+            Information("Uploading NUnit Test Result file: {0}", nUnitResultFile);
             BuildParameters.BuildProvider.UploadArtifact(nUnitResultFile);
         }
 
         foreach (var xUnitResultFile in GetFiles(BuildParameters.Paths.Directories.xUnitTestResults + "/*.xml"))
         {
+            Information("Uploading xUnit Test Result file: {0}", xUnitResultFile);
             BuildParameters.BuildProvider.UploadArtifact(xUnitResultFile);
         }
 
         if (FileExists(BuildParameters.Paths.Directories.TestCoverage + "/lcov.info"))
         {
+            Information("Uploading lcov.info Test Coverage Report...");
             BuildParameters.BuildProvider.UploadArtifact(BuildParameters.Paths.Directories.TestCoverage + "/lcov.info");
         }
 
