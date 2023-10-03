@@ -24,7 +24,7 @@ public enum BranchType
 
 public static class BuildParameters
 {
-    private static Func<BuildVersion, object[]> _defaultNotificationArguments = (x) => 
+    private static Func<BuildVersion, object[]> _defaultNotificationArguments = (x) =>
     {
         var firstPortionOfQueryString = string.Empty;
 
@@ -115,8 +115,6 @@ public static class BuildParameters
     public static bool IsLocalBuild { get; private set; }
     public static bool IsPullRequest { get; private set; }
     public static bool IsRepositoryHostedOnGitHub { get; private set; }
-    public static bool IsRunningOnGitHubActions { get; private set; }
-    public static bool IsRunningOnTeamCity { get; private set; }
     public static bool IsTagged { get; private set; }
     public static string MasterBranchName { get; private set; }
     public static MastodonCredentials Mastodon { get; private set; }
@@ -165,7 +163,9 @@ public static class BuildParameters
     public static bool ShouldReportUnitTestResults { get; private set; }
     public static bool ShouldRunAnalyze { get; private set; }
     public static bool ShouldRunChocolatey { get; private set; }
+    public static bool ShouldRunDependencyCheck { get; private set; }
     public static bool ShouldRunDocker { get; private set; }
+    public static bool ShouldRunDotNetFormat { get; private set; }
     public static bool ShouldRunDotNetPack { get; private set; }
     public static bool ShouldRunDotNetTest { get; private set; }
     public static bool ShouldRunGitReleaseManager { get; private set; }
@@ -295,7 +295,9 @@ public static class BuildParameters
         context.Information("ShouldReportUnitTestResults: {0}", BuildParameters.ShouldReportUnitTestResults);
         context.Information("ShouldRunAnalyze: {0}", BuildParameters.ShouldRunAnalyze);
         context.Information("ShouldRunChocolatey: {0}", BuildParameters.ShouldRunChocolatey);
+        context.Information("ShouldRunDependencyCheck: {0}", BuildParameters.ShouldRunDependencyCheck);
         context.Information("ShouldRunDocker: {0}", BuildParameters.ShouldRunDocker);
+        context.Information("ShouldRunDotNetFormat: {0}", BuildParameters.ShouldRunDotNetFormat);
         context.Information("ShouldRunDotNetPack: {0}", BuildParameters.ShouldRunDotNetPack);
         context.Information("ShouldRunDotNetTest: {0}", BuildParameters.ShouldRunDotNetTest);
         context.Information("ShouldRunGitReleaseManager: {0}", BuildParameters.ShouldRunGitReleaseManager);
@@ -401,7 +403,9 @@ public static class BuildParameters
         bool shouldReportUnitTestResults = true,
         bool shouldRunAnalyze = true,
         bool shouldRunChocolatey = true,
+        bool shouldRunDependencyCheck = false,
         bool shouldRunDocker = true,
+        bool shouldRunDotNetFormat = true,
         bool shouldRunDotNetPack = false,
         bool shouldRunDotNetTest = true,
         bool shouldRunGitReleaseManager = false,
@@ -490,8 +494,6 @@ public static class BuildParameters
         IntegrationTestScriptPath = integrationTestScriptPath ?? context.MakeAbsolute((FilePath)"test.cake");
         IsLocalBuild = buildSystem.IsLocalBuild;
         IsPullRequest = BuildProvider.PullRequest.IsPullRequest;
-        IsRunningOnGitHubActions = BuildProvider.Type == BuildProviderType.GitHubActions;
-        IsRunningOnTeamCity = BuildProvider.Type == BuildProviderType.TeamCity;
         IsTagged = BuildProvider.Repository.Tag.IsTag;
         MasterBranchName = masterBranchName;
         Mastodon = GetMastodonCredentials(context);
@@ -623,7 +625,7 @@ public static class BuildParameters
         }
 
         ShouldPublishReleasePackages = shouldPublishReleasePackages;
-        
+
         if (context.HasArgument("shouldPublishReleasePackages"))
         {
             ShouldPublishReleasePackages = context.Argument<bool>("shouldPublishReleasePackages");
@@ -657,11 +659,25 @@ public static class BuildParameters
             ShouldRunChocolatey = context.Argument<bool>("shouldRunChocolatey");
         }
 
+        ShouldRunDependencyCheck = shouldRunDependencyCheck;
+
+        if (context.HasArgument("shouldRunDependencyCheck"))
+        {
+            ShouldRunDependencyCheck = context.Argument<bool>("shouldRunDependencyCheck");
+        }
+
         ShouldRunDocker = shouldRunDocker;
 
         if (context.HasArgument("shouldRunDocker"))
         {
             ShouldRunDocker = context.Argument<bool>("shouldRunDocker");
+        }
+
+        ShouldRunDotNetFormat = shouldRunDotNetFormat;
+
+        if (context.HasArgument("shouldRunDotNetFormat"))
+        {
+            ShouldRunDotNetFormat = context.Argument<bool>("shouldRunDotNetFormat");
         }
 
         ShouldRunDotNetPack = shouldRunDotNetPack;
@@ -741,16 +757,11 @@ public static class BuildParameters
             ShouldRunReportUnit = context.Argument<bool>("shouldRunReportUnit");
         }
 
+        ShouldRunSonarQube = shouldRunSonarQube;
+
         if (context.HasArgument("shouldRunSonarQube"))
         {
             ShouldRunSonarQube = context.Argument<bool>("shouldRunSonarQube");
-        }
-        else
-        {
-            if (BuildParameters.IsTagged && !BuildParameters.IsLocalBuild)
-            {
-                ShouldRunSonarQube = true;
-            }
         }
 
         ShouldRunTests = shouldRunTests;

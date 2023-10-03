@@ -36,7 +36,12 @@ public class BuildTasks
     // Analysing Tasks
     public CakeTaskBuilder InspectCodeTask { get; set; }
     public CakeTaskBuilder CreateIssuesReportTask { get; set; }
+    public CakeTaskBuilder DotNetFormatCheckTask { get; set; }
+    public CakeTaskBuilder DotNetFormatTask { get; set; }
     public CakeTaskBuilder AnalyzeTask { get; set; }
+
+    // Dependency-Check Tasks
+    public CakeTaskBuilder DependencyCheckTask { get; set; }
 
     // Docker Tasks
     public CakeTaskBuilder DockerLogin { get; set; }
