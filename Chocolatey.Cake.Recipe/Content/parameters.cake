@@ -24,7 +24,7 @@ public enum BranchType
 
 public static class BuildParameters
 {
-    private static Func<BuildVersion, object[]> _defaultNotificationArguments = (x) => 
+    private static Func<BuildVersion, object[]> _defaultNotificationArguments = (x) =>
     {
         var firstPortionOfQueryString = string.Empty;
 
@@ -403,6 +403,7 @@ public static class BuildParameters
         bool shouldReportUnitTestResults = true,
         bool shouldRunAnalyze = true,
         bool shouldRunChocolatey = true,
+        bool shouldRunDependencyCheck = false,
         bool shouldRunDocker = true,
         bool shouldRunDotNetFormat = true,
         bool shouldRunDotNetPack = false,
@@ -416,6 +417,7 @@ public static class BuildParameters
         bool shouldRunOpenCover = true,
         bool shouldRunReportGenerator = true,
         bool shouldRunReportUnit = true,
+        bool shouldRunSonarQube = false,
         bool shouldRunTests = true,
         bool? shouldRunTransifex = null,
         bool shouldRunxUnit = true,
@@ -623,7 +625,7 @@ public static class BuildParameters
         }
 
         ShouldPublishReleasePackages = shouldPublishReleasePackages;
-        
+
         if (context.HasArgument("shouldPublishReleasePackages"))
         {
             ShouldPublishReleasePackages = context.Argument<bool>("shouldPublishReleasePackages");
@@ -657,9 +659,11 @@ public static class BuildParameters
             ShouldRunChocolatey = context.Argument<bool>("shouldRunChocolatey");
         }
 
-        if (buildSystem.IsRunningOnTeamCity && BranchType == BranchType.Develop && !IsPullRequest)
+        ShouldRunDependencyCheck = shouldRunDependencyCheck;
+
+        if (context.HasArgument("shouldRunDependencyCheck"))
         {
-            ShouldRunDependencyCheck = true;
+            ShouldRunDependencyCheck = context.Argument<bool>("shouldRunDependencyCheck");
         }
 
         ShouldRunDocker = shouldRunDocker;
@@ -753,9 +757,11 @@ public static class BuildParameters
             ShouldRunReportUnit = context.Argument<bool>("shouldRunReportUnit");
         }
 
-        if (buildSystem.IsRunningOnTeamCity && BranchType == BranchType.Develop && !IsPullRequest)
+        ShouldRunSonarQube = shouldRunSonarQube;
+
+        if (context.HasArgument("shouldRunSonarQube"))
         {
-            ShouldRunSonarQube = true;
+            ShouldRunSonarQube = context.Argument<bool>("shouldRunSonarQube");
         }
 
         ShouldRunTests = shouldRunTests;

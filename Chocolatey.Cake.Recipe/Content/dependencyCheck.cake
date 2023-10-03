@@ -15,6 +15,7 @@
 
 BuildParameters.Tasks.DependencyCheckTask = Task("Dependency-Check")
     .WithCriteria(() => BuildParameters.ShouldRunDependencyCheck, "Skipping because DependencyCheck has been disabled")
+    .WithCriteria(() => BuildParameters.ShouldRunSonarQube, "Skipping because running SonarQube has been disabled")
     .WithCriteria(() => !string.IsNullOrEmpty(BuildParameters.SonarQubeToken), "Skipping because SonarQube Token is undefined")
     .IsDependentOn("Initialize-SonarQube")
     .IsDependeeOf("Finalise-SonarQube")
