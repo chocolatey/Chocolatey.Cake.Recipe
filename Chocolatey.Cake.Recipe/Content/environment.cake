@@ -19,7 +19,7 @@ public static class Environment
     public static string DiscordWebHookUrlVariable { get; private set; }
     public static string DiscordUserNameVariable { get; private set; }
     public static string DiscordAvatarUrlVariable { get; private set; }
-    public static string GitHubTokenVariable { get; private set; }
+    public static string GitReleaseManagerTokenVariable { get; private set; }
     public static string MastodonHostNameVariable { get; private set; }
     public static string MastodonTokenVariable { get; private set; }
     public static string SlackChannelVariable { get; private set; }
@@ -41,7 +41,7 @@ public static class Environment
         string discordWebHookUrlVariable = null,
         string discordUserNameVariable = null,
         string discordAvatarUrlVariable = null,
-        string gitHubTokenVariable = null,
+        string gitReleaseManagerTokenVariable = null,
         string mastodonHostNameVariable = null,
         string mastodonTokenVariable = null,
         string slackChannelVariable = null,
@@ -62,7 +62,7 @@ public static class Environment
         DiscordWebHookUrlVariable = discordWebHookUrlVariable ?? "DISCORD_WEBHOOKURL";
         DiscordUserNameVariable = discordUserNameVariable ?? "DISCORD_USERNAME";
         DiscordAvatarUrlVariable = discordAvatarUrlVariable ?? "DISCORD_AVATARURL";
-        GitHubTokenVariable = gitHubTokenVariable ?? "GITHUB_PAT";
+        GitReleaseManagerTokenVariable = gitReleaseManagerTokenVariable ?? "GITRELEASEMANAGER_PAT";
         MastodonHostNameVariable = mastodonHostNameVariable ?? "MASTODON_HOSTNAME";
         MastodonTokenVariable = mastodonTokenVariable ?? "MASTODON_TOKEN";
         SlackChannelVariable = slackChannelVariable ?? "SLACK_CHANNEL";

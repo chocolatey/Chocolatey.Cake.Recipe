@@ -85,7 +85,7 @@ public static class BuildParameters
         }
     }
 
-    public static bool CanRunGitReleaseManager { get { return !string.IsNullOrEmpty(BuildParameters.GitHub.Token); } }
+    public static bool CanRunGitReleaseManager { get { return !string.IsNullOrEmpty(BuildParameters.GitReleaseManager.Token); } }
     public static string CertificateAlgorithm { get; private set; }
     public static string CertificateFilePath { get; private set; }
     public static string CertificatePassword { get; private set; }
@@ -108,7 +108,7 @@ public static class BuildParameters
     public static Func<FilePathCollection> GetMsisToSign { get; private set; }
     public static Func<FilePathCollection> GetProjectsToPack { get; private set; }
     public static Func<FilePathCollection> GetScriptsToSign { get; private set; }
-    public static GitHubCredentials GitHub { get; private set; }
+    public static GitReleaseManagerCredentials GitReleaseManager { get; private set; }
     public static string IntegrationTestAssemblyFilePattern { get; private set; }
     public static string IntegrationTestAssemblyProjectPattern { get; private set; }
     public static FilePath IntegrationTestScriptPath { get; private set; }
@@ -497,7 +497,7 @@ public static class BuildParameters
         GetMsisToSign = getMsisToSign;
         GetProjectsToPack = getProjectsToPack;
         GetScriptsToSign = getScriptsToSign;
-        GitHub = GetGitHubCredentials(context);
+        GitReleaseManager = GetGitReleaseManagerCredentials(context);
         IntegrationTestAssemblyFilePattern = integrationTestAssemblyFilePattern ?? "/**/*[tT]ests.[iI]ntegration.dll";
         IntegrationTestAssemblyProjectPattern = integrationTestAssemblyProjectPattern ?? "/**/*[tT]ests.[iI]ntegration.csproj";
         IntegrationTestScriptPath = integrationTestScriptPath ?? context.MakeAbsolute((FilePath)"test.cake");

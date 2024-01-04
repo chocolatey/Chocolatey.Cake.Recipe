@@ -27,11 +27,11 @@ public class DiscordCredentials
     }
 }
 
-public class GitHubCredentials
+public class GitReleaseManagerCredentials
 {
     public string Token { get; private set; }
 
-    public GitHubCredentials(string token)
+    public GitReleaseManagerCredentials(string token)
     {
         Token = token;
     }
@@ -144,21 +144,9 @@ public static DiscordCredentials GetDiscordCredentials(ICakeContext context)
     );
 }
 
-public static GitHubCredentials GetGitHubCredentials(ICakeContext context)
+public static GitReleaseManagerCredentials GetGitReleaseManagerCredentials(ICakeContext context)
 {
-    string token = null;
-    // if "GitHubTokenVariable" is not set, fallback to the gh-cli defaults of GH_TOKEN, GITHUB_TOKEN
-    var variableNames = new[]{ Environment.GitHubTokenVariable, "GH_TOKEN", "GITHUB_TOKEN" };
-    foreach (var name in variableNames)
-    {
-        token = context.EnvironmentVariable(name);
-        if (!string.IsNullOrEmpty(token))
-        {
-            break;
-        }
-    }
-
-    return new GitHubCredentials(token);
+    return new GitReleaseManagerCredentials(context.EnvironmentVariable(Environment.GitReleaseManagerTokenVariable));
 }
 
 public static MastodonCredentials GetMastodonCredentials(ICakeContext context)

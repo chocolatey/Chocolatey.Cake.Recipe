@@ -39,7 +39,7 @@ BuildParameters.Tasks.CreateReleaseNotesTask = Task("Create-Release-Notes")
                 settings.ArgumentCustomization = args => args.Append("--provider GitLab");
             }
 
-            GitReleaseManagerCreate(BuildParameters.GitHub.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, settings);
+            GitReleaseManagerCreate(BuildParameters.GitReleaseManager.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, settings);
         }
         else
         {
@@ -68,12 +68,12 @@ BuildParameters.Tasks.ExportReleaseNotesTask = Task("Export-Release-Notes")
             {
                 settings.TagName = BuildParameters.Version.Milestone;
 
-                GitReleaseManagerExport(BuildParameters.GitHub.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, BuildParameters.MilestoneReleaseNotesFilePath, settings);
+                GitReleaseManagerExport(BuildParameters.GitReleaseManager.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, BuildParameters.MilestoneReleaseNotesFilePath, settings);
             }
 
             if (BuildParameters.ShouldDownloadFullReleaseNotes)
             {
-                GitReleaseManagerExport(BuildParameters.GitHub.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, BuildParameters.FullReleaseNotesFilePath, settings);
+                GitReleaseManagerExport(BuildParameters.GitReleaseManager.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, BuildParameters.FullReleaseNotesFilePath, settings);
             }
         }
         else
@@ -99,7 +99,7 @@ BuildParameters.Tasks.PublishGitHubReleaseTask = Task("Publish-GitHub-Release")
                     ArgumentCustomization = args => args.Append("--provider GitLab")
                 };
 
-                GitReleaseManagerPublish(BuildParameters.GitHub.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, BuildParameters.Version.Milestone, publishSettings);
+                GitReleaseManagerPublish(BuildParameters.GitReleaseManager.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, BuildParameters.Version.Milestone, publishSettings);
             }
 
             // Next up, we close the milestone, which based on configuration, may add comments
@@ -111,7 +111,7 @@ BuildParameters.Tasks.PublishGitHubReleaseTask = Task("Publish-GitHub-Release")
                 closeSettings.ArgumentCustomization = args => args.Append("--provider GitLab");
             }
 
-            GitReleaseManagerClose(BuildParameters.GitHub.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, BuildParameters.Version.Milestone, closeSettings);
+            GitReleaseManagerClose(BuildParameters.GitReleaseManager.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, BuildParameters.Version.Milestone, closeSettings);
         }
         else
         {
