@@ -91,8 +91,6 @@ public class BuildTasks
     public CakeTaskBuilder CreateReleaseNotesTask { get; set; }
     public CakeTaskBuilder ExportReleaseNotesTask { get; set; }
     public CakeTaskBuilder PublishGitHubReleaseTask { get; set; }
-    public CakeTaskBuilder LabelsTask { get; set; }
-    public CakeTaskBuilder CreateDefaultLabelsTask { get; set; }
 
     // Transifex Tasks
     public CakeTaskBuilder TransifexPullTranslationsTask { get; set; }

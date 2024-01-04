@@ -521,9 +521,6 @@ BuildParameters.Tasks.ContinuousIntegrationTask = Task("CI")
 BuildParameters.Tasks.ReleaseNotesTask = Task("ReleaseNotes")
   .IsDependentOn("Create-Release-Notes");
 
-BuildParameters.Tasks.LabelsTask = Task("Labels")
-  .IsDependentOn("Create-Default-Labels");
-
 ///////////////////////////////////////////////////////////////////////////////
 // EXECUTION
 ///////////////////////////////////////////////////////////////////////////////
