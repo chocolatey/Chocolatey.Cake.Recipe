@@ -75,12 +75,8 @@ BuildParameters.Tasks.ExportReleaseNotesTask = Task("Export-Release-Notes")
 );
 
 BuildParameters.Tasks.PublishGitHubReleaseTask = Task("Publish-GitHub-Release")
-    .IsDependentOn("Package")
-    .WithCriteria(() => !BuildParameters.IsLocalBuild, "Skipping because this is a local build")
-    .WithCriteria(() => !BuildParameters.IsPullRequest, "Skipping because this is pull request")
     .WithCriteria(() => BuildParameters.BranchType == BranchType.Master || BuildParameters.BranchType == BranchType.Release || BuildParameters.BranchType == BranchType.HotFix, "Skipping because this is not a releasable branch")
     .WithCriteria(() => BuildParameters.IsTagged, "Skipping because this is not a tagged build")
-    .WithCriteria(() => BuildParameters.ShouldRunGitReleaseManager, "Skipping because this publishing running GitReleaseManager is disabled via parameters (perhaps the default value?")
     .Does(() => RequireTool(BuildParameters.IsDotNetBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.GitReleaseManagerGlobalTool : ToolSettings.GitReleaseManagerTool, () => {
         if (BuildParameters.CanRunGitReleaseManager)
         {
@@ -100,12 +96,6 @@ BuildParameters.Tasks.PublishGitHubReleaseTask = Task("Publish-GitHub-Release")
         }
     })
 )
-.OnError(exception =>
-{
-    Error(exception.Message);
-    Information("Publish-GitHub-Release Task failed, but continuing with next Task...");
-    publishingError = true;
-});
 
         }
         else
