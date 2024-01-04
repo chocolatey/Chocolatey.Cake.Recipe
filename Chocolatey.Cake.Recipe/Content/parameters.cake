@@ -139,6 +139,7 @@ public static class BuildParameters
     public static string ProductDescription { get; private set; }
     public static string ProductName { get; private set; }
     public static string ProductTrademark { get; private set; }
+    public static bool RepositoryHostedInGitLab { get; private set; }
     public static string RepositoryName { get; private set; }
     public static string RepositoryOwner { get; private set; }
     public static string ResharperSettingsFileName { get; private set; }
@@ -274,6 +275,7 @@ public static class BuildParameters
 
         context.Information("ProductTrademark: {0}", ProductTrademark);
 
+        context.Information("RepositoryHostedInGitLab: {0}", RepositoryHostedInGitLab);
         context.Information("RepositoryName: {0}", RepositoryName);
         context.Information("RepositoryOwner: {0}", RepositoryOwner);
         context.Information("RestorePackagesDirectory: {0}", RestorePackagesDirectory);
@@ -382,6 +384,7 @@ public static class BuildParameters
         string productDescription = null,
         string productName = null,
         string productTrademark = null,
+        bool repositoryHostedInGitLab = false,
         string repositoryName = null,
         string repositoryOwner = null,
         string resharperSettingsFileName = null,
@@ -521,6 +524,7 @@ public static class BuildParameters
         ProductDescription = productDescription ?? "Description not provided";
         ProductName = productName ?? "Name not provided";
         ProductTrademark = productTrademark ?? "Chocolatey - Chocolatey Software, Inc.";
+        RepositoryHostedInGitLab = repositoryHostedInGitLab;
         RepositoryName = repositoryName ?? title;
         RepositoryOwner = repositoryOwner ?? string.Empty;
         ResharperSettingsFileName = resharperSettingsFileName ?? string.Format("{0}.sln.DotSettings", title);
