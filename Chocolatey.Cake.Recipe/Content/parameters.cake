@@ -115,7 +115,6 @@ public static class BuildParameters
     public static bool IsDotNetBuild { get; set; }
     public static bool IsLocalBuild { get; private set; }
     public static bool IsPullRequest { get; private set; }
-    public static bool IsRepositoryHostedOnGitHub { get; private set; }
     public static bool IsTagged { get; private set; }
     public static string MasterBranchName { get; private set; }
     public static MastodonCredentials Mastodon { get; private set; }
