@@ -39,6 +39,7 @@ public class BuildTasks
     public CakeTaskBuilder DotNetFormatCheckTask { get; set; }
     public CakeTaskBuilder DotNetFormatTask { get; set; }
     public CakeTaskBuilder AnalyzeTask { get; set; }
+    public CakeTaskBuilder PSScriptAnalyzerTask { get; set; }
 
     // Dependency-Check Tasks
     public CakeTaskBuilder DependencyCheckTask { get; set; }
