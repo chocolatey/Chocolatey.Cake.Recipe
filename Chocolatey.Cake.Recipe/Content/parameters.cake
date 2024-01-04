@@ -755,7 +755,7 @@ public static class BuildParameters
         {
             ShouldRunPSScriptAnalyzer = context.Argument<bool>("shouldRunPSScriptAnalyzer");
         }
-        
+
         ShouldRunReportGenerator = shouldRunReportGenerator;
 
         if (context.HasArgument("shouldRunReportGenerator"))
@@ -792,7 +792,7 @@ public static class BuildParameters
         }
 
         ShouldRunxUnit = shouldRunxUnit;
-        
+
         if (context.HasArgument("shouldRunxUnit"))
         {
             ShouldRunxUnit = context.Argument<bool>("shouldRunxUnit");

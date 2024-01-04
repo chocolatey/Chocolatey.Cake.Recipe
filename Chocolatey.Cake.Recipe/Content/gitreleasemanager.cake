@@ -28,6 +28,7 @@ BuildParameters.Tasks.CreateReleaseNotesTask = Task("Create-Release-Notes")
                 TargetCommitish   = BuildParameters.MasterBranchName,
                 Prerelease        = Context.HasArgument("create-pre-release")
             };
+
             if (settings.Prerelease)
             {
                 settings.TargetCommitish = BuildParameters.BuildProvider.Repository.Branch;

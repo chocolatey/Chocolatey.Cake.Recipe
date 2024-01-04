@@ -631,7 +631,7 @@ public class Builder
             BuildParameters.Tasks.TestTask.IsDependentOn("Generate-FriendlyCoverageReport");
             BuildParameters.Tasks.TestTask.IsDependentOn("Report-UnitTestResults");
             BuildParameters.Tasks.TestTask.IsDependentOn("Report-Code-Coverage-Metrics");
-            
+
             BuildParameters.Tasks.PublishAwsLambdasTask.IsDependentOn("DotNetBuild");
 
             BuildParameters.Tasks.PackageTask.IsDependentOn(prefix + "Pack");

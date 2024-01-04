@@ -28,7 +28,7 @@ public static class Environment
     public static string TwitterConsumerKeyVariable { get; private set; }
     public static string TwitterConsumerSecretVariable { get; private set; }
     public static string TwitterAccessTokenVariable { get; private set; }
-    public static string TwitterAccessTokenSecretVariable { get; private set; }    
+    public static string TwitterAccessTokenSecretVariable { get; private set; }
     public static string SonarQubeTokenVariable { get; private set; }
     public static string SonarQubeIdVariable { get; private set; }
     public static string SonarQubeUrlVariable { get; private set; }
@@ -71,7 +71,7 @@ public static class Environment
         TwitterConsumerKeyVariable = twitterConsumerKeyVariable ?? "TWITTER_CONSUMER_KEY";
         TwitterConsumerSecretVariable = twitterConsumerSecretVariable ?? "TWITTER_CONSUMER_SECRET";
         TwitterAccessTokenVariable = twitterAccessTokenVariable ?? "TWITTER_ACCESS_TOKEN";
-        TwitterAccessTokenSecretVariable = twitterAccessTokenSecretVariable ?? "TWITTER_ACCESS_TOKEN_SECRET";        
+        TwitterAccessTokenSecretVariable = twitterAccessTokenSecretVariable ?? "TWITTER_ACCESS_TOKEN_SECRET";
         SonarQubeTokenVariable = sonarQubeTokenVariable ?? "SONARQUBE_TOKEN";
         SonarQubeIdVariable = sonarQubeIdVariable ?? "SONARQUBE_ID";
         SonarQubeUrlVariable = sonarQubeUrlVariable ?? "SONARQUBE_URL";
