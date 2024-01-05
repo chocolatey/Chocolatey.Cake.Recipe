@@ -43,6 +43,7 @@ public static class ToolSettings
     public static string ReportUnitTool { get; private set; }
     public static string ReSharperReportsTool { get; private set; }
     public static string ReSharperTools { get; private set; }
+    public static List<string> PSScriptAnalyzerExcludePaths { get; private set; }
     public static string SonarQubeTool { get; private set; }
     public static string StrongNameSignerTool { get; private set; }
     public static string TestCoverageExcludeByAttribute { get; private set; }
@@ -57,8 +58,8 @@ public static class ToolSettings
         string dotNetFormatGlobalTool = "#tool dotnet:?package=dotnet-format&version=5.1.250801",
         string gitVersionGlobalTool = "#tool dotnet:?package=GitVersion.Tool&version=5.10.1",
         string gitVersionTool = "#tool nuget:?package=GitVersion.CommandLine&version=5.10.1",
-        string gitReleaseManagerGlobalTool = "#tool dotnet:?package=GitReleaseManager.Tool&version=0.13.0",
-        string gitReleaseManagerTool = "#tool nuget:?package=GitReleaseManager&version=0.13.0",
+        string gitReleaseManagerGlobalTool = "#tool dotnet:?package=GitReleaseManager.Tool&version=0.16.0",
+        string gitReleaseManagerTool = "#tool nuget:?package=GitReleaseManager&version=0.16.0",
         string ilMergeTool = "#tool nuget:?package=ilmerge&version=3.0.41",
         string msbuildExtensionPackTool = "#tool nuget:?package=MSBuild.Extension.Pack&version=1.9.0",
         string nunitTool = "#tool nuget:?package=NUnit.ConsoleRunner&version=3.10.0",
@@ -105,6 +106,7 @@ public static class ToolSettings
         FilePath eazfuscatorToolLocation = null,
         int? maxCpuCount = null,
         DirectoryPath outputDirectory = null,
+        List<string> scriptAnalyzerExcludePaths = null,
         string testCoverageExcludeByAttribute = null,
         string testCoverageExcludeByFile = null,
         string testCoverageFilter = null
@@ -118,6 +120,7 @@ public static class ToolSettings
         EazfuscatorToolLocation = eazfuscatorToolLocation ?? "./lib/Eazfuscator.NET/Eazfuscator.NET.exe";
         MaxCpuCount = maxCpuCount ?? 0;
         OutputDirectory = outputDirectory;
+        PSScriptAnalyzerExcludePaths = scriptAnalyzerExcludePaths ?? new List<String> { "tools",  "code_drop", @"src\*\bin\Debug", @"Source\*\bin\Debug", @"src\*\bin\Release", @"Source\*\bin\Release", @"src\packages", @"Source\packages" };
         TestCoverageExcludeByAttribute = testCoverageExcludeByAttribute ?? "*.ExcludeFromCodeCoverage*";
         TestCoverageExcludeByFile = testCoverageExcludeByFile ?? "*/*Designer.cs;*/*.g.cs;*/*.g.i.cs";
         TestCoverageFilter = testCoverageFilter ?? string.Format("+[{0}*]* +[{1}*]* -[*.tests]* -[*.Tests]*", BuildParameters.Title, BuildParameters.Title.ToLowerInvariant());

@@ -48,3 +48,15 @@ Action<string, Action> RequireTool = (tool, action) => {
 
     action();
 };
+
+Action<string, string, Action> RequirePSModule = (module, requiredVersion, action) => {
+    var powerShellModuleInstallationScript = GetFiles("./tools/Chocolatey.Cake.Recipe*/Content/install-module.ps1").FirstOrDefault();
+
+    StartPowershellFile(MakeAbsolute(powerShellModuleInstallationScript), args =>
+    {
+        args.Append("ModuleName", module)
+            .Append("RequiredVersion", requiredVersion);
+    });
+
+    action();
+};

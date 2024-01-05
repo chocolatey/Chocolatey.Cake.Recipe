@@ -85,7 +85,7 @@ public static class BuildParameters
         }
     }
 
-    public static bool CanRunGitReleaseManager { get { return !string.IsNullOrEmpty(BuildParameters.GitHub.Token); } }
+    public static bool CanRunGitReleaseManager { get { return !string.IsNullOrEmpty(BuildParameters.GitReleaseManager.Token); } }
     public static string CertificateAlgorithm { get; private set; }
     public static string CertificateFilePath { get; private set; }
     public static string CertificatePassword { get; private set; }
@@ -104,17 +104,17 @@ public static class BuildParameters
     public static Func<FilePathCollection> GetFilesToObfuscate { get; private set; }
     public static Func<FilePathCollection> GetFilesToSign { get; private set; }
     public static Func<List<ILMergeConfig>> GetILMergeConfigs { get; private set; }
+    public static Func<List<PSScriptAnalyzerSettings>> GetPSScriptAnalyzerSettings { get; private set; }
     public static Func<FilePathCollection> GetMsisToSign { get; private set; }
     public static Func<FilePathCollection> GetProjectsToPack { get; private set; }
     public static Func<FilePathCollection> GetScriptsToSign { get; private set; }
-    public static GitHubCredentials GitHub { get; private set; }
+    public static GitReleaseManagerCredentials GitReleaseManager { get; private set; }
     public static string IntegrationTestAssemblyFilePattern { get; private set; }
     public static string IntegrationTestAssemblyProjectPattern { get; private set; }
     public static FilePath IntegrationTestScriptPath { get; private set; }
     public static bool IsDotNetBuild { get; set; }
     public static bool IsLocalBuild { get; private set; }
     public static bool IsPullRequest { get; private set; }
-    public static bool IsRepositoryHostedOnGitHub { get; private set; }
     public static bool IsTagged { get; private set; }
     public static string MasterBranchName { get; private set; }
     public static MastodonCredentials Mastodon { get; private set; }
@@ -138,6 +138,7 @@ public static class BuildParameters
     public static string ProductDescription { get; private set; }
     public static string ProductName { get; private set; }
     public static string ProductTrademark { get; private set; }
+    public static bool RepositoryHostedInGitLab { get; private set; }
     public static string RepositoryName { get; private set; }
     public static string RepositoryOwner { get; private set; }
     public static string ResharperSettingsFileName { get; private set; }
@@ -181,6 +182,7 @@ public static class BuildParameters
     public static bool ShouldRunTests { get; private set ;}
     public static bool ShouldRunTransifex { get; set; }
     public static bool ShouldRunxUnit { get; private set; }
+    public static bool ShouldRunPSScriptAnalyzer { get; private set; }
     public static bool ShouldStrongNameOutputAssemblies { get; private set; }
     public static bool ShouldStrongNameSignDependentAssemblies { get; private set; }
     public static SlackCredentials Slack { get; private set; }
@@ -272,6 +274,7 @@ public static class BuildParameters
 
         context.Information("ProductTrademark: {0}", ProductTrademark);
 
+        context.Information("RepositoryHostedInGitLab: {0}", RepositoryHostedInGitLab);
         context.Information("RepositoryName: {0}", RepositoryName);
         context.Information("RepositoryOwner: {0}", RepositoryOwner);
         context.Information("RestorePackagesDirectory: {0}", RestorePackagesDirectory);
@@ -313,6 +316,7 @@ public static class BuildParameters
         context.Information("ShouldRunTests: {0}", BuildParameters.ShouldRunTests);
         context.Information("ShouldRunTransifex: {0}", BuildParameters.ShouldRunTransifex);
         context.Information("ShouldRunxUnit: {0}", BuildParameters.ShouldRunxUnit);
+        context.Information("ShouldRunPSScriptAnalyzer: {0}", BuildParameters.ShouldRunPSScriptAnalyzer);
         context.Information("ShouldStrongNameOutputAssemblies: {0}", BuildParameters.ShouldStrongNameOutputAssemblies);
         context.Information("ShouldStrongNameSignDependentAssemblies: {0}", BuildParameters.ShouldStrongNameSignDependentAssemblies);
         context.Information("SolutionDirectoryPath: {0}", context.MakeAbsolute((DirectoryPath)SolutionDirectoryPath));
@@ -353,6 +357,7 @@ public static class BuildParameters
         Func<FilePathCollection> getFilesToObfuscate = null,
         Func<FilePathCollection> getFilesToSign = null,
         Func<List<ILMergeConfig>> getILMergeConfigs = null,
+        Func<List<PSScriptAnalyzerSettings>> getPSScriptAnalyzerSettings = null,
         Func<FilePathCollection> getMsisToSign = null,
         Func<FilePathCollection> getProjectsToPack = null,
         Func<FilePathCollection> getScriptsToSign = null,
@@ -378,6 +383,7 @@ public static class BuildParameters
         string productDescription = null,
         string productName = null,
         string productTrademark = null,
+        bool repositoryHostedInGitLab = false,
         string repositoryName = null,
         string repositoryOwner = null,
         string resharperSettingsFileName = null,
@@ -421,6 +427,7 @@ public static class BuildParameters
         bool shouldRunTests = true,
         bool? shouldRunTransifex = null,
         bool shouldRunxUnit = true,
+        bool shouldRunPSScriptAnalyzer = true,
         bool shouldStrongNameOutputAssemblies = true,
         bool shouldStrongNameSignDependentAssemblies = true,
         Func<BuildVersion, object[]> slackMessageArguments = null,
@@ -485,10 +492,11 @@ public static class BuildParameters
         GetFilesToObfuscate = getFilesToObfuscate;
         GetFilesToSign = getFilesToSign;
         GetILMergeConfigs = getILMergeConfigs;
+        GetPSScriptAnalyzerSettings = getPSScriptAnalyzerSettings;
         GetMsisToSign = getMsisToSign;
         GetProjectsToPack = getProjectsToPack;
         GetScriptsToSign = getScriptsToSign;
-        GitHub = GetGitHubCredentials(context);
+        GitReleaseManager = GetGitReleaseManagerCredentials(context);
         IntegrationTestAssemblyFilePattern = integrationTestAssemblyFilePattern ?? "/**/*[tT]ests.[iI]ntegration.dll";
         IntegrationTestAssemblyProjectPattern = integrationTestAssemblyProjectPattern ?? "/**/*[tT]ests.[iI]ntegration.csproj";
         IntegrationTestScriptPath = integrationTestScriptPath ?? context.MakeAbsolute((FilePath)"test.cake");
@@ -515,6 +523,7 @@ public static class BuildParameters
         ProductDescription = productDescription ?? "Description not provided";
         ProductName = productName ?? "Name not provided";
         ProductTrademark = productTrademark ?? "Chocolatey - Chocolatey Software, Inc.";
+        RepositoryHostedInGitLab = repositoryHostedInGitLab;
         RepositoryName = repositoryName ?? title;
         RepositoryOwner = repositoryOwner ?? string.Empty;
         ResharperSettingsFileName = resharperSettingsFileName ?? string.Format("{0}.sln.DotSettings", title);
@@ -741,6 +750,13 @@ public static class BuildParameters
         if (context.HasArgument("shouldRunOpenCover"))
         {
             ShouldRunOpenCover = context.Argument<bool>("shouldRunOpenCover");
+        }
+
+        ShouldRunPSScriptAnalyzer = shouldRunPSScriptAnalyzer;
+
+        if (context.HasArgument("shouldRunPSScriptAnalyzer"))
+        {
+            ShouldRunPSScriptAnalyzer = context.Argument<bool>("shouldRunPSScriptAnalyzer");
         }
 
         ShouldRunReportGenerator = shouldRunReportGenerator;

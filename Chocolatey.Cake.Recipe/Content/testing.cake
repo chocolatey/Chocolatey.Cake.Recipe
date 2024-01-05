@@ -254,7 +254,7 @@ BuildParameters.Tasks.DotNetTestTask = Task("DotNetTest")
             var parsedProject = ParseProject(project, BuildParameters.Configuration);
             var coverletPackage = parsedProject.GetPackage("coverlet.msbuild");
             bool shouldAddSourceLinkArgument = false; // Set it to false by default due to OpenCover
-            
+
             if (coverletPackage != null)
             {
                 // If the version is a pre-release, we will assume that it is a later
@@ -296,7 +296,7 @@ BuildParameters.Tasks.DotNetTestTask = Task("DotNetTest")
 
                 // We can not use msbuild properties together with opencover
                 settings.ArgumentCustomization = null;
-                
+
                 RequireTool(ToolSettings.OpenCoverTool, () => {
                     OpenCover(testAction,
                         BuildParameters.Paths.Files.TestCoverageOutputFilePath,

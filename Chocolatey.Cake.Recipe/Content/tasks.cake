@@ -39,6 +39,7 @@ public class BuildTasks
     public CakeTaskBuilder DotNetFormatCheckTask { get; set; }
     public CakeTaskBuilder DotNetFormatTask { get; set; }
     public CakeTaskBuilder AnalyzeTask { get; set; }
+    public CakeTaskBuilder PSScriptAnalyzerTask { get; set; }
 
     // Dependency-Check Tasks
     public CakeTaskBuilder DependencyCheckTask { get; set; }
@@ -90,8 +91,6 @@ public class BuildTasks
     public CakeTaskBuilder CreateReleaseNotesTask { get; set; }
     public CakeTaskBuilder ExportReleaseNotesTask { get; set; }
     public CakeTaskBuilder PublishGitHubReleaseTask { get; set; }
-    public CakeTaskBuilder LabelsTask { get; set; }
-    public CakeTaskBuilder CreateDefaultLabelsTask { get; set; }
 
     // Transifex Tasks
     public CakeTaskBuilder TransifexPullTranslationsTask { get; set; }

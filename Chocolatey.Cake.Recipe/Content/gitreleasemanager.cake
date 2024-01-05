@@ -28,12 +28,18 @@ BuildParameters.Tasks.CreateReleaseNotesTask = Task("Create-Release-Notes")
                 TargetCommitish   = BuildParameters.MasterBranchName,
                 Prerelease        = Context.HasArgument("create-pre-release")
             };
+
             if (settings.Prerelease)
             {
                 settings.TargetCommitish = BuildParameters.BuildProvider.Repository.Branch;
             }
 
-            GitReleaseManagerCreate(BuildParameters.GitHub.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, settings);
+            if (BuildParameters.RepositoryHostedInGitLab)
+            {
+                settings.ArgumentCustomization = args => args.Append("--provider GitLab");
+            }
+
+            GitReleaseManagerCreate(BuildParameters.GitReleaseManager.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, settings);
         }
         else
         {
@@ -51,19 +57,23 @@ BuildParameters.Tasks.ExportReleaseNotesTask = Task("Export-Release-Notes")
     .Does(() => RequireTool(BuildParameters.IsDotNetBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.GitReleaseManagerGlobalTool : ToolSettings.GitReleaseManagerTool, () => {
         if (BuildParameters.CanRunGitReleaseManager)
         {
+            var settings = new GitReleaseManagerExportSettings();
+
+            if (BuildParameters.RepositoryHostedInGitLab)
+            {
+                settings.ArgumentCustomization = args => args.Append("--provider GitLab");
+            }
+
             if (BuildParameters.ShouldDownloadMilestoneReleaseNotes)
             {
-                var settings = new GitReleaseManagerExportSettings
-                {
-                    TagName = BuildParameters.Version.Milestone
-                };
+                settings.TagName = BuildParameters.Version.Milestone;
 
-                GitReleaseManagerExport(BuildParameters.GitHub.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, BuildParameters.MilestoneReleaseNotesFilePath, settings);
+                GitReleaseManagerExport(BuildParameters.GitReleaseManager.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, BuildParameters.MilestoneReleaseNotesFilePath, settings);
             }
 
             if (BuildParameters.ShouldDownloadFullReleaseNotes)
             {
-                GitReleaseManagerExport(BuildParameters.GitHub.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, BuildParameters.FullReleaseNotesFilePath);
+                GitReleaseManagerExport(BuildParameters.GitReleaseManager.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, BuildParameters.FullReleaseNotesFilePath, settings);
             }
         }
         else
@@ -74,43 +84,34 @@ BuildParameters.Tasks.ExportReleaseNotesTask = Task("Export-Release-Notes")
 );
 
 BuildParameters.Tasks.PublishGitHubReleaseTask = Task("Publish-GitHub-Release")
-    .IsDependentOn("Package")
-    .WithCriteria(() => !BuildParameters.IsLocalBuild, "Skipping because this is a local build")
-    .WithCriteria(() => !BuildParameters.IsPullRequest, "Skipping because this is pull request")
     .WithCriteria(() => BuildParameters.BranchType == BranchType.Master || BuildParameters.BranchType == BranchType.Release || BuildParameters.BranchType == BranchType.HotFix, "Skipping because this is not a releasable branch")
     .WithCriteria(() => BuildParameters.IsTagged, "Skipping because this is not a tagged build")
-    .WithCriteria(() => BuildParameters.ShouldRunGitReleaseManager, "Skipping because this publishing running GitReleaseManager is disabled via parameters (perhaps the default value?")
     .Does(() => RequireTool(BuildParameters.IsDotNetBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.GitReleaseManagerGlobalTool : ToolSettings.GitReleaseManagerTool, () => {
         if (BuildParameters.CanRunGitReleaseManager)
         {
-            // Concatenating FilePathCollections should make sure we get unique FilePaths
-            foreach (var package in GetFiles(BuildParameters.Paths.Directories.Packages + "/*") +
-                                   GetFiles(BuildParameters.Paths.Directories.NuGetPackages + "/*") +
-                                   GetFiles(BuildParameters.Paths.Directories.ChocolateyPackages + "/*"))
+            // If we are running on GitLab, then we need to actually publish the Release,
+            // since it will have been created with a date in the future. When running on
+            // GitHub, this isn't required, since the Release is first created in Draft,
+            // and it is published this the GitHub UI.
+            if (BuildParameters.RepositoryHostedInGitLab)
             {
-                GitReleaseManagerAddAssets(BuildParameters.GitHub.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, BuildParameters.Version.Milestone, package.ToString());
+                var publishSettings = new GitReleaseManagerPublishSettings {
+                    ArgumentCustomization = args => args.Append("--provider GitLab")
+                };
+
+                GitReleaseManagerPublish(BuildParameters.GitReleaseManager.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, BuildParameters.Version.Milestone, publishSettings);
             }
 
-            GitReleaseManagerClose(BuildParameters.GitHub.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, BuildParameters.Version.Milestone);
-        }
-        else
-        {
-            Warning("Unable to use GitReleaseManager, as necessary credentials are not available");
-        }
-    })
-)
-.OnError(exception =>
-{
-    Error(exception.Message);
-    Information("Publish-GitHub-Release Task failed, but continuing with next Task...");
-    publishingError = true;
-});
+            // Next up, we close the milestone, which based on configuration, may add comments
+            // to issues contained within the specified Milestone.
+            var closeSettings = new GitReleaseManagerCloseMilestoneSettings();
 
-BuildParameters.Tasks.CreateDefaultLabelsTask = Task("Create-Default-Labels")
-    .Does(() => RequireTool(BuildParameters.IsDotNetBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.GitReleaseManagerGlobalTool : ToolSettings.GitReleaseManagerTool, () => {
-        if (BuildParameters.CanRunGitReleaseManager)
-        {
-            GitReleaseManagerLabel(BuildParameters.GitHub.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName);
+            if (BuildParameters.RepositoryHostedInGitLab)
+            {
+                closeSettings.ArgumentCustomization = args => args.Append("--provider GitLab");
+            }
+
+            GitReleaseManagerClose(BuildParameters.GitReleaseManager.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, BuildParameters.Version.Milestone, closeSettings);
         }
         else
         {

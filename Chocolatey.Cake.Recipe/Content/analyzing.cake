@@ -114,7 +114,7 @@ BuildParameters.Tasks.DotNetFormatTask = Task("Run-DotNetFormat")
         {
             dotNetFormatTool = Context.Tools.Resolve("dotnet-format");
         }
-        
+
         StartProcess(dotNetFormatTool, new ProcessSettings{ Arguments = string.Format("{0} --report {1} --no-restore", MakeAbsolute(BuildParameters.SolutionFilePath), MakeAbsolute(BuildParameters.Paths.Files.DotNetFormatOutputFilePath)) });
     })
 );
@@ -123,4 +123,5 @@ BuildParameters.Tasks.AnalyzeTask = Task("Analyze")
     .IsDependentOn("InspectCode")
     .IsDependentOn("Run-DotNetFormatCheck")
     .IsDependentOn("CreateIssuesReport")
+    .IsDependentOn("Run-PSScriptAnalyzer")
     .WithCriteria(() => BuildParameters.ShouldRunAnalyze, "Skipping because running analysis tasks is not enabled");

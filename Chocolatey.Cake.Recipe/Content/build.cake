@@ -509,7 +509,6 @@ BuildParameters.Tasks.ContinuousIntegrationTask = Task("CI")
     .IsDependentOn("Publish-PreRelease-Packages")
     .IsDependentOn("Publish-Release-Packages")
     .IsDependentOn("Publish-AWS-Lambdas")
-    .IsDependentOn("Publish-GitHub-Release")
     .Finally(() =>
 {
     if (publishingError)
@@ -520,9 +519,6 @@ BuildParameters.Tasks.ContinuousIntegrationTask = Task("CI")
 
 BuildParameters.Tasks.ReleaseNotesTask = Task("ReleaseNotes")
   .IsDependentOn("Create-Release-Notes");
-
-BuildParameters.Tasks.LabelsTask = Task("Labels")
-  .IsDependentOn("Create-Default-Labels");
 
 ///////////////////////////////////////////////////////////////////////////////
 // EXECUTION
@@ -631,7 +627,7 @@ public class Builder
             BuildParameters.Tasks.TestTask.IsDependentOn("Generate-FriendlyCoverageReport");
             BuildParameters.Tasks.TestTask.IsDependentOn("Report-UnitTestResults");
             BuildParameters.Tasks.TestTask.IsDependentOn("Report-Code-Coverage-Metrics");
-            
+
             BuildParameters.Tasks.PublishAwsLambdasTask.IsDependentOn("DotNetBuild");
 
             BuildParameters.Tasks.PackageTask.IsDependentOn(prefix + "Pack");
