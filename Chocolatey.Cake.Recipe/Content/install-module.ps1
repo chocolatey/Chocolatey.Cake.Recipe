@@ -30,5 +30,18 @@ if (Get-Module -ListAvailable -FullyQualifiedName $FullyQualifiedName) {
 }
 else {
     Write-Host "Install Module $ModuleName with version $RequiredVersion..."
-    Install-Module -Name $ModuleName -RequiredVersion $RequiredVersion -Force
+    # Bootstrap PowerShell Get
+    if (-not (Get-PackageProvider NuGet -ErrorAction Ignore)) {
+        Write-Host "Installing NuGet package provider"
+        Install-PackageProvider NuGet -MinimumVersion 2.8.5.201 -ForceBootstrap -Force -Scope CurrentUser
+    }
+
+    if (-not (Get-InstalledModule PowerShellGet -MinimumVersion 2.0 -MaximumVersion 2.99 -ErrorAction Ignore)) {
+        Install-Module PowerShellGet -MaximumVersion 2.99 -Force -AllowClobber -Scope CurrentUser
+        Remove-Module PowerShellGet -Force
+        Import-Module PowerShellGet -MinimumVersion 2.0 -Force
+        Import-PackageProvider -Name PowerShellGet -MinimumVersion 2.0 -Force
+    }
+
+    Install-Module -Name $ModuleName -RequiredVersion $RequiredVersion -Force -Scope CurrentUser
 }
