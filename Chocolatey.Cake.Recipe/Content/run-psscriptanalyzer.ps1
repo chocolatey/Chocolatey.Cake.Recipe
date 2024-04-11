@@ -73,48 +73,58 @@ $modules = Get-ChildItem -Path $AnalyzePath -Filter "*.psm1" -Recurse | ForEach-
     }
 }
 
-Write-Output "Analyzing module files..."
+if ($null -ne $modules) {
+    Write-Output "Analyzing module files..."
 
-$records = Start-Job -ArgumentList $modules, $SettingsPath {
-    Param(
-        $modules,
-        $SettingsPath
-    )
-    $modules | Invoke-ScriptAnalyzer -Settings $SettingsPath | Select-Object RuleName, ScriptPath, Line, Message 
-} | Wait-Job | Receive-Job
+    $records = Start-Job -ArgumentList $modules, $SettingsPath {
+        Param(
+            $modules,
+            $SettingsPath
+        )
+        $modules | Invoke-ScriptAnalyzer -Settings $SettingsPath | Select-Object RuleName, ScriptPath, Line, Message 
+    } | Wait-Job | Receive-Job
 
-if (-not ($null -EQ $records)) {
-    Write-Output "Violations found in Module Files..."
-    $records | Format-List | Out-String
+    if (-not ($null -EQ $records)) {
+        Write-Output "Violations found in Module Files..."
+        $records | Format-List | Out-String
 
-    Write-Output $OutputPath
+        Write-Output $OutputPath
 
-    Write-Output "Writing violations to output file..."
-    $records | ConvertTo-SARIF -FilePath "$OutputPath\modules.sarif"
+        Write-Output "Writing violations to output file..."
+        $records | ConvertTo-SARIF -FilePath "$OutputPath\modules.sarif"
+    }
+    else {
+        Write-Output "No rule violations found in Module Files."
+    }
 }
 else {
-    Write-Output "No rule violations found in Module Files."
+    Write-Output "No Module Files to analyze"
 }
 
-Write-Output "Analyzing script files..."
+if ($null -ne $scripts) {
+    Write-Output "Analyzing script files..."
 
-$records = Start-Job -ArgumentList $Scripts, $SettingsPath {
-    Param(
-        $Scripts,
-        $SettingsPath
-    )
-    $Scripts | Invoke-ScriptAnalyzer -Settings $SettingsPath | Select-Object RuleName, ScriptPath, Line, Message 
-} | Wait-Job | Receive-Job
+    $records = Start-Job -ArgumentList $Scripts, $SettingsPath {
+        Param(
+            $Scripts,
+            $SettingsPath
+        )
+        $Scripts | Invoke-ScriptAnalyzer -Settings $SettingsPath | Select-Object RuleName, ScriptPath, Line, Message 
+    } | Wait-Job | Receive-Job
 
-if (-not ($null -EQ $records)) {
-    Write-Output "Violations found in Script Files..."
-    $records | Format-List | Out-String
+    if (-not ($null -EQ $records)) {
+        Write-Output "Violations found in Script Files..."
+        $records | Format-List | Out-String
 
-    Write-Output "Writing violations to output file..."
-    $records | ConvertTo-SARIF -FilePath "$OutputPath\scripts.sarif"
+        Write-Output "Writing violations to output file..."
+        $records | ConvertTo-SARIF -FilePath "$OutputPath\scripts.sarif"
+    }
+    else {
+        Write-Output "No rule violations found in Script Files."
+    }
 }
 else {
-    Write-Output "No rule violations found in Script Files."
+    Write-Output "No Script Files to analyze"
 }
 
 Write-Output "Analyzing complete."
