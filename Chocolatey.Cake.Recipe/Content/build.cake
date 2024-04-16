@@ -168,12 +168,12 @@ BuildParameters.Tasks.BuildTask = Task("Build")
             XBuild(BuildParameters.SolutionFilePath, xbuildSettings);
         }
 
+        CopyBuildOutput();
+
         if (FileExists(BuildParameters.Paths.Files.BuildLogFilePath))
         {
             BuildParameters.BuildProvider.UploadArtifact(BuildParameters.Paths.Files.BuildLogFilePath);
         }
-
-        CopyBuildOutput();
     }));
 
 BuildParameters.Tasks.DotNetBuildTask = Task("DotNetBuild")
