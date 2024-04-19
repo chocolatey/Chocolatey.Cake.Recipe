@@ -27,6 +27,7 @@ public static class ToolSettings
     public static FilePath EazfuscatorToolLocation { get; private set; }
     public static string AmazonLambdaGlobalTool { get; private set; }
     public static string DependencyCheckTool { get; private set; }
+    public static bool DependencyCheckDisableYarnAudit { get; private set; }
     public static string DotNetFormatGlobalTool { get; private set; }
     public static string GitVersionGlobalTool { get; private set; }
     public static string GitVersionTool { get; private set; }
@@ -109,7 +110,8 @@ public static class ToolSettings
         List<string> scriptAnalyzerExcludePaths = null,
         string testCoverageExcludeByAttribute = null,
         string testCoverageExcludeByFile = null,
-        string testCoverageFilter = null
+        string testCoverageFilter = null,
+        bool dependencyCheckDisableYarnAudit = false
     )
     {
         context.Information("Setting up tools...");
@@ -124,6 +126,13 @@ public static class ToolSettings
         TestCoverageExcludeByAttribute = testCoverageExcludeByAttribute ?? "*.ExcludeFromCodeCoverage*";
         TestCoverageExcludeByFile = testCoverageExcludeByFile ?? "*/*Designer.cs;*/*.g.cs;*/*.g.i.cs";
         TestCoverageFilter = testCoverageFilter ?? string.Format("+[{0}*]* +[{1}*]* -[*.tests]* -[*.Tests]*", BuildParameters.Title, BuildParameters.Title.ToLowerInvariant());
+
+        DependencyCheckDisableYarnAudit = dependencyCheckDisableYarnAudit;
+        
+        if (context.HasArgument("dependencyCheckDisableYarnAudit"))
+        {
+            DependencyCheckDisableYarnAudit = context.Argument<bool>("dependencyCheckDisableYarnAudit");
+        }
 
         // We only use MSBuild when running on Windows. Elsewhere, we use XBuild when required. As a result,
         // we only need to detect the correct version of MSBuild when running on WIndows, and when it hasn't
