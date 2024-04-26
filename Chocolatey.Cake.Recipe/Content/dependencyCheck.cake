@@ -46,6 +46,15 @@ BuildParameters.Tasks.DependencyCheckTask = Task("Dependency-Check")
 
     DeleteFile(BuildParameters.RootDirectoryPath.CombineWithFilePath("dependency-check.zip"));
 
+    if (ToolSettings.DependencyCheckDisableYarnAudit)
+    {
+        ReplaceTextInFiles(
+            BuildParameters.RootDirectoryPath.Combine("tools/DependencyCheck.Runner.Tool.3.2.1/tools/bin").CombineWithFilePath("dependency-check.bat").ToString(), 
+            "org.owasp.dependencycheck.App %CMD_LINE_ARGS%",
+            "org.owasp.dependencycheck.App --disableYarnAudit %CMD_LINE_ARGS%"
+        );
+    };
+
     var DependencyCheckSettings = new DependencyCheckSettings {
         Project = BuildParameters.ProductName,
         Scan    = BuildParameters.SourceDirectoryPath.FullPath,
