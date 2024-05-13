@@ -477,7 +477,7 @@ public static class BuildParameters
         CertificateAlgorithm = context.EnvironmentVariable("CERT_ALGORITHM") ?? "Sha256";
         CertificateFilePath = context.EnvironmentVariable("CHOCOLATEY_OFFICIAL_CERT") ?? "";
         CertificatePassword = context.EnvironmentVariable("CHOCOLATEY_OFFICIAL_CERT_PASSWORD") ?? "";
-        CertificateSubjectName = certificateSubjectName ?? "Chocolatey Software, Inc.";
+        CertificateSubjectName = context.EnvironmentVariable("CHOCOLATEY_OFFICIAL_CERT_SUBJECT_NAME") ?? certificateSubjectName ?? "Chocolatey Software, Inc";
         CertificateTimestampUrl = context.EnvironmentVariable("CERT_TIMESTAMP_URL") ?? "http://timestamp.digicert.com";
         ChocolateyNupkgGlobbingPattern = chocolateyNupkgGlobbingPattern;
         ChocolateyNuspecGlobbingPattern = chocolateyNuspecGlobbingPattern;
