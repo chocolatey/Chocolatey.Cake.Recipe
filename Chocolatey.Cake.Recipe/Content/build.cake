@@ -570,9 +570,9 @@ public class Builder
         BuildParameters.Tasks.CreateChocolateyPackagesTask.IsDependentOn("Configuration-Builder");
         BuildParameters.Tasks.CreateChocolateyPackagesTask.IsDependentOn("Obfuscate-Assemblies");
         BuildParameters.Tasks.CreateChocolateyPackagesTask.IsDependentOn("Sign-Assemblies");
-        BuildParameters.Tasks.CreateNuGetPackagesTask.IsDependentOn("Sign-PowerShellScripts");
+        BuildParameters.Tasks.CreateNuGetPackagesTask.IsDependentOn("Verify-PowerShellScripts");
         BuildParameters.Tasks.CreateNuGetPackagesTask.IsDependentOn("Sign-Assemblies");
-        BuildParameters.Tasks.CreateChocolateyPackagesTask.IsDependentOn("Sign-PowerShellScripts");
+        BuildParameters.Tasks.CreateChocolateyPackagesTask.IsDependentOn("Verify-PowerShellScripts");
         BuildParameters.Tasks.SignMsisTask.IsDependentOn("Sign-Assemblies");
         BuildParameters.Tasks.CreateChocolateyPackagesTask.IsDependentOn(prefix + "Build");
         BuildParameters.Tasks.ObfuscateAssembliesTask.IsDependeeOf("Sign-Assemblies");

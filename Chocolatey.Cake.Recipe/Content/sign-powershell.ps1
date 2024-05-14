@@ -21,6 +21,10 @@ Param(
 
     [Parameter()]
     [String]
+    $OutputFolder,
+
+    [Parameter()]
+    [String]
     $TimeStampServer,
 
     [Parameter(ParameterSetName = "File")]
@@ -40,11 +44,38 @@ Param(
     $CertificateSubjectName
 )
 
-$cert = if ($PSCmdlet.ParameterSetName -eq "File") {
+$Cert = if ($PSCmdlet.ParameterSetName -eq "File") {
     New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($CertificatePath, $CertificatePassword)
 }
 else {
-    Get-ChildItem Cert:\LocalMachine\My | Where-Object Subject -Like "*$CertificateSubjectName*"
+    Get-ChildItem Cert:\LocalMachine\My | Where-Object {$_.Subject -Like "*$CertificateSubjectName*" -and
+                                                                $_.Issuer -match 'DigiCert' -and
+                                                                $_.NotAfter -ge [datetime]::Now}
 }
 
-Set-AuthenticodeSignature -FilePath $ScriptsToSign -Cert $cert -TimestampServer $TimeStampServer -IncludeChain NotRoot -HashAlgorithm $CertificateAlgorithm
+if ($Cert) {
+    $CommonSignParams = @{
+        'TimestampServer' = $TimeStampServer
+        'IncludeChain'    = 'NotRoot'
+        'HashAlgorithm'   = $CertificateAlgorithm
+        'Cert'            = $Cert
+    }
+
+    foreach ($Script in $ScriptsToSign) {
+        $ExistingSig = Get-AuthenticodeSignature -FilePath $Script
+
+        if ($ExistingSig.Status -ne 'Valid' -or $ExistingSig.SignerCertificate.Issuer -notmatch 'DigiCert' -or $ExistingSig.SignerCertificate.NotAfter -lt [datetime]::Now) {
+            $NewSig = Set-AuthenticodeSignature -FilePath $Script @CommonSignParams
+            Write-Host "Script file '$Script' signed with status: $($NewSig.Status)"
+
+            if (!(Test-Path -Path $OutputFolder)) {
+                $null = New-Item -Path $OutputFolder -Type Directory
+            }
+            Copy-Item -Path $Script -Destination $OutputFolder
+        } else {
+            Write-Host "Script file '$Script' does not need signing, current signature is valid."
+        }
+    }
+} else {
+    Write-Warning "Skipping script signing, no currently valid DigiCert issued Authenticode signing certificate matching '$($CertificateSubjectName)' was found."
+}

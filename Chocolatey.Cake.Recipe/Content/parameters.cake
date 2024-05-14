@@ -107,6 +107,7 @@ public static class BuildParameters
     public static Func<List<PSScriptAnalyzerSettings>> GetPSScriptAnalyzerSettings { get; private set; }
     public static Func<FilePathCollection> GetMsisToSign { get; private set; }
     public static Func<FilePathCollection> GetProjectsToPack { get; private set; }
+    public static Func<FilePathCollection> GetScriptsToVerify { get; private set; }
     public static Func<FilePathCollection> GetScriptsToSign { get; private set; }
     public static GitReleaseManagerCredentials GitReleaseManager { get; private set; }
     public static string IntegrationTestAssemblyFilePattern { get; private set; }
@@ -146,6 +147,7 @@ public static class BuildParameters
     public static DirectoryPath RootDirectoryPath { get; private set; }
     public static bool ShouldAuthenticodeSignMsis { get; private set; }
     public static bool ShouldAuthenticodeSignOutputAssemblies { get; private set; }
+    public static bool ShouldVerifyPowerShellScripts { get; private set; }
     public static bool ShouldAuthenticodeSignPowerShellScripts { get; private set; }
     public static bool ShouldBuildMsi { get; private set; }
     public static bool ShouldBuildNuGetSourcePackage { get; private set; }
@@ -280,6 +282,7 @@ public static class BuildParameters
         context.Information("RestorePackagesDirectory: {0}", RestorePackagesDirectory);
         context.Information("ShouldAuthenticodeSignMsis: {0}", BuildParameters.ShouldAuthenticodeSignMsis);
         context.Information("ShouldAuthenticodeSignOutputAssemblies: {0}", BuildParameters.ShouldAuthenticodeSignOutputAssemblies);
+        context.Information("ShouldVerifyPowerShellScripts: {0}", BuildParameters.ShouldVerifyPowerShellScripts);
         context.Information("ShouldAuthenticodeSignPowerShellScripts: {0}", BuildParameters.ShouldAuthenticodeSignPowerShellScripts);
         context.Information("ShouldBuildMsi: {0}", BuildParameters.ShouldBuildMsi);
         context.Information("ShouldBuildNuGetSourcePackage: {0}", BuildParameters.ShouldBuildNuGetSourcePackage);
@@ -360,6 +363,7 @@ public static class BuildParameters
         Func<List<PSScriptAnalyzerSettings>> getPSScriptAnalyzerSettings = null,
         Func<FilePathCollection> getMsisToSign = null,
         Func<FilePathCollection> getProjectsToPack = null,
+        Func<FilePathCollection> getScriptsToVerify = null,
         Func<FilePathCollection> getScriptsToSign = null,
         string integrationTestAssemblyFilePattern = null,
         string integrationTestAssemblyProjectPattern = null,
@@ -391,6 +395,7 @@ public static class BuildParameters
         DirectoryPath rootDirectoryPath = null,
         bool shouldAuthenticodeSignMsis = true,
         bool shouldAuthenticodeSignOutputAssemblies = true,
+        bool shouldVerifyPowerShellScripts = true,
         bool shouldAuthenticodeSignPowerShellScripts = true,
         bool shouldBuildMsi = false,
         bool shouldBuildNuGetSourcePackage = false,
@@ -495,6 +500,7 @@ public static class BuildParameters
         GetPSScriptAnalyzerSettings = getPSScriptAnalyzerSettings;
         GetMsisToSign = getMsisToSign;
         GetProjectsToPack = getProjectsToPack;
+        GetScriptsToVerify = getScriptsToVerify;
         GetScriptsToSign = getScriptsToSign;
         GitReleaseManager = GetGitReleaseManagerCredentials(context);
         IntegrationTestAssemblyFilePattern = integrationTestAssemblyFilePattern ?? "/**/*[tT]ests.[iI]ntegration.dll";
@@ -540,6 +546,13 @@ public static class BuildParameters
         if (context.HasArgument("shouldAuthenticodeSignOutputAssemblies"))
         {
             ShouldAuthenticodeSignOutputAssemblies = context.Argument<bool>("shouldAuthenticodeSignOutputAssemblies");
+        }
+
+        ShouldVerifyPowerShellScripts = shouldVerifyPowerShellScripts;
+
+        if (context.HasArgument("shouldVerifyPowerShellScripts"))
+        {
+            ShouldVerifyPowerShellScripts = context.Argument<bool>("shouldVerifyPowerShellScripts");
         }
 
         ShouldAuthenticodeSignPowerShellScripts = shouldAuthenticodeSignPowerShellScripts;

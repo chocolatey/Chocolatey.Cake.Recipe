@@ -49,6 +49,8 @@ public class BuildPaths
         var chocolateyPackagesOutputDirectory = packagesDirectory + "/Chocolatey";
 
         var dependencyCheckReportsDirectory = buildDirectoryPath + "/DependencyCheckReports";
+        
+        var signedFilesDirectory = buildDirectoryPath + "/SignedFiles";
 
         // Files
         var dotNetFormatOutputFilePath = ((DirectoryPath)testResultsDirectory).CombineWithFilePath("dotnet-format.json");
@@ -84,7 +86,8 @@ public class BuildPaths
             chocolateyPackagesOutputDirectory,
             packagesDirectory,
             environmentSettingsDirectory,
-            dependencyCheckReportsDirectory
+            dependencyCheckReportsDirectory,
+            signedFilesDirectory
             );
 
         var buildFiles = new BuildFiles(
@@ -176,6 +179,7 @@ public class BuildDirectories
     public DirectoryPath Packages { get; private set; }
     public DirectoryPath EnvironmentSettings { get; private set; }
     public DirectoryPath DependencyCheckReports { get; private set; }
+    public DirectoryPath SignedFiles { get; private set; }
     public ICollection<DirectoryPath> ToClean { get; private set; }
 
     public BuildDirectories(
@@ -199,7 +203,8 @@ public class BuildDirectories
         DirectoryPath chocolateyPackages,
         DirectoryPath packages,
         DirectoryPath environmentSettings,
-        DirectoryPath dependencyCheckReports
+        DirectoryPath dependencyCheckReports,
+        DirectoryPath signedFiles
         )
     {
         Build = build;
@@ -222,6 +227,7 @@ public class BuildDirectories
         ChocolateyPackages = chocolateyPackages;
         EnvironmentSettings = environmentSettings;
         DependencyCheckReports = dependencyCheckReports;
+        SignedFiles = signedFiles;
         Packages = packages;
 
         ToClean = new[] {
