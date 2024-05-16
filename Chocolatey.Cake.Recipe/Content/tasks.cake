@@ -78,6 +78,7 @@ public class BuildTasks
     public CakeTaskBuilder StrongNameSignerTask { get; set; }
 
     // Signing Tasks
+    public CakeTaskBuilder VerifyPowerShellScriptsTask { get; set; }
     public CakeTaskBuilder SignPowerShellScriptsTask { get; set; }
     public CakeTaskBuilder SignAssembliesTask { get; set; }
     public CakeTaskBuilder SignMsisTask { get; set; }
