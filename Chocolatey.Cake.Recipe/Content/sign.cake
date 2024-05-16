@@ -14,6 +14,7 @@
 // limitations under the License.
 
 BuildParameters.Tasks.VerifyPowerShellScriptsTask = Task("Verify-PowerShellScripts")
+    .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping due to not running on Windows")
     .WithCriteria(() => BuildParameters.ShouldVerifyPowerShellScripts, "Skipping since verifying PowerShell scripts has been disabled")
     .Does(() =>
 {
@@ -45,6 +46,7 @@ BuildParameters.Tasks.VerifyPowerShellScriptsTask = Task("Verify-PowerShellScrip
 });
 
 BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
+    .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping due to not running on Windows")
     .WithCriteria(() => (!string.IsNullOrWhiteSpace(BuildParameters.CertificateFilePath) && FileExists(BuildParameters.CertificateFilePath)) || BuildSystem.IsRunningOnTeamCity, "Skipping because unable to find certificate, and not running on TeamCity")
     .WithCriteria(() => BuildParameters.ShouldAuthenticodeSignPowerShellScripts, "Skipping since authenticode signing of PowerShell scripts has been disabled")
     .Does(() =>
@@ -105,6 +107,7 @@ BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
 });
 
 BuildParameters.Tasks.SignAssembliesTask = Task("Sign-Assemblies")
+    .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping due to not running on Windows")
     .WithCriteria(() => (!string.IsNullOrWhiteSpace(BuildParameters.CertificateFilePath) && FileExists(BuildParameters.CertificateFilePath)) || BuildSystem.IsRunningOnTeamCity, "Skipping because unable to find certificate, and not running on TeamCity")
     .WithCriteria(() => BuildParameters.ShouldAuthenticodeSignOutputAssemblies, "Skipping since authenticode signing of output assemblies has been disabled")
     .Does(() =>
@@ -153,6 +156,7 @@ BuildParameters.Tasks.SignAssembliesTask = Task("Sign-Assemblies")
 });
 
 BuildParameters.Tasks.SignMsisTask = Task("Sign-Msis")
+    .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping due to not running on Windows")
     .WithCriteria(() => (!string.IsNullOrWhiteSpace(BuildParameters.CertificateFilePath) && FileExists(BuildParameters.CertificateFilePath)) || BuildSystem.IsRunningOnTeamCity, "Skipping because unable to find certificate, and not running on TeamCity")
     .WithCriteria(() => BuildParameters.ShouldAuthenticodeSignMsis, "Skipping since authenticode signing of msi's has been disabled")
     .Does(() =>
