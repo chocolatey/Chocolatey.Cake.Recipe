@@ -15,6 +15,8 @@
 
 BuildParameters.Tasks.VerifyPowerShellScriptsTask = Task("Verify-PowerShellScripts")
     .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping due to not running on Windows")
+    .WithCriteria(() => !BuildParameters.IsPullRequest, "Skipping because current build is from a Pull Request")
+    .WithCriteria(() => BuildParameters.BranchType == BranchType.Master || BuildParameters.BranchType == BranchType.Release || BuildParameters.BranchType == BranchType.HotFix, "Skipping because this is not a releasable branch")
     .WithCriteria(() => BuildParameters.ShouldVerifyPowerShellScripts, "Skipping since verifying PowerShell scripts has been disabled")
     .Does(() =>
 {
