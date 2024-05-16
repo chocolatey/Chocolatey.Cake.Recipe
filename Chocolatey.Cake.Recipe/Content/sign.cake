@@ -13,6 +13,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+BuildParameters.Tasks.VerifyPowerShellScriptsTask = Task("Verify-PowerShellScripts")
+    .WithCriteria(() => BuildParameters.ShouldVerifyPowerShellScripts, "Skipping since verifying PowerShell scripts has been disabled")
+    .Does(() =>
+{
+    if (BuildParameters.GetScriptsToVerify != null)
+    {
+        var powerShellVerifyScript = GetFiles("./tools/Chocolatey.Cake.Recipe*/Content/verify-powershell.ps1").FirstOrDefault();
+
+        if (powerShellVerifyScript == null)
+        {
+            Warning("Unable to find PowerShell verification script, so unable to verify PowerShell scripts.");
+            return;
+        }
+
+        var scriptsToVerify = new List<string>();
+        foreach (var filePath in BuildParameters.GetScriptsToVerify())
+        {
+            scriptsToVerify.Add(MakeAbsolute(filePath).FullPath);
+        }
+
+        StartPowershellFile(MakeAbsolute(powerShellVerifyScript), args =>
+        {
+            args.AppendArray("ScriptsToVerify", scriptsToVerify);
+        });
+    }
+    else
+    {
+        Information("There are no PowerShell Scripts defined to be verified.");
+    }
+});
+
 BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
     .WithCriteria(() => (!string.IsNullOrWhiteSpace(BuildParameters.CertificateFilePath) && FileExists(BuildParameters.CertificateFilePath)) || BuildSystem.IsRunningOnTeamCity, "Skipping because unable to find certificate, and not running on TeamCity")
     .WithCriteria(() => BuildParameters.ShouldAuthenticodeSignPowerShellScripts, "Skipping since authenticode signing of PowerShell scripts has been disabled")
@@ -39,6 +70,7 @@ BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
             StartPowershellFile(MakeAbsolute(powerShellSigningScript), args =>
             {
                 args.AppendArray("ScriptsToSign", scriptsToSign)
+                    .Append("OutputFolder", BuildParameters.Paths.Directories.SignedFiles.FullPath)
                     .Append("TimeStampServer", BuildParameters.CertificateTimestampUrl)
                     .AppendQuoted("CertificateSubjectName", BuildParameters.CertificateSubjectName)
                     .Append("CertificateAlgorithm", BuildParameters.CertificateAlgorithm);
@@ -53,11 +85,17 @@ BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
             StartPowershellFile(MakeAbsolute(powerShellSigningScript), args =>
                 {
                     args.AppendArray("ScriptsToSign", scriptsToSign)
+                        .Append("OutputFolder", BuildParameters.Paths.Directories.SignedFiles.FullPath)
                         .Append("TimeStampServer", BuildParameters.CertificateTimestampUrl)
                         .Append("CertificatePath", BuildParameters.CertificateFilePath)
                         .AppendSecret("CertificatePassword", password)
                         .Append("CertificateAlgorithm", BuildParameters.CertificateAlgorithm);
                 });
+        }
+
+        foreach (var signedFile in GetFiles(BuildParameters.Paths.Directories.SignedFiles + "/**/*"))
+        {
+            BuildParameters.BuildProvider.UploadArtifact(signedFile);
         }
     }
     else
