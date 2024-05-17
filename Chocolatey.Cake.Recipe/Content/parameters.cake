@@ -19,7 +19,8 @@ public enum BranchType
     HotFix,
     Release,
     Develop,
-    Master
+    Master,
+    Support
 }
 
 public static class BuildParameters
@@ -869,6 +870,10 @@ public static class BuildParameters
         else if (branchName != null && branchName.StartsWith("hotfix", StringComparison.OrdinalIgnoreCase))
         {
             BranchType = BranchType.HotFix;
+        }
+        else if (branchName != null && branchName.StartsWith("support", StringComparison.OrdinalIgnoreCase))
+        {
+            BranchType = BranchType.Support;
         }
         else
         {
