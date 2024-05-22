@@ -24,6 +24,10 @@ Param(
     $OutputFolder,
 
     [Parameter()]
+    [string]
+    $RootFolder,
+
+    [Parameter()]
     [String]
     $TimeStampServer,
 
@@ -61,21 +65,32 @@ if ($Cert) {
         'Cert'            = $Cert
     }
 
+    if (!$RootFolder) {
+      $RootFolder = Resolve-Path "./"
+    }
+
+    Push-Location $RootFolder
+
     foreach ($Script in $ScriptsToSign) {
         $ExistingSig = Get-AuthenticodeSignature -FilePath $Script
 
         if ($ExistingSig.Status -ne 'Valid' -or $ExistingSig.SignerCertificate.Issuer -notmatch 'DigiCert' -or $ExistingSig.SignerCertificate.NotAfter -lt [datetime]::Now) {
+            $relativePath = (Resolve-Path -Relative -LiteralPath $Script).TrimStart('.', '/', '\')
+            $destinationPath = Join-Path $OutputFolder $relativePath
+            $destinationFolder = Split-Path -Parent $destinationPath
             $NewSig = Set-AuthenticodeSignature -FilePath $Script @CommonSignParams
             Write-Host "Script file '$Script' signed with status: $($NewSig.Status)"
 
-            if (!(Test-Path -Path $OutputFolder)) {
-                $null = New-Item -Path $OutputFolder -Type Directory
+            if (!(Test-Path -Path $destinationFolder)) {
+                $null = New-Item -Path $destinationFolder -Type Directory -Force
             }
-            Copy-Item -Path $Script -Destination $OutputFolder
+            Copy-Item -Path $Script -Destination $destinationPath
         } else {
             Write-Host "Script file '$Script' does not need signing, current signature is valid."
         }
     }
+
+    Pop-Location
 } else {
     Write-Warning "Skipping script signing, no currently valid DigiCert issued Authenticode signing certificate matching '$($CertificateSubjectName)' was found."
 }
