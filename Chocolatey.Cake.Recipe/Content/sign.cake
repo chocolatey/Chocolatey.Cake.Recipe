@@ -97,10 +97,11 @@ BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
                 });
         }
 
-        foreach (var signedFile in GetFiles(BuildParameters.Paths.Directories.SignedFiles + "/**/*"))
-        {
-            BuildParameters.BuildProvider.UploadArtifact(signedFile);
-        }
+        var files = GetFiles(BuildParameters.Paths.Directories.SignedFiles + "/**/*") - GetFiles(BuildParameters.Paths.Directories.SignedFiles + "/**/*.zip");
+        var destination = BuildParameters.Paths.Directories.SignedFiles.CombineWithFilePath("SignedFiles.zip");
+        Zip(BuildParameters.Paths.Directories.SignedFiles, destination, files);
+
+        BuildParameters.BuildProvider.UploadArtifact(destination);
     }
     else
     {
