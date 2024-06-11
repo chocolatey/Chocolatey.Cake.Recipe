@@ -92,7 +92,7 @@ BuildParameters.Tasks.RestoreTask = Task("Restore")
 BuildParameters.Tasks.DotNetRestoreTask = Task("DotNetRestore")
     .WithCriteria(() => BuildParameters.IsDotNetBuild, "Skipping since running DotNet related tasks hasn't been selected in the recipe.cake file.")
     .IsDependentOn("Clean")
-    .Does(() =>
+    .Does(() => RequireTool(ToolSettings.WixTool, () =>
 {
     var msBuildSettings = new DotNetCoreMSBuildSettings()
                             .WithProperty("Version", BuildParameters.Version.SemVersion)
