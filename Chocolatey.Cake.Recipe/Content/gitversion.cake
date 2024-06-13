@@ -131,19 +131,21 @@ public class BuildVersion
 
         prerelease = assertedVersions.PreReleaseLabel;
 
-        // Having a pre-release label of greater than 10 characters can cause problems when trying to run choco pack.
-        // Since we typically only see this when building a local feature branch, or a PR, let's just trim it down to
-        // the 10 character limit, and move on.
-        if (prerelease.Length > 10)
-        {
-            prerelease = prerelease.Replace("-", string.Empty).Substring(0, 10);
-        }
+        prerelease = prerelease.Replace("-", string.Empty);
 
         // Chocolatey doesn't support a prerelease that starts with a digit.
         // If we see a digit here, merely replace it with an `a` to get around this.
         if (System.Text.RegularExpressions.Regex.Match(prerelease, @"^\d.*$").Success)
         {
-            prerelease = string.Format("a{0}", prerelease.Substring(1,9));
+            prerelease = string.Format("a{0}", prerelease);
+        }
+
+        // Having a pre-release label of greater than 10 characters can cause problems when trying to run choco pack.
+        // Since we typically only see this when building a local feature branch, or a PR, let's just trim it down to
+        // the 10 character limit, and move on.
+        if (prerelease.Length > 10)
+        {
+            prerelease = prerelease.Substring(0, 10);
         }
 
         sha = assertedVersions.Sha.Substring(0,8);
