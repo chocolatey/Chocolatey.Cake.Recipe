@@ -95,6 +95,9 @@ public static class BuildParameters
     public static string ChocolateyNupkgGlobbingPattern { get; private set; }
     public static string ChocolateyNuspecGlobbingPattern { get; private set; }
     public static string Configuration { get; private set; }
+    public static DependencyCheckDbCredentials DependencyCheckDb { get; private set; }
+    public static string DependencyCheckDbDriverName { get; private set; }
+    public static string DependencyCheckNvdApiKey { get; private set; }
     public static string DeploymentEnvironment { get; private set; }
     public static string DevelopBranchName { get; private set; }
     public static DiscordCredentials Discord { get; private set; }
@@ -247,6 +250,7 @@ public static class BuildParameters
         context.Information("ChocolateyNupkgGlobbingPattern: {0}", ChocolateyNupkgGlobbingPattern);
         context.Information("ChocolateyNuspecGlobbingPattern: {0}", ChocolateyNuspecGlobbingPattern);
         context.Information("Configuration: {0}", Configuration);
+        context.Information("DependencyCheckDbDriverName: {0}", BuildParameters.DependencyCheckDbDriverName);
         context.Information("ForceContinuousIntegration: {0}", ForceContinuousIntegration);
         context.Information("IntegrationTestAssemblyFilePattern: {0}", IntegrationTestAssemblyFilePattern);
         context.Information("IntegrationTestAssemblyProjectPattern: {0}", IntegrationTestAssemblyProjectPattern);
@@ -355,6 +359,7 @@ public static class BuildParameters
         string certificateSubjectName = null,
         string chocolateyNupkgGlobbingPattern = "/**/*.nupkg",
         string chocolateyNuspecGlobbingPattern = "/**/*.nuspec",
+        string dependencyCheckDbDriverName = null,
         string developBranchName = "develop",
         Func<BuildVersion, object[]> discordMessageArguments = null,
         FilePath fullReleaseNotesFilePath = null,
@@ -488,6 +493,9 @@ public static class BuildParameters
         ChocolateyNupkgGlobbingPattern = chocolateyNupkgGlobbingPattern;
         ChocolateyNuspecGlobbingPattern = chocolateyNuspecGlobbingPattern;
         Configuration = context.Argument("configuration", "Release");
+        DependencyCheckDb = GetDependencyCheckDbCredentials(context);
+        DependencyCheckDbDriverName = dependencyCheckDbDriverName ?? context.EnvironmentVariable(Environment.DependencyCheckDbDriverNameVariable) ?? "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+        DependencyCheckNvdApiKey = GetDependencyCheckNvdCredentials(context).ApiKey;
         Discord = GetDiscordCredentials(context);
         DiscordMessageArguments = discordMessageArguments ?? _defaultNotificationArguments;
         DockerCredentials = GetDockerCredentials(context);
@@ -852,7 +860,7 @@ public static class BuildParameters
         UnitTestAssemblyProjectPattern = unitTestAssemblyProjectPattern ?? "/**/*.[tT]ests/**/*.[tT]ests.csproj";
         UseChocolateyGuiStrongNameKey = useChocolateyGuiStrongNameKey;
 
-        SetBuildPaths(BuildPaths.GetPaths());
+        SetBuildPaths(BuildPaths.GetPaths(context));
 
         var branchName = BuildProvider.Repository.Branch;
         if (StringComparer.OrdinalIgnoreCase.Equals(masterBranchName, branchName))

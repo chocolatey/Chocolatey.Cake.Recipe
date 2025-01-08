@@ -55,11 +55,31 @@ BuildParameters.Tasks.DependencyCheckTask = Task("Dependency-Check")
         );
     };
 
+    if (!string.IsNullOrEmpty(BuildParameters.DependencyCheckNvdApiKey))
+    {
+        ReplaceTextInFiles(
+            BuildParameters.RootDirectoryPath.Combine("tools/DependencyCheck.Runner.Tool.3.2.1/tools/bin").CombineWithFilePath("dependency-check.bat").ToString(),
+            "%CMD_LINE_ARGS%",
+            string.Format("--nvdApiKey {0} %CMD_LINE_ARGS%", BuildParameters.DependencyCheckNvdApiKey)
+        );
+    };
+
     var DependencyCheckSettings = new DependencyCheckSettings {
         Project = BuildParameters.ProductName,
         Scan    = BuildParameters.SourceDirectoryPath.FullPath,
         Format  = "ALL",
         Out     = BuildParameters.Paths.Directories.DependencyCheckReports.FullPath
+    };
+
+    if (!string.IsNullOrEmpty(BuildParameters.DependencyCheckDb.ConnectionString) &&
+        !string.IsNullOrEmpty(BuildParameters.DependencyCheckDb.UserName) &&
+        !string.IsNullOrEmpty(BuildParameters.DependencyCheckDb.Password))
+    {
+        DependencyCheckSettings.ConnectionString   = BuildParameters.DependencyCheckDb.ConnectionString;
+        DependencyCheckSettings.DatabaseUser       = BuildParameters.DependencyCheckDb.UserName;
+        DependencyCheckSettings.DatabasePassword   = BuildParameters.DependencyCheckDb.Password;
+        DependencyCheckSettings.DatabaseDriverName = BuildParameters.DependencyCheckDbDriverName;
+        DependencyCheckSettings.DatabaseDriverPath = BuildParameters.Paths.Files.DependencyCheckDbDriverPath.ToString();
     };
 
     DependencyCheck(DependencyCheckSettings);

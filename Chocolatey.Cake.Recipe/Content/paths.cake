@@ -18,7 +18,7 @@ public class BuildPaths
     public BuildFiles Files { get; private set; }
     public BuildDirectories Directories { get; private set; }
 
-    public static BuildPaths GetPaths()
+    public static BuildPaths GetPaths(ICakeContext context)
     {
         // Directories
         var buildDirectoryPath             = "./code_drop";
@@ -49,7 +49,7 @@ public class BuildPaths
         var chocolateyPackagesOutputDirectory = packagesDirectory + "/Chocolatey";
 
         var dependencyCheckReportsDirectory = buildDirectoryPath + "/DependencyCheckReports";
-        
+
         var signedFilesDirectory = buildDirectoryPath + "/SignedFiles";
 
         // Files
@@ -57,6 +57,7 @@ public class BuildPaths
         var testCoverageOutputFilePath = ((DirectoryPath)testCoverageDirectory).CombineWithFilePath("OpenCover.xml");
         var solutionInfoFilePath = ((DirectoryPath)BuildParameters.SourceDirectoryPath).CombineWithFilePath("SolutionVersion.cs");
         var buildLogFilePath = ((DirectoryPath)buildDirectoryPath).CombineWithFilePath("MsBuild.log");
+        var dependencyCheckDbDriverPath = context.GetFiles("C:/Program Files/Microsoft JDBC DRIVER for SQL Server/sqljdbc_*/enu/mssql-jdbc-*.jre11.jar").FirstOrDefault();
         var dependencyCheckJsonReportFilePath = ((DirectoryPath)dependencyCheckReportsDirectory).CombineWithFilePath("dependency-check-report.json");
         var dependencyCheckHtmlReportFilePath = ((DirectoryPath)dependencyCheckReportsDirectory).CombineWithFilePath("dependency-check-report.html");
 
@@ -96,6 +97,7 @@ public class BuildPaths
             testCoverageOutputFilePath,
             solutionInfoFilePath,
             buildLogFilePath,
+            dependencyCheckDbDriverPath,
             dependencyCheckJsonReportFilePath,
             dependencyCheckHtmlReportFilePath
             );
@@ -119,6 +121,8 @@ public class BuildFiles
 
     public FilePath BuildLogFilePath { get; private set; }
 
+    public FilePath DependencyCheckDbDriverPath { get; private set; }
+
     public FilePath DependencyCheckJsonReportFilePath { get; private set; }
 
     public FilePath DependencyCheckHtmlReportFilePath { get; private set; }
@@ -129,6 +133,7 @@ public class BuildFiles
         FilePath testCoverageOutputFilePath,
         FilePath solutionInfoFilePath,
         FilePath buildLogFilePath,
+        FilePath dependencyCheckDbDriverPath,
         FilePath dependencyCheckJsonReportFilePath,
         FilePath dependencyCheckHtmlReportFilePath
         )
@@ -138,6 +143,7 @@ public class BuildFiles
         TestCoverageOutputFilePath = testCoverageOutputFilePath;
         SolutionInfoFilePath = solutionInfoFilePath;
         BuildLogFilePath = buildLogFilePath;
+        DependencyCheckDbDriverPath = dependencyCheckDbDriverPath;
         DependencyCheckJsonReportFilePath = dependencyCheckJsonReportFilePath;
         DependencyCheckHtmlReportFilePath = dependencyCheckHtmlReportFilePath;
     }
