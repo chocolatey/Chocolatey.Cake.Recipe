@@ -22,7 +22,7 @@ BuildParameters.Tasks.DependencyCheckTask = Task("Dependency-Check")
     .Does(() => RequireTool(ToolSettings.DependencyCheckTool, () =>
 {
     DownloadFile(
-        "https://github.com/jeremylong/DependencyCheck/releases/download/v8.2.1/dependency-check-8.2.1-release.zip",
+        "https://github.com/jeremylong/DependencyCheck/releases/download/v12.0.1/dependency-check-12.0.1-release.zip",
         BuildParameters.RootDirectoryPath.CombineWithFilePath("dependency-check.zip")
     );
 
@@ -49,7 +49,7 @@ BuildParameters.Tasks.DependencyCheckTask = Task("Dependency-Check")
     if (ToolSettings.DependencyCheckDisableYarnAudit)
     {
         ReplaceTextInFiles(
-            BuildParameters.RootDirectoryPath.Combine("tools/DependencyCheck.Runner.Tool.3.2.1/tools/bin").CombineWithFilePath("dependency-check.bat").ToString(), 
+            BuildParameters.RootDirectoryPath.Combine("tools/DependencyCheck.Runner.Tool.3.2.1/tools/bin").CombineWithFilePath("dependency-check.bat").ToString(),
             "org.owasp.dependencycheck.App %CMD_LINE_ARGS%",
             "org.owasp.dependencycheck.App --disableYarnAudit %CMD_LINE_ARGS%"
         );
