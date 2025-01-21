@@ -16,6 +16,11 @@
 public static class Environment
 {
     public static string DefaultPushSourceUrlVariable { get; private set; }
+    public static string DependencyCheckDbConnectionStringVariable { get; private set; }
+    public static string DependencyCheckDbDriverNameVariable { get; private set; }
+    public static string DependencyCheckDbPasswordVariable { get; private set; }
+    public static string DependencyCheckDbUserVariable { get; private set; }
+    public static string DependencyCheckNvdApiKeyVariable { get; private set; }
     public static string DiscordWebHookUrlVariable { get; private set; }
     public static string DiscordUserNameVariable { get; private set; }
     public static string DiscordAvatarUrlVariable { get; private set; }
@@ -38,6 +43,11 @@ public static class Environment
 
     public static void SetVariableNames(
         string defaultPushSourceUrlVariable = null,
+        string dependencyCheckDbConnectionStringVariable = null,
+        string dependencyCheckDbDriverNameVariable = null,
+        string dependencyCheckDbPasswordVariable = null,
+        string dependencyCheckDbUserVariable = null,
+        string dependencyCheckNvdApiKeyVariable = null,
         string discordWebHookUrlVariable = null,
         string discordUserNameVariable = null,
         string discordAvatarUrlVariable = null,
@@ -59,6 +69,11 @@ public static class Environment
         string dockerServerVariable = null)
     {
         DefaultPushSourceUrlVariable = defaultPushSourceUrlVariable ?? "NUGETDEVPUSH_SOURCE";
+        DependencyCheckDbConnectionStringVariable = dependencyCheckDbConnectionStringVariable ?? "DEPENDENCYCHECK_DB_CONNECTIONSTRING";
+        DependencyCheckDbDriverNameVariable = dependencyCheckDbDriverNameVariable ?? "DEPENDENCYCHECK_DB_DRIVERNAME";
+        DependencyCheckDbPasswordVariable = dependencyCheckDbPasswordVariable ?? "DEPENDENCYCHECK_DB_PASSWORD";
+        DependencyCheckDbUserVariable = dependencyCheckDbUserVariable ?? "DEPENDENCYCHECK_DB_USER";
+        DependencyCheckNvdApiKeyVariable = dependencyCheckNvdApiKeyVariable ?? "DEPENDENCYCHECK_NVD_API_KEY";
         DiscordWebHookUrlVariable = discordWebHookUrlVariable ?? "DISCORD_WEBHOOKURL";
         DiscordUserNameVariable = discordUserNameVariable ?? "DISCORD_USERNAME";
         DiscordAvatarUrlVariable = discordAvatarUrlVariable ?? "DISCORD_AVATARURL";
