@@ -1,4 +1,4 @@
-// Copyright © 2022 Chocolatey Software, Inc
+// Copyright © 2025 Chocolatey Software, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,11 +25,11 @@ BuildParameters.Tasks.CreateReleaseNotesTask = Task("Create-Release-Notes")
             {
                 Milestone         = BuildParameters.Version.Milestone,
                 Name              = BuildParameters.Version.Milestone,
-                TargetCommitish   = BuildParameters.MasterBranchName,
+                TargetCommitish   = Context.Argument("target-branch", BuildParameters.MasterBranchName),
                 Prerelease        = Context.HasArgument("create-pre-release")
             };
 
-            if (settings.Prerelease)
+            if (!Context.HasArgument("target-branch") && (settings.Prerelease || BuildParameters.BranchType == BranchType.Support))
             {
                 settings.TargetCommitish = BuildParameters.BuildProvider.Repository.Branch;
             }
