@@ -36,6 +36,12 @@ BuildParameters.Tasks.VerifyPowerShellScriptsTask = Task("Verify-PowerShellScrip
             scriptsToVerify.Add(MakeAbsolute(filePath).FullPath);
         }
 
+        if (scriptsToVerify.Count == 0)
+        {
+            Information("There are no PowerShell Scripts defined to be verified.");
+            return;
+        }
+
         StartPowershellFile(MakeAbsolute(powerShellVerifyScript), args =>
         {
             args.AppendArray("ScriptsToVerify", scriptsToVerify);
@@ -69,6 +75,12 @@ BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
             scriptsToSign.Add(MakeAbsolute(filePath).FullPath);
         }
 
+        if (scriptsToSign.Count == 0)
+        {
+            Warning("Unable to find PowerShell signing script, so unable to sign PowerShell scripts.");
+            return;
+        }
+
         if (BuildSystem.IsRunningOnTeamCity)
         {
             StartPowershellFile(MakeAbsolute(powerShellSigningScript), args =>
@@ -99,6 +111,14 @@ BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
 
         var files = GetFiles(BuildParameters.Paths.Directories.SignedFiles + "/**/*") - GetFiles(BuildParameters.Paths.Directories.SignedFiles + "/**/*.zip");
         var destination = BuildParameters.Paths.Directories.SignedFiles.CombineWithFilePath("SignedFiles.zip");
+
+        if (files.Count == 0 || !FileExists(destination))
+        {
+            Information("No PowerShell scripts found, or all PowerShell scripts have already been signed.");
+            return;
+        }
+
+
         Zip(BuildParameters.Paths.Directories.SignedFiles, destination, files);
 
         BuildParameters.BuildProvider.UploadArtifact(destination);
