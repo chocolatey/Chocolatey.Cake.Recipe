@@ -120,14 +120,20 @@ public void SendMessageToTwitter(string message)
 BuildParameters.Tasks.SendNotificationsTask = Task("Send-Notifications")
     .Does(() => 
 {
+    bool dryRun = Context.Argument("dry-run", false);
+
     if (FileExists("./.notifications/discord.txt"))
     {
-        if (BuildParameters.CanPostToDiscord && BuildParameters.ShouldPostToDiscord)
+        var formattedMessage = System.IO.File.ReadAllText("./.notifications/discord.txt");
+        var messageArguments = BuildParameters.DiscordMessageArguments(BuildParameters.Version);
+
+        if (dryRun)
         {
-            var formattedMessage = System.IO.File.ReadAllText("./.notifications/discord.txt");
-            var messageArguments = BuildParameters.DiscordMessageArguments(BuildParameters.Version);
-            
-            //Information(formattedMessage, messageArguments);
+            Warning("Would have sent the following to Discord:");
+            Information(formattedMessage, messageArguments);
+        }
+        else if (BuildParameters.CanPostToDiscord && BuildParameters.ShouldPostToDiscord)
+        {
             SendMessageToDiscord(string.Format(formattedMessage, messageArguments));
         }
         else
@@ -142,12 +148,16 @@ BuildParameters.Tasks.SendNotificationsTask = Task("Send-Notifications")
 
     if (FileExists("./.notifications/mastodon.txt"))
     {
-        if (BuildParameters.CanPostToMastodon && BuildParameters.ShouldPostToMastodon)
-        {
-            var formattedMessage = System.IO.File.ReadAllText("./.notifications/mastodon.txt");
-            var messageArguments = BuildParameters.MastodonMessageArguments(BuildParameters.Version);
+        var formattedMessage = System.IO.File.ReadAllText("./.notifications/mastodon.txt");
+        var messageArguments = BuildParameters.MastodonMessageArguments(BuildParameters.Version);
 
-            //Information(formattedMessage, messageArguments);
+        if (dryRun)
+        {
+            Warning("Would have sent the following to Mastodon:");
+            Information(formattedMessage, messageArguments);
+        }
+        else if (BuildParameters.CanPostToMastodon && BuildParameters.ShouldPostToMastodon)
+        {
             SendMessageToMastodon(string.Format(formattedMessage, messageArguments));
         }
         else
@@ -162,12 +172,16 @@ BuildParameters.Tasks.SendNotificationsTask = Task("Send-Notifications")
 
     if (FileExists("./.notifications/slack.txt"))
     {
-        if (BuildParameters.CanPostToSlack && BuildParameters.ShouldPostToSlack)
-        {
-            var formattedMessage = System.IO.File.ReadAllText("./.notifications/slack.txt");
-            var messageArguments = BuildParameters.SlackMessageArguments(BuildParameters.Version);
+        var formattedMessage = System.IO.File.ReadAllText("./.notifications/slack.txt");
+        var messageArguments = BuildParameters.SlackMessageArguments(BuildParameters.Version);
 
-            //Information(formattedMessage, messageArguments);
+        if (dryRun)
+        {
+            Warning("Would have sent the following to Slack:");
+            Information(formattedMessage, messageArguments);
+        }
+        else if (BuildParameters.CanPostToSlack && BuildParameters.ShouldPostToSlack)
+        {
             SendMessageToSlackChannel(string.Format(formattedMessage, messageArguments));
         }
         else
@@ -182,12 +196,16 @@ BuildParameters.Tasks.SendNotificationsTask = Task("Send-Notifications")
 
     if (FileExists("./.notifications/twitter.txt"))
     {
-        if (BuildParameters.CanPostToTwitter && BuildParameters.ShouldPostToTwitter)
-        {
-            var formattedMessage = System.IO.File.ReadAllText("./.notifications/twitter.txt");
-            var messageArguments = BuildParameters.TwitterMessageArguments(BuildParameters.Version);
+        var formattedMessage = System.IO.File.ReadAllText("./.notifications/twitter.txt");
+        var messageArguments = BuildParameters.TwitterMessageArguments(BuildParameters.Version);
 
-            //Information(formattedMessage, messageArguments);
+        if (dryRun)
+        {
+            Warning("Would have sent the following to Twitter:");
+            Information(formattedMessage, messageArguments);
+        }
+        else if (BuildParameters.CanPostToTwitter && BuildParameters.ShouldPostToTwitter)
+        {
             SendMessageToTwitter(string.Format(formattedMessage, messageArguments));
         }
         else
