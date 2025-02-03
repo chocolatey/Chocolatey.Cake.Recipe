@@ -137,7 +137,7 @@ BuildParameters.Tasks.SendNotificationsTask = Task("Send-Notifications")
     }
     else
     {
-        Information("Skipping sending notiifation to Discord, since input template file does not exist.");
+        Information("Skipping sending notification to Discord, since input template file does not exist.");
     }
 
     if (FileExists("./.notifications/mastodon.txt"))
@@ -157,7 +157,7 @@ BuildParameters.Tasks.SendNotificationsTask = Task("Send-Notifications")
     }
     else
     {
-        Information("Skipping sending notiifation to Mastodon, since input template file does not exist.");
+        Information("Skipping sending notification to Mastodon, since input template file does not exist.");
     }
 
     if (FileExists("./.notifications/slack.txt"))
@@ -177,7 +177,7 @@ BuildParameters.Tasks.SendNotificationsTask = Task("Send-Notifications")
     }
     else
     {
-        Information("Skipping sending notiifation to Slack, since input template file does not exist.");
+        Information("Skipping sending notification to Slack, since input template file does not exist.");
     }
 
     if (FileExists("./.notifications/twitter.txt"))
@@ -197,6 +197,6 @@ BuildParameters.Tasks.SendNotificationsTask = Task("Send-Notifications")
     }
     else
     {
-        Information("Skipping sending notiifation to Twitter, since input template file does not exist.");
+        Information("Skipping sending notification to Twitter, since input template file does not exist.");
     }
 });
