@@ -27,17 +27,7 @@ public static class BuildParameters
 {
     private static Func<BuildVersion, object[]> _defaultNotificationArguments = (x) =>
     {
-        var firstPortionOfQueryString = string.Empty;
-
-        if (x.PackageVersion.Contains("-"))
-        {
-            var betaVersionNumber = x.PackageVersion.Substring(x.PackageVersion.IndexOf('-') + 1);
-            firstPortionOfQueryString = betaVersionNumber + "-";
-        }
-
-        var dateForQueryString = DateTime.Now.ToString("MMMMM-d-yyyy").ToLower();
-
-        var arguments = new object[] { x.PackageVersion, string.Format("{0}{1}", firstPortionOfQueryString, dateForQueryString) };
+        var arguments = new object[] { x.PackageVersion, string.Format("v{0}", x.PackageVersion) };
         return arguments;
     };
 
