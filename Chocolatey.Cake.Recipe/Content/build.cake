@@ -98,7 +98,8 @@ BuildParameters.Tasks.DotNetRestoreTask = Task("DotNetRestore")
                             .WithProperty("Version", BuildParameters.Version.SemVersion)
                             .WithProperty("AssemblyVersion", BuildParameters.Version.FileVersion)
                             .WithProperty("FileVersion",  BuildParameters.Version.FileVersion)
-                            .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion);
+                            .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion)
+                            .WithProperty("Copyright", BuildParameters.ProductCopyright);
 
     if (BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
     {
@@ -187,7 +188,8 @@ BuildParameters.Tasks.DotNetBuildTask = Task("DotNetBuild")
                             .WithProperty("Version", BuildParameters.Version.SemVersion)
                             .WithProperty("AssemblyVersion", BuildParameters.Version.FileVersion)
                             .WithProperty("FileVersion",  BuildParameters.Version.FileVersion)
-                            .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion);
+                            .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion)
+                            .WithProperty("Copyright", BuildParameters.ProductCopyright);
 
         if (BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
         {
@@ -346,7 +348,8 @@ public void CopyBuildOutput()
                             .WithProperty("Version", BuildParameters.Version.SemVersion)
                             .WithProperty("AssemblyVersion", BuildParameters.Version.FileVersion)
                             .WithProperty("FileVersion",  BuildParameters.Version.FileVersion)
-                            .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion);
+                            .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion)
+                            .WithProperty("Copyright", BuildParameters.ProductCopyright);
 
                 if (BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
                 {
@@ -408,7 +411,8 @@ public void CopyBuildOutput()
                             .WithProperty("Version", BuildParameters.Version.SemVersion)
                             .WithProperty("AssemblyVersion", BuildParameters.Version.FileVersion)
                             .WithProperty("FileVersion",  BuildParameters.Version.FileVersion)
-                            .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion);
+                            .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion)
+                            .WithProperty("Copyright", BuildParameters.ProductCopyright);
 
                 if (BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
                 {
