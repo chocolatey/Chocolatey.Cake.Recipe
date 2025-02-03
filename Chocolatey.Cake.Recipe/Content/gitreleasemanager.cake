@@ -83,7 +83,7 @@ BuildParameters.Tasks.ExportReleaseNotesTask = Task("Export-Release-Notes")
     })
 );
 
-BuildParameters.Tasks.PublishGitHubReleaseTask = Task("Publish-GitHub-Release")
+BuildParameters.Tasks.PublishReleaseNotesTask = Task("Publish-Release-Notes")
     .WithCriteria(() => BuildParameters.BranchType == BranchType.Master || BuildParameters.BranchType == BranchType.Release || BuildParameters.BranchType == BranchType.HotFix, "Skipping because this is not a releasable branch")
     .WithCriteria(() => BuildParameters.IsTagged, "Skipping because this is not a tagged build")
     .Does(() => RequireTool(BuildParameters.IsDotNetBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.GitReleaseManagerGlobalTool : ToolSettings.GitReleaseManagerTool, () => {
