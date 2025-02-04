@@ -14,6 +14,8 @@
 // limitations under the License.
 
 BuildParameters.Tasks.ILMergeTask = Task("Run-ILMerge")
+    .IsDependentOn("Build")
+    .IsDependentOn("Test")
     .IsDependeeOf("Copy-Nuspec-Folders")
     .WithCriteria(() => BuildParameters.ShouldRunILMerge, "Skipping because ILMerge is not enabled")
     .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping because not running on Windows")
