@@ -1,4 +1,4 @@
-// Copyright © 2022 Chocolatey Software, Inc
+// Copyright © 2025 Chocolatey Software, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,11 +25,11 @@ BuildParameters.Tasks.CreateReleaseNotesTask = Task("Create-Release-Notes")
             {
                 Milestone         = BuildParameters.Version.Milestone,
                 Name              = BuildParameters.Version.Milestone,
-                TargetCommitish   = BuildParameters.MasterBranchName,
+                TargetCommitish   = Context.Argument("target-branch", BuildParameters.MasterBranchName),
                 Prerelease        = Context.HasArgument("create-pre-release")
             };
 
-            if (settings.Prerelease)
+            if (!Context.HasArgument("target-branch") && (settings.Prerelease || BuildParameters.BranchType == BranchType.Support))
             {
                 settings.TargetCommitish = BuildParameters.BuildProvider.Repository.Branch;
             }
@@ -83,10 +83,13 @@ BuildParameters.Tasks.ExportReleaseNotesTask = Task("Export-Release-Notes")
     })
 );
 
-BuildParameters.Tasks.PublishGitHubReleaseTask = Task("Publish-GitHub-Release")
-    .WithCriteria(() => BuildParameters.BranchType == BranchType.Master || BuildParameters.BranchType == BranchType.Release || BuildParameters.BranchType == BranchType.HotFix, "Skipping because this is not a releasable branch")
+BuildParameters.Tasks.PublishReleaseNotesTask = Task("Publish-Release-Notes")
+    .WithCriteria(() => BuildParameters.BranchType == BranchType.Master || BuildParameters.BranchType == BranchType.Release || BuildParameters.BranchType == BranchType.HotFix || BuildParameters.BranchType == BranchType.Support, "Skipping because this is not a releasable branch")
     .WithCriteria(() => BuildParameters.IsTagged, "Skipping because this is not a tagged build")
     .Does(() => RequireTool(BuildParameters.IsDotNetBuild || BuildParameters.PreferDotNetGlobalToolUsage ? ToolSettings.GitReleaseManagerGlobalTool : ToolSettings.GitReleaseManagerTool, () => {
+        var tagName = BuildParameters.Version.Milestone;
+        Information("Using Tag Name '{0}' for publishing.", tagName);
+
         if (BuildParameters.CanRunGitReleaseManager)
         {
             // If we are running on GitLab, then we need to actually publish the Release,
@@ -99,7 +102,7 @@ BuildParameters.Tasks.PublishGitHubReleaseTask = Task("Publish-GitHub-Release")
                     ArgumentCustomization = args => args.Append("--provider GitLab")
                 };
 
-                GitReleaseManagerPublish(BuildParameters.GitReleaseManager.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, BuildParameters.Version.Milestone, publishSettings);
+                GitReleaseManagerPublish(BuildParameters.GitReleaseManager.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, tagName, publishSettings);
             }
 
             // Next up, we close the milestone, which based on configuration, may add comments
@@ -111,7 +114,7 @@ BuildParameters.Tasks.PublishGitHubReleaseTask = Task("Publish-GitHub-Release")
                 closeSettings.ArgumentCustomization = args => args.Append("--provider GitLab");
             }
 
-            GitReleaseManagerClose(BuildParameters.GitReleaseManager.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, BuildParameters.Version.Milestone, closeSettings);
+            GitReleaseManagerClose(BuildParameters.GitReleaseManager.Token, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, tagName, closeSettings);
         }
         else
         {

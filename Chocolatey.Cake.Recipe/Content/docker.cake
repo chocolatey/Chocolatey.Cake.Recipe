@@ -66,7 +66,7 @@ BuildParameters.Tasks.DockerPush = Task("DockerPush")
 });
 
 BuildParameters.Tasks.DockerTagAsLatest = Task("DockerTagAsLatest")
-    .WithCriteria(() => BuildParameters.IsTagged && BuildParameters.Version.MajorMinorPatch == BuildParameters.Version.FullSemVersion, "Skipping because this isn't a tagged full release build.")
+    .WithCriteria(() => BuildParameters.BranchType == BranchType.Master && BuildParameters.IsTagged && BuildParameters.Version.MajorMinorPatch == BuildParameters.Version.FullSemVersion, "Skipping because this isn't a tagged full release build.")
     .WithCriteria(() => BuildParameters.DockerCredentials.HasCredentials, "Skipping because Docker Credentials were not provided.")
     .WithCriteria(() => BuildParameters.ShouldRunDocker, "Skipping because running Docker tasks is not enabled")
     .IsDependentOn("DockerLogin")
@@ -116,14 +116,16 @@ BuildParameters.Tasks.DockerManifest = Task("DockerManifest")
 
     DockerManifestPush(manifestListName);
 
-    // Create the latest manifest
-    DockerManifestCreate(
-        string.Format("{0}/{1}:latest", BuildParameters.RepositoryOwner, BuildParameters.RepositoryName),
-        string.Format("{0}/{1}:latest-windows", BuildParameters.RepositoryOwner, BuildParameters.RepositoryName),
-        new string[] {
-            string.Format("{0}/{1}:latest-linux", BuildParameters.RepositoryOwner, BuildParameters.RepositoryName)
-        }
-    );
+    // Create the latest manifest only if this is the master branch.
+    if (BuildParameters.BranchType == BranchType.Master) {
+        DockerManifestCreate(
+            string.Format("{0}/{1}:latest", BuildParameters.RepositoryOwner, BuildParameters.RepositoryName),
+            string.Format("{0}/{1}:latest-windows", BuildParameters.RepositoryOwner, BuildParameters.RepositoryName),
+            new string[] {
+                string.Format("{0}/{1}:latest-linux", BuildParameters.RepositoryOwner, BuildParameters.RepositoryName)
+            }
+        );
 
-    DockerManifestPush(string.Format("{0}/{1}:latest", BuildParameters.RepositoryOwner, BuildParameters.RepositoryName));
+        DockerManifestPush(string.Format("{0}/{1}:latest", BuildParameters.RepositoryOwner, BuildParameters.RepositoryName));
+    }
 });

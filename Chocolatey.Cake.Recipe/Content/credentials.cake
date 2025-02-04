@@ -49,6 +49,30 @@ public class MastodonCredentials
     }
 }
 
+public class DependencyCheckNvdCredentials
+{
+    public string ApiKey { get; private set; }
+
+    public DependencyCheckNvdCredentials(string apiKey)
+    {
+        ApiKey = apiKey;
+    }
+}
+
+public class DependencyCheckDbCredentials
+{
+    public string ConnectionString { get; private set; }
+    public string UserName { get; private set; }
+    public string Password { get; private set; }
+
+    public DependencyCheckDbCredentials(string connectionString, string userName, string password)
+    {
+        ConnectionString = connectionString;
+        UserName = userName;
+        Password = password;
+    }
+}
+
 public class SlackCredentials
 {
     public string Channel { get; private set; }
@@ -154,6 +178,22 @@ public static MastodonCredentials GetMastodonCredentials(ICakeContext context)
     return new MastodonCredentials(
         context.EnvironmentVariable(Environment.MastodonTokenVariable),
         context.EnvironmentVariable(Environment.MastodonHostNameVariable)
+    );
+}
+
+public static DependencyCheckNvdCredentials GetDependencyCheckNvdCredentials(ICakeContext context)
+{
+    return new DependencyCheckNvdCredentials(
+        context.EnvironmentVariable(Environment.DependencyCheckNvdApiKeyVariable)
+    );
+}
+
+public static DependencyCheckDbCredentials GetDependencyCheckDbCredentials(ICakeContext context)
+{
+    return new DependencyCheckDbCredentials(
+        context.EnvironmentVariable(Environment.DependencyCheckDbConnectionStringVariable),
+        context.EnvironmentVariable(Environment.DependencyCheckDbUserVariable),
+        context.EnvironmentVariable(Environment.DependencyCheckDbPasswordVariable)
     );
 }
 

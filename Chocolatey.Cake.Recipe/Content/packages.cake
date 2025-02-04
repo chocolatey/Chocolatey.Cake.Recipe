@@ -51,7 +51,8 @@ BuildParameters.Tasks.CreateChocolateyPackagesTask = Task("Create-Chocolatey-Pac
             AllowUnofficial = true,
             Version = BuildParameters.Version.PackageVersion,
             OutputDirectory = BuildParameters.Paths.Directories.ChocolateyPackages,
-            WorkingDirectory = BuildParameters.Paths.Directories.PublishedApplications
+            WorkingDirectory = BuildParameters.Paths.Directories.PublishedApplications,
+            Copyright = BuildParameters.ProductCopyright
         });
     }
 });
@@ -80,7 +81,8 @@ BuildParameters.Tasks.CreateNuGetPackagesTask = Task("Create-NuGet-Packages")
                 BasePath = BuildParameters.Paths.Directories.PublishedLibraries.Combine(nuspecFile.GetFilenameWithoutExtension().ToString()),
                 OutputDirectory = BuildParameters.Paths.Directories.NuGetPackages,
                 Symbols = false,
-                NoPackageAnalysis = true
+                NoPackageAnalysis = true,
+                Copyright = BuildParameters.ProductCopyright
             });
 
             continue;
@@ -94,7 +96,8 @@ BuildParameters.Tasks.CreateNuGetPackagesTask = Task("Create-NuGet-Packages")
                 BasePath = BuildParameters.Paths.Directories.PublishedApplications.Combine(nuspecFile.GetFilenameWithoutExtension().ToString()),
                 OutputDirectory = BuildParameters.Paths.Directories.NuGetPackages,
                 Symbols = false,
-                NoPackageAnalysis = true
+                NoPackageAnalysis = true,
+                Copyright = BuildParameters.ProductCopyright
             });
 
             continue;
@@ -105,7 +108,8 @@ BuildParameters.Tasks.CreateNuGetPackagesTask = Task("Create-NuGet-Packages")
             Version = BuildParameters.Version.PackageVersion,
             OutputDirectory = BuildParameters.Paths.Directories.NuGetPackages,
             Symbols = false,
-            NoPackageAnalysis = true
+            NoPackageAnalysis = true,
+            Copyright = BuildParameters.ProductCopyright
         });
     }
 });
@@ -132,7 +136,8 @@ BuildParameters.Tasks.DotNetPackTask = Task("DotNetPack")
                             .WithProperty("Version", BuildParameters.Version.PackageVersion)
                             .WithProperty("AssemblyVersion", BuildParameters.Version.FileVersion)
                             .WithProperty("FileVersion",  BuildParameters.Version.FileVersion)
-                            .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion);
+                            .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion)
+                            .WithProperty("Copyright", BuildParameters.ProductCopyright);
 
     if (BuildParameters.ShouldBuildNuGetSourcePackage)
     {
