@@ -32,6 +32,7 @@ public class BuildTasks
     public CakeTaskBuilder DefaultTask { get; set; }
     public CakeTaskBuilder ContinuousIntegrationTask { get; set; }
     public CakeTaskBuilder BuildMsiTask { get; set; }
+    public CakeTaskBuilder InitTask { get; set; }
 
     // Analysing Tasks
     public CakeTaskBuilder InspectCodeTask { get; set; }
