@@ -17,6 +17,7 @@ BuildParameters.Tasks.ObfuscateAssembliesTask = Task("Obfuscate-Assemblies")
     .WithCriteria(() => BuildParameters.ShouldObfuscateOutputAssemblies, "Skipping since obfuscating output assemblies has been disabled")
     .Does(() =>
 {
+    List<string> exceptions = new List<string>();
     if (BuildParameters.GetFilesToObfuscate != null)
     {
         var settings = new EazfuscatorNetSettings();
@@ -61,7 +62,11 @@ BuildParameters.Tasks.ObfuscateAssembliesTask = Task("Obfuscate-Assemblies")
                     settings.MSBuildProjectPath = msbuildPathFilePath;
                 }
 
-                EazfuscatorNet(file, settings);
+                try {
+                    EazfuscatorNet(file, settings);
+                } catch {
+                    exceptions.Add(fileName.ToString());
+                }
             }
         }
         else
@@ -78,5 +83,10 @@ BuildParameters.Tasks.ObfuscateAssembliesTask = Task("Obfuscate-Assemblies")
     else
     {
         Information("There are no files defined to be obfuscated.");
+    }
+
+    if (exceptions.Count != 0) {
+        Error("Failed to obfuscate projects: {0}", exceptions.Join(", "));
+        throw new ApplicationException("Obfuscation failed");
     }
 });
