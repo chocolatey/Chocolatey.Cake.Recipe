@@ -594,6 +594,8 @@ public class Builder
         BuildParameters.Tasks.InspectCodeTask.IsDependentOn(prefix + "Build");
         BuildParameters.Tasks.ConfigurationBuilderTask.IsDependentOn(prefix + "Build");
         BuildParameters.Tasks.TestTask.IsDependentOn(prefix + "Build");
+        BuildParameters.Tasks.ILMergeTask.IsDependentOn(prefix + "Build");
+        BuildParameters.Tasks.ILMergeTask.IsDependentOn(prefix + "Test");
 
         BuildParameters.Tasks.InitializeSonarQubeTask.IsDependeeOf(prefix + "Build");
         BuildParameters.Tasks.FinaliseSonarQubeTask.IsDependentOn(prefix + "Build");
