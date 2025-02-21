@@ -186,6 +186,7 @@ BuildParameters.Tasks.DotNetBuildTask = Task("DotNetBuild")
 
         var msBuildSettings = new DotNetCoreMSBuildSettings()
                             .WithProperty("Version", BuildParameters.Version.SemVersion)
+                            .WithProperty("TreatWarningsAsErrors", BuildParameters.TreatWarningsAsErrors.ToString())
                             .WithProperty("AssemblyVersion", BuildParameters.Version.FileVersion)
                             .WithProperty("FileVersion",  BuildParameters.Version.FileVersion)
                             .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion)
