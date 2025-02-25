@@ -22,7 +22,7 @@ BuildParameters.Tasks.DependencyCheckTask = Task("Dependency-Check")
     .Does(() => RequireTool(ToolSettings.DependencyCheckTool, () =>
 {
     DownloadFile(
-        "https://github.com/jeremylong/DependencyCheck/releases/download/v12.0.1/dependency-check-12.0.1-release.zip",
+        "https://github.com/dependency-check/DependencyCheck/releases/download/v12.1.0/dependency-check-12.1.0-release.zip",
         BuildParameters.RootDirectoryPath.CombineWithFilePath("dependency-check.zip")
     );
 
