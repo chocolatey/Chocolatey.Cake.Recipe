@@ -74,6 +74,12 @@ BuildParameters.Tasks.CleanTask = Task("Clean")
     CleanDirectories(BuildParameters.Paths.Directories.ToClean);
 });
 
+BuildParameters.Tasks.InitTask = Task("Init")
+    .Does(() =>
+{
+    Information("Initialization");
+});
+
 BuildParameters.Tasks.RestoreTask = Task("Restore")
     .IsDependentOn("Clean")
     .Does(() =>
