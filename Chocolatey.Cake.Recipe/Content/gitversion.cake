@@ -52,14 +52,15 @@ public class BuildVersion
             };
         }
 
-        try
-        {
-            context.Information("Testing to see if valid git repository...");
+        context.Information("Testing to see if valid git repository...");
 
-            var rootPath = BuildParameters.RootDirectoryPath;
+        var rootPath = BuildParameters.RootDirectoryPath;
+        
+        if (context.GitIsValidRepository(rootPath))
+        {
             rootPath = context.GitFindRootFromPath(rootPath);
         }
-        catch (LibGit2Sharp.RepositoryNotFoundException)
+        else
         {
             context.Warning("Unable to locate git repository, so GitVersion can't be executed, returning default version numbers...");
 
