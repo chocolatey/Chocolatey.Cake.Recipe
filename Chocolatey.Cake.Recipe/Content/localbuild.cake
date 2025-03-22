@@ -68,7 +68,7 @@ public class LocalBuildRepositoryInfo : IRepositoryInfo
 {
     public LocalBuildRepositoryInfo(ICakeContext context)
     {
-        context.Information("Testing to see if valid git repository...");
+        context.Information("Testing to see if valid git repository for LocalBuild setup...");
 
         if (context.GitIsValidRepository(context.MakeAbsolute(context.Environment.WorkingDirectory)))
         {
