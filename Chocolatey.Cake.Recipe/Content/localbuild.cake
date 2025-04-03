@@ -68,9 +68,10 @@ public class LocalBuildRepositoryInfo : IRepositoryInfo
 {
     public LocalBuildRepositoryInfo(ICakeContext context)
     {
-        try
+        context.Information("Testing to see if valid git repository for LocalBuild setup...");
+
+        if (context.GitIsValidRepository(context.MakeAbsolute(context.Environment.WorkingDirectory)))
         {
-            context.Information("Testing to see if valid git repository...");
 
             // Normally, would use BuildParameters.RootDirectoryPath here, but since
             // BuildProvider is executed before the Setup Task has executed, this property
@@ -143,7 +144,7 @@ public class LocalBuildRepositoryInfo : IRepositoryInfo
                 Tag = new LocalBuildTagInfo(context);
             }
         }
-        catch (LibGit2Sharp.RepositoryNotFoundException)
+        else
         {
             context.Warning("Unable to locate git repository, setting default values for repository properties...");
 

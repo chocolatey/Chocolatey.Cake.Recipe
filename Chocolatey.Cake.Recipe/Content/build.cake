@@ -74,6 +74,12 @@ BuildParameters.Tasks.CleanTask = Task("Clean")
     CleanDirectories(BuildParameters.Paths.Directories.ToClean);
 });
 
+BuildParameters.Tasks.InitTask = Task("Init")
+    .Does(() =>
+{
+    Information("Initialization");
+});
+
 BuildParameters.Tasks.RestoreTask = Task("Restore")
     .IsDependentOn("Clean")
     .Does(() =>
@@ -186,6 +192,7 @@ BuildParameters.Tasks.DotNetBuildTask = Task("DotNetBuild")
 
         var msBuildSettings = new DotNetCoreMSBuildSettings()
                             .WithProperty("Version", BuildParameters.Version.SemVersion)
+                            .WithProperty("TreatWarningsAsErrors", BuildParameters.TreatWarningsAsErrors.ToString())
                             .WithProperty("AssemblyVersion", BuildParameters.Version.FileVersion)
                             .WithProperty("FileVersion",  BuildParameters.Version.FileVersion)
                             .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion)
@@ -593,6 +600,8 @@ public class Builder
         BuildParameters.Tasks.InspectCodeTask.IsDependentOn(prefix + "Build");
         BuildParameters.Tasks.ConfigurationBuilderTask.IsDependentOn(prefix + "Build");
         BuildParameters.Tasks.TestTask.IsDependentOn(prefix + "Build");
+        BuildParameters.Tasks.ILMergeTask.IsDependentOn(prefix + "Build");
+        BuildParameters.Tasks.ILMergeTask.IsDependentOn(prefix + "Test");
 
         BuildParameters.Tasks.InitializeSonarQubeTask.IsDependeeOf(prefix + "Build");
         BuildParameters.Tasks.FinaliseSonarQubeTask.IsDependentOn(prefix + "Build");
