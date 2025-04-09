@@ -65,7 +65,7 @@ BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
 
         if (powerShellSigningScript == null)
         {
-            Warning("Unable to find PowerShell signing script, so unable to sign PowerShell scripts.");
+            Warning("PowerShell signing script not found. Ensure the expected script exists at './tools/Chocolatey.Cake.Recipe*/Content/'. Signing cannot proceed without it.");
             return;
         }
 
@@ -77,7 +77,7 @@ BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
 
         if (scriptsToSign.Count == 0)
         {
-            Warning("Unable to find PowerShell signing script, so unable to sign PowerShell scripts.");
+            Warning("No PowerShell scripts were identified for signing. Verify that 'GetScriptsToSign' returns valid script paths.");
             return;
         }
 
@@ -96,7 +96,7 @@ BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
         {
             var password = System.IO.File.ReadAllText(BuildParameters.CertificatePassword);
 
-            Information("Signing above scripts with {0}", BuildParameters.CertificateFilePath);
+            Information("Signing detected PowerShell scripts using certificate at: {0}", BuildParameters.CertificateFilePath);
 
             StartPowershellFile(MakeAbsolute(powerShellSigningScript), args =>
                 {
@@ -114,7 +114,7 @@ BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
 
         if (files.Count == 0)
         {
-            Information("No PowerShell scripts found, or all PowerShell scripts have already been signed.");
+            Information("No unsigned PowerShell scripts found. All scripts may have already been signed or none matched the criteria.");
             return;
         }
 
@@ -131,7 +131,7 @@ BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
     }
     else
     {
-        Information("There are no PowerShell Scripts defined to be signed.");
+        Information("No scripts are configured for signing. Ensure 'GetScriptsToSign' is properly set.");
     }
 });
 
