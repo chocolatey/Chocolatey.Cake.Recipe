@@ -112,7 +112,7 @@ BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
         var files = GetFiles(BuildParameters.Paths.Directories.SignedFiles + "/**/*") - GetFiles(BuildParameters.Paths.Directories.SignedFiles + "/**/*.zip");
         var destination = BuildParameters.Paths.Directories.SignedFiles.CombineWithFilePath("SignedFiles.zip");
 
-        if (files.Count == 0 || !FileExists(destination))
+        if (files.Count == 0)
         {
             Information("No PowerShell scripts found, or all PowerShell scripts have already been signed.");
             return;
@@ -120,6 +120,12 @@ BuildParameters.Tasks.SignPowerShellScriptsTask = Task("Sign-PowerShellScripts")
 
 
         Zip(BuildParameters.Paths.Directories.SignedFiles, destination, files);
+
+        if (!FileExists(destination))
+        {
+            Information("Signed script archive was not created. Ensure there were signed scripts and the archive path is accessible.");
+            return;
+        }
 
         BuildParameters.BuildProvider.UploadArtifact(destination);
     }
