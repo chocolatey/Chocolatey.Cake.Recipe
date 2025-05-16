@@ -34,6 +34,19 @@ And if you need to use a specific version of the package, you can use something 
 #load nuget:?package=Chocolatey.Cake.Recipe&prerelease&version=0.1.0-unstable0026
 ```
 
+### Local Development
+
+The easiest way to do local development of this package is to load the latest released version from NuGet, and exclude the cake files you're iterating.
+
+For example, to work with the `sign.cake` file, your `recipe.cake` file might include:
+
+```
+#load nuget:?package`Chocolatey.Cake.Recipe&Version=0.30.1&Exclude=/**/sign.cake
+#load local:?path=C:/code/Chocolatey.Cake.Recipe/Chocolatey.Cake.Recipe/Content/sign.cake
+```
+
+*NOTE:* This method only applies to cake files. Any other files included with the package (like PowerShell files) will need to be copied into your repository's working copy of Chocolatey.Cake.Recipe.
+
 ## Push Sources
 
 The Chocolatey Cake Recipe has the concept of having multiple sources where
