@@ -21,6 +21,7 @@ Param(
 )
 
 $AllScriptsVerified = $true
+$ScriptsFailedToVerify = @()
 
 Write-Output ""
 Write-Output "========== Verifying PowerShell Scripts =========="
@@ -31,6 +32,7 @@ foreach ($ScriptToVerify in $ScriptsToVerify) {
 
     if ($ExistingSig.Status -ne 'Valid' -or $ExistingSig.SignerCertificate.Issuer -notmatch 'DigiCert' -or $ExistingSig.SignerCertificate.NotAfter -lt [datetime]::Now) {
         $AllScriptsVerified = $false
+        $ScriptsFailedToVerify += $ScriptToVerify
         Write-Output "Script file '$ScriptToVerify' contains an invalid signature, which must be corrected before build can succeed."
     } else {
         Write-Output "Script file '$ScriptToVerify' does not need signing, current signature is valid."
@@ -42,5 +44,12 @@ Write-Output "========== Verification Complete =========="
 Write-Output ""
 
 if ($AllScriptsVerified -eq $false) {
+    Write-Output ""
+    Write-Output "========== Verification Issues =========="
+    Write-Output ""
+    Write-Output "The following scripts failed verification"
+    Write-Output "$($ScriptsFailedToVerify -join [System.Environment]::NewLine)"
+    Write-Output ""
+
     throw "At least one PowerShell script had an invalid signature. Check output for details."
 }
