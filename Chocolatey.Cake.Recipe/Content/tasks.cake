@@ -42,9 +42,6 @@ public class BuildTasks
     public CakeTaskBuilder AnalyzeTask { get; set; }
     public CakeTaskBuilder PSScriptAnalyzerTask { get; set; }
 
-    // Dependency-Check Tasks
-    public CakeTaskBuilder DependencyCheckTask { get; set; }
-
     // Docker Tasks
     public CakeTaskBuilder DockerLogin { get; set; }
     public CakeTaskBuilder DockerBuild { get; set; }

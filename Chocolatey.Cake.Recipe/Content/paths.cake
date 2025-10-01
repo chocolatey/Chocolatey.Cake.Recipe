@@ -48,8 +48,6 @@ public class BuildPaths
         var nuGetPackagesOutputDirectory = packagesDirectory + "/NuGet";
         var chocolateyPackagesOutputDirectory = packagesDirectory + "/Chocolatey";
 
-        var dependencyCheckReportsDirectory = buildDirectoryPath + "/DependencyCheckReports";
-
         var signedFilesDirectory = buildDirectoryPath + "/SignedFiles";
 
         // Files
@@ -57,9 +55,6 @@ public class BuildPaths
         var testCoverageOutputFilePath = ((DirectoryPath)testCoverageDirectory).CombineWithFilePath("OpenCover.xml");
         var solutionInfoFilePath = ((DirectoryPath)BuildParameters.SourceDirectoryPath).CombineWithFilePath("SolutionVersion.cs");
         var buildLogFilePath = ((DirectoryPath)buildDirectoryPath).CombineWithFilePath("MsBuild.log");
-        var dependencyCheckDbDriverPath = context.GetFiles("C:/Program Files/Microsoft JDBC DRIVER for SQL Server/sqljdbc_*/enu/mssql-jdbc-*.jre11.jar").FirstOrDefault();
-        var dependencyCheckJsonReportFilePath = ((DirectoryPath)dependencyCheckReportsDirectory).CombineWithFilePath("dependency-check-report.json");
-        var dependencyCheckHtmlReportFilePath = ((DirectoryPath)dependencyCheckReportsDirectory).CombineWithFilePath("dependency-check-report.html");
 
         var repoFilesPaths = new FilePath[] {
             "LICENSE",
@@ -87,7 +82,6 @@ public class BuildPaths
             chocolateyPackagesOutputDirectory,
             packagesDirectory,
             environmentSettingsDirectory,
-            dependencyCheckReportsDirectory,
             signedFilesDirectory
             );
 
@@ -96,10 +90,7 @@ public class BuildPaths
             dotNetFormatOutputFilePath,
             testCoverageOutputFilePath,
             solutionInfoFilePath,
-            buildLogFilePath,
-            dependencyCheckDbDriverPath,
-            dependencyCheckJsonReportFilePath,
-            dependencyCheckHtmlReportFilePath
+            buildLogFilePath
             );
 
         return new BuildPaths
@@ -121,21 +112,12 @@ public class BuildFiles
 
     public FilePath BuildLogFilePath { get; private set; }
 
-    public FilePath DependencyCheckDbDriverPath { get; private set; }
-
-    public FilePath DependencyCheckJsonReportFilePath { get; private set; }
-
-    public FilePath DependencyCheckHtmlReportFilePath { get; private set; }
-
     public BuildFiles(
         FilePath[] repoFilesPaths,
         FilePath dotNetFormatOutputFilePath,
         FilePath testCoverageOutputFilePath,
         FilePath solutionInfoFilePath,
-        FilePath buildLogFilePath,
-        FilePath dependencyCheckDbDriverPath,
-        FilePath dependencyCheckJsonReportFilePath,
-        FilePath dependencyCheckHtmlReportFilePath
+        FilePath buildLogFilePath
         )
     {
         RepoFilesPaths = Filter(repoFilesPaths);
@@ -143,9 +125,6 @@ public class BuildFiles
         TestCoverageOutputFilePath = testCoverageOutputFilePath;
         SolutionInfoFilePath = solutionInfoFilePath;
         BuildLogFilePath = buildLogFilePath;
-        DependencyCheckDbDriverPath = dependencyCheckDbDriverPath;
-        DependencyCheckJsonReportFilePath = dependencyCheckJsonReportFilePath;
-        DependencyCheckHtmlReportFilePath = dependencyCheckHtmlReportFilePath;
     }
 
     private static FilePath[] Filter(FilePath[] files)
@@ -184,7 +163,6 @@ public class BuildDirectories
     public DirectoryPath ChocolateyPackages { get; private set; }
     public DirectoryPath Packages { get; private set; }
     public DirectoryPath EnvironmentSettings { get; private set; }
-    public DirectoryPath DependencyCheckReports { get; private set; }
     public DirectoryPath SignedFiles { get; private set; }
     public ICollection<DirectoryPath> ToClean { get; private set; }
 
@@ -209,7 +187,6 @@ public class BuildDirectories
         DirectoryPath chocolateyPackages,
         DirectoryPath packages,
         DirectoryPath environmentSettings,
-        DirectoryPath dependencyCheckReports,
         DirectoryPath signedFiles
         )
     {
@@ -232,7 +209,6 @@ public class BuildDirectories
         NuGetPackages = nuGetPackages;
         ChocolateyPackages = chocolateyPackages;
         EnvironmentSettings = environmentSettings;
-        DependencyCheckReports = dependencyCheckReports;
         SignedFiles = signedFiles;
         Packages = packages;
 
