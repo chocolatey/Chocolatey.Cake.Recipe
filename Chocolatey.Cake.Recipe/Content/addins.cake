@@ -22,7 +22,7 @@
 #addin nuget:?package=Cake.Discord&version=0.2.1
 #addin nuget:?package=Cake.Docker&version=1.0.0
 #addin nuget:?package=Cake.Eazfuscator.Net&version=0.1.0
-#addin nuget:?package=Cake.Figlet&version=1.2.0
+#addin nuget:?package=Cake.Figlet&version=1.4.0
 #addin nuget:?package=Cake.FileHelpers&version=3.2.0
 #addin nuget:?package=Cake.Git&version=1.1.0
 #addin nuget:?package=Cake.Gulp&version=0.11.0
