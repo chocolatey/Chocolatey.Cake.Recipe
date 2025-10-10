@@ -23,7 +23,7 @@
 #addin nuget:?package=Cake.Docker&version=1.0.0
 #addin nuget:?package=Cake.Eazfuscator.Net&version=0.1.0
 #addin nuget:?package=Cake.Figlet&version=1.2.0
-#addin nuget:?package=Cake.FileHelpers&version=3.2.0
+#addin nuget:?package=Cake.FileHelpers&version=3.4.0
 #addin nuget:?package=Cake.Git&version=1.1.0
 #addin nuget:?package=Cake.Gulp&version=0.11.0
 #addin nuget:?package=Cake.Incubator&version=5.1.0
