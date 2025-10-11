@@ -33,7 +33,7 @@
 #addin nuget:?package=Cake.Issues.Reporting&version=0.7.0
 #addin nuget:?package=Cake.Issues.Reporting.Generic&version=0.7.2
 #addin nuget:?package=Cake.Json&version=4.0.0
-#addin nuget:?package=Cake.Kudu&version=0.8.0
+#addin nuget:?package=Cake.Kudu&version=0.11.0
 #addin nuget:?package=Cake.Mastodon&version=1.0.0
 #addin nuget:?package=Cake.Npm&version=0.16.0
 #addin nuget:?package=Cake.PowerShell&version=0.4.8
