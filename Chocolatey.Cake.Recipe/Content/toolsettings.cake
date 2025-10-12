@@ -54,7 +54,7 @@ public static class ToolSettings
     public static string XUnitTool { get; private set; }
 
     public static void SetToolPreprocessorDirectives(
-        string amazonLambdaGlobalTool = "#tool dotnet:?package=amazon.lambda.tools&version=5.4.5",
+        string amazonLambdaGlobalTool = "#tool dotnet:?package=amazon.lambda.tools&version=5.13.0",
         string dependencyCheckTool = "#tool nuget:?package=DependencyCheck.Runner.Tool&version=3.2.1&include=./**/dependency-check.sh&include=./**/dependency-check.bat",
         string dotNetFormatGlobalTool = "#tool dotnet:?package=dotnet-format&version=5.1.250801",
         string gitVersionGlobalTool = "#tool dotnet:?package=GitVersion.Tool&version=5.10.1",
