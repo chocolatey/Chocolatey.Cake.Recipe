@@ -72,7 +72,7 @@ public static class ToolSettings
         string reSharperTools = "#tool nuget:?package=JetBrains.ReSharper.CommandLineTools&version=2017.2.0",
         string sonarQubeTool = "#tool nuget:?package=MSBuild.SonarQube.Runner.Tool&version=4.8.0",
         string strongNameSignerTool = "#tool nuget:?package=Brutal.Dev.StrongNameSigner&version=2.6.0",
-        string wixTool = "#tool nuget:?package=WiX&version=3.11.2",
+        string wixTool = "#tool nuget:?package=WiX&version=6.0.2",
         string xunitTool = "#tool nuget:?package=xunit.runner.console&version=2.4.1"
     )
     {
