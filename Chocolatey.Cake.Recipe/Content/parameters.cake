@@ -85,9 +85,6 @@ public static class BuildParameters
     public static string ChocolateyNupkgGlobbingPattern { get; private set; }
     public static string ChocolateyNuspecGlobbingPattern { get; private set; }
     public static string Configuration { get; private set; }
-    public static DependencyCheckDbCredentials DependencyCheckDb { get; private set; }
-    public static string DependencyCheckDbDriverName { get; private set; }
-    public static string DependencyCheckNvdApiKey { get; private set; }
     public static string DeploymentEnvironment { get; private set; }
     public static string DevelopBranchName { get; private set; }
     public static DiscordCredentials Discord { get; private set; }
@@ -160,7 +157,6 @@ public static class BuildParameters
     public static bool ShouldReportUnitTestResults { get; private set; }
     public static bool ShouldRunAnalyze { get; private set; }
     public static bool ShouldRunChocolatey { get; private set; }
-    public static bool ShouldRunDependencyCheck { get; private set; }
     public static bool ShouldRunDocker { get; private set; }
     public static bool ShouldRunDotNetFormat { get; private set; }
     public static bool ShouldRunDotNetPack { get; private set; }
@@ -240,7 +236,6 @@ public static class BuildParameters
         context.Information("ChocolateyNupkgGlobbingPattern: {0}", ChocolateyNupkgGlobbingPattern);
         context.Information("ChocolateyNuspecGlobbingPattern: {0}", ChocolateyNuspecGlobbingPattern);
         context.Information("Configuration: {0}", Configuration);
-        context.Information("DependencyCheckDbDriverName: {0}", BuildParameters.DependencyCheckDbDriverName);
         context.Information("ForceContinuousIntegration: {0}", ForceContinuousIntegration);
         context.Information("IntegrationTestAssemblyFilePattern: {0}", IntegrationTestAssemblyFilePattern);
         context.Information("IntegrationTestAssemblyProjectPattern: {0}", IntegrationTestAssemblyProjectPattern);
@@ -296,7 +291,6 @@ public static class BuildParameters
         context.Information("ShouldReportUnitTestResults: {0}", BuildParameters.ShouldReportUnitTestResults);
         context.Information("ShouldRunAnalyze: {0}", BuildParameters.ShouldRunAnalyze);
         context.Information("ShouldRunChocolatey: {0}", BuildParameters.ShouldRunChocolatey);
-        context.Information("ShouldRunDependencyCheck: {0}", BuildParameters.ShouldRunDependencyCheck);
         context.Information("ShouldRunDocker: {0}", BuildParameters.ShouldRunDocker);
         context.Information("ShouldRunDotNetFormat: {0}", BuildParameters.ShouldRunDotNetFormat);
         context.Information("ShouldRunDotNetPack: {0}", BuildParameters.ShouldRunDotNetPack);
@@ -349,7 +343,6 @@ public static class BuildParameters
         string certificateSubjectName = null,
         string chocolateyNupkgGlobbingPattern = "/**/*.nupkg",
         string chocolateyNuspecGlobbingPattern = "/**/*.nuspec",
-        string dependencyCheckDbDriverName = null,
         string developBranchName = "develop",
         Func<BuildVersion, object[]> discordMessageArguments = null,
         FilePath fullReleaseNotesFilePath = null,
@@ -410,7 +403,6 @@ public static class BuildParameters
         bool shouldReportUnitTestResults = true,
         bool shouldRunAnalyze = true,
         bool shouldRunChocolatey = true,
-        bool shouldRunDependencyCheck = false,
         bool shouldRunDocker = true,
         bool shouldRunDotNetFormat = true,
         bool shouldRunDotNetPack = false,
@@ -483,9 +475,6 @@ public static class BuildParameters
         ChocolateyNupkgGlobbingPattern = chocolateyNupkgGlobbingPattern;
         ChocolateyNuspecGlobbingPattern = chocolateyNuspecGlobbingPattern;
         Configuration = context.Argument("configuration", "Release");
-        DependencyCheckDb = GetDependencyCheckDbCredentials(context);
-        DependencyCheckDbDriverName = dependencyCheckDbDriverName ?? context.EnvironmentVariable(Environment.DependencyCheckDbDriverNameVariable) ?? "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-        DependencyCheckNvdApiKey = GetDependencyCheckNvdCredentials(context).ApiKey;
         Discord = GetDiscordCredentials(context);
         DiscordMessageArguments = discordMessageArguments ?? _defaultNotificationArguments;
         DockerCredentials = GetDockerCredentials(context);
@@ -678,13 +667,6 @@ public static class BuildParameters
         if (context.HasArgument("shouldRunChocolatey"))
         {
             ShouldRunChocolatey = context.Argument<bool>("shouldRunChocolatey");
-        }
-
-        ShouldRunDependencyCheck = shouldRunDependencyCheck;
-
-        if (context.HasArgument("shouldRunDependencyCheck"))
-        {
-            ShouldRunDependencyCheck = context.Argument<bool>("shouldRunDependencyCheck");
         }
 
         ShouldRunDocker = shouldRunDocker;
