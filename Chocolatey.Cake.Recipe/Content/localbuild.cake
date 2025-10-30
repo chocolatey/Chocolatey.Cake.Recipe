@@ -176,9 +176,11 @@ public class LocalBuildBuildInfo : IBuildInfo
     public LocalBuildBuildInfo()
     {
         Number = "-1";
+        BuildProperties = new Dictionary<string, string>();
     }
 
     public string Number { get; }
+    public Dictionary<string, string> BuildProperties { get; }
 }
 
 public class LocalBuildBuildProvider : IBuildProvider

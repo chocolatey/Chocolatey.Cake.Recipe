@@ -146,9 +146,11 @@ public class TeamCityBuildInfo : IBuildInfo
     public TeamCityBuildInfo(ITeamCityProvider teamCity)
     {
         Number = teamCity.Environment.Build.Number;
+        BuildProperties = teamCity.Environment.Build.BuildProperties;
     }
 
     public string Number { get; }
+    public Dictionary<string, string> BuildProperties { get; }
 }
 
 public class TeamCityBuildProvider : IBuildProvider

@@ -56,6 +56,8 @@ public interface IPullRequestInfo
 public interface IBuildInfo
 {
     string Number { get; }
+
+    Dictionary<string, string> BuildProperties { get; }
 }
 
 public interface IBuildProvider
