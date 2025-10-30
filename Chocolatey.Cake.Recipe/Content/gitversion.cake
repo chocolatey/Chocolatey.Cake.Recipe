@@ -55,7 +55,7 @@ public class BuildVersion
         context.Information("Testing to see if valid git repository for GitVersion use...");
 
         var rootPath = BuildParameters.RootDirectoryPath;
-        
+
         if (context.GitIsValidRepository(rootPath))
         {
             rootPath = context.GitFindRootFromPath(rootPath);
