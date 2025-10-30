@@ -15,14 +15,15 @@
 
 BuildParameters.Tasks.InitializeSonarQubeTask = Task("Initialize-SonarQube")
     .WithCriteria(() => BuildParameters.ShouldRunSonarQube, "Skipping because SonarQube has been disabled")
-    .WithCriteria(() => !string.IsNullOrEmpty(BuildParameters.SonarQubeToken), "Skipping because SonarQube Token is undefined")
     .Does(() => RequireTool(ToolSettings.SonarQubeTool, () =>
 {
+    var sonarQubeCredentials = SonarQubeCredentials.FetchCredentials(Context);
+
     var SonarQubeSettings = new SonarBeginSettings
     {
         Key     = BuildParameters.SonarQubeId,
         Version = BuildParameters.Version.InformationalVersion,
-        Login   = BuildParameters.SonarQubeToken
+        Login   = sonarQubeCredentials.Token
     };
 
     if (!string.IsNullOrEmpty(BuildParameters.SonarQubeUrl))
@@ -35,12 +36,13 @@ BuildParameters.Tasks.InitializeSonarQubeTask = Task("Initialize-SonarQube")
 
 BuildParameters.Tasks.FinaliseSonarQubeTask = Task("Finalise-SonarQube")
     .WithCriteria(() => BuildParameters.ShouldRunSonarQube, "Skipping because SonarQube has been disabled")
-    .WithCriteria(() => !string.IsNullOrEmpty(BuildParameters.SonarQubeToken), "Skipping because SonarQube Token is undefined")
     .IsDependentOn("Initialize-SonarQube")
     .IsDependeeOf("Package")
     .Does(() => RequireTool(ToolSettings.SonarQubeTool, () =>
 {
+    var sonarQubeCredentials = SonarQubeCredentials.FetchCredentials(Context);
+
     SonarEnd(new SonarEndSettings {
-        Login = BuildParameters.SonarQubeToken
+        Login = sonarQubeCredentials.Token
     });
 }));
