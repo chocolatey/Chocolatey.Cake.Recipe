@@ -39,15 +39,20 @@ public class BuildVersion
         {
             context.Information("Running GitVersion is not enabled, so returning default values...");
 
+            var fakeFileVersion = "0.1.0.0";
+            var fakeInformationalVersion = "0.1.0-alpha.0+Branch.develop.Sha.528f9bf572a52f0660cbe3f4d109599eab1e9866";
+
+            GenerateSolutionVersionFile(context, fakeFileVersion, fakeInformationalVersion);
+
             return new BuildVersion
             {
                 MajorMinorPatch = "0.1.0",
                 SemVersion = "0.1.0-alpha.0",
                 Milestone = "0.1.0",
                 CakeVersion = cakeVersion,
-                FileVersion = "0.1.0.0",
+                FileVersion = fakeFileVersion,
                 PackageVersion = "0.1.0-alpha-20220317-13",
-                InformationalVersion = "0.1.0-alpha.0+Branch.develop.Sha.528f9bf572a52f0660cbe3f4d109599eab1e9866",
+                InformationalVersion = fakeInformationalVersion,
                 FullSemVersion = "0.1.0-alpha.0",
             };
         }
@@ -177,6 +182,38 @@ public class BuildVersion
             context.Information("There is a tag.");
         }
 
+        GenerateSolutionVersionFile(context, fileVersion, informationalVersion);
+
+        context.Information("Calculated Major.Minor.Patch: {0}", majorMinorPatch);
+        context.Information("Calculated Sem Version: {0}", semVersion);
+        context.Information("Calculated Milestone: {0}", milestone);
+        context.Information("Cake Version: {0}", cakeVersion);
+        context.Information("Calculated File Version: {0}", fileVersion);
+        context.Information("Calculated Package Version: {0}", packageVersion);
+        context.Information("Calculated Informational Version: {0}", informationalVersion);
+        context.Information("Calculate Full Sem Version: {0}", fullSemVersion);
+
+        if (context.BuildSystem().IsRunningOnTeamCity)
+        {
+            // use the asserted package version for the build number in TeamCity
+            context.BuildSystem().TeamCity.SetBuildNumber(packageVersion);
+        }
+
+        return new BuildVersion
+        {
+            MajorMinorPatch = majorMinorPatch,
+            SemVersion = semVersion,
+            Milestone = milestone,
+            CakeVersion = cakeVersion,
+            FileVersion = fileVersion,
+            PackageVersion = packageVersion,
+            InformationalVersion = informationalVersion,
+            FullSemVersion = fullSemVersion,
+        };
+    }
+
+    private static void GenerateSolutionVersionFile(ICakeContext context, string fileVersion, string informationalVersion)
+    {
         if (BuildParameters.ShouldGenerateSolutionVersionCSharpFile)
         {
             context.Information("Generating SolutionVersion.cs file...");
@@ -230,33 +267,6 @@ public class BuildVersion
         {
             context.Information("Skipping generation of SolutionVersion.cs file.");
         }
-
-        context.Information("Calculated Major.Minor.Patch: {0}", majorMinorPatch);
-        context.Information("Calculated Sem Version: {0}", semVersion);
-        context.Information("Calculated Milestone: {0}", milestone);
-        context.Information("Cake Version: {0}", cakeVersion);
-        context.Information("Calculated File Version: {0}", fileVersion);
-        context.Information("Calculated Package Version: {0}", packageVersion);
-        context.Information("Calculated Informational Version: {0}", informationalVersion);
-        context.Information("Calculate Full Sem Version: {0}", fullSemVersion);
-
-        if (context.BuildSystem().IsRunningOnTeamCity)
-        {
-            // use the asserted package version for the build number in TeamCity
-            context.BuildSystem().TeamCity.SetBuildNumber(packageVersion);
-        }
-
-        return new BuildVersion
-        {
-            MajorMinorPatch = majorMinorPatch,
-            SemVersion = semVersion,
-            Milestone = milestone,
-            CakeVersion = cakeVersion,
-            FileVersion = fileVersion,
-            PackageVersion = packageVersion,
-            InformationalVersion = informationalVersion,
-            FullSemVersion = fullSemVersion,
-        };
     }
 
     private static void PatchGitLibConfigFiles(ICakeContext context)
