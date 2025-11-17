@@ -36,7 +36,7 @@
 #addin nuget:?package=Cake.Mastodon&version=1.0.0
 #addin nuget:?package=Cake.Npm&version=0.16.0
 #addin nuget:?package=Cake.PowerShell&version=0.4.8
-#addin nuget:?package=Cake.ReSharperReports&version=0.10.0
+#addin nuget:?package=Cake.ReSharperReports&version=0.11.1
 #addin nuget:?package=Cake.Slack&version=0.13.0
 #addin nuget:?package=Cake.Sonar&version=1.1.26
 #addin nuget:?package=Cake.StrongNameSigner&version=0.1.0
