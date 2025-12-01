@@ -13,18 +13,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public void SendMessageToDiscord(string message)
+public void SendMessageToDiscord(ICakeContext context, string message)
 {
     try
     {
         Information("Sending message to Discord...");
-        
+
+        var discordCredentials = DiscordCredentials.FetchCredentials(context);
+
         var postMessageResult = Discord.Chat.PostMessage(
-            webHookUrl: BuildParameters.Discord.WebHookUrl,
+            webHookUrl: discordCredentials.WebHookUrl,
             content: message,
             messageSettings: new DiscordChatMessageSettings {
-                UserName = BuildParameters.Discord.UserName,
-                AvatarUrl = new Uri(BuildParameters.Discord.AvatarUrl)
+                UserName = discordCredentials.UserName,
+                AvatarUrl = new Uri(discordCredentials.AvatarUrl)
             }
         );
 
@@ -43,21 +45,23 @@ public void SendMessageToDiscord(string message)
     }
 }
 
-public void SendMessageToMastodon(string message)
+public void SendMessageToMastodon(ICakeContext context, string message)
 {
     try
     {
         Information("Sending message to Mastodon...");
 
+        var mastodonCredentials = MastodonCredentials.FetchCredentials(context);
+
         var result = MastodonSendToot(
-            hostName: BuildParameters.Mastodon.HostName,
-            accessToken: BuildParameters.Mastodon.Token, 
-            text: message, 
+            hostName: mastodonCredentials.HostName,
+            accessToken: mastodonCredentials.Token,
+            text: message,
             idempotencyKey: Guid.NewGuid().ToString());
 
         if (result.IsSuccess)
         {
-            Information("Mastodon messsage successfully sent");
+            Information("Mastodon message successfully sent");
         }
         else
         {
@@ -70,16 +74,18 @@ public void SendMessageToMastodon(string message)
     }
 }
 
-public void SendMessageToSlackChannel(string message)
+public void SendMessageToSlackChannel(ICakeContext context, string message)
 {
     try
     {
         Information("Sending message to Slack...");
 
+        var slackCredentials = SlackCredentials.FetchCredentials(context);
+
         var postMessageResult = Slack.Chat.PostMessage(
-                    channel: BuildParameters.Slack.Channel,
+                    channel: slackCredentials.Channel,
                     text: message,
-                    messageSettings: new SlackChatMessageSettings { IncomingWebHookUrl = BuildParameters.Slack.WebHookUrl }
+                    messageSettings: new SlackChatMessageSettings { IncomingWebHookUrl = slackCredentials.WebHookUrl }
             );
 
         if (postMessageResult.Ok)
@@ -97,16 +103,18 @@ public void SendMessageToSlackChannel(string message)
     }
 }
 
-public void SendMessageToTwitter(string message)
+public void SendMessageToTwitter(ICakeContext context, string message)
 {
     try
     {
         Information("Sending message to Twitter...");
 
-        TwitterSendTweet(BuildParameters.Twitter.ConsumerKey,
-                         BuildParameters.Twitter.ConsumerSecret,
-                         BuildParameters.Twitter.AccessToken,
-                         BuildParameters.Twitter.AccessTokenSecret,
+        var twitterCredentials = TwitterCredentials.FetchCredentials(context);
+
+        TwitterSendTweet(twitterCredentials.ConsumerKey,
+                         twitterCredentials.ConsumerSecret,
+                         twitterCredentials.AccessToken,
+                         twitterCredentials.AccessTokenSecret,
                          message);
 
         Information("Twitter message successfully sent.");
@@ -118,7 +126,7 @@ public void SendMessageToTwitter(string message)
 }
 
 BuildParameters.Tasks.SendNotificationsTask = Task("Send-Notifications")
-    .Does(() => 
+    .Does(() =>
 {
     bool dryRun = Context.Argument("dry-run", false);
 
@@ -132,13 +140,13 @@ BuildParameters.Tasks.SendNotificationsTask = Task("Send-Notifications")
             Warning("Would have sent the following to Discord:");
             Information(formattedMessage, messageArguments);
         }
-        else if (BuildParameters.CanPostToDiscord && BuildParameters.ShouldPostToDiscord)
+        else if (BuildParameters.ShouldPostToDiscord)
         {
-            SendMessageToDiscord(string.Format(formattedMessage, messageArguments));
+            SendMessageToDiscord(Context, string.Format(formattedMessage, messageArguments));
         }
         else
         {
-            Warning("Unable to send Discord message. CanPostToDiscord: {0}, ShouldPostToDiscord: {1}", BuildParameters.CanPostToDiscord, BuildParameters.ShouldPostToDiscord);
+            Warning("Unable to send Discord message. ShouldPostToDiscord: {1}", BuildParameters.ShouldPostToDiscord);
         }
     }
     else
@@ -156,13 +164,13 @@ BuildParameters.Tasks.SendNotificationsTask = Task("Send-Notifications")
             Warning("Would have sent the following to Mastodon:");
             Information(formattedMessage, messageArguments);
         }
-        else if (BuildParameters.CanPostToMastodon && BuildParameters.ShouldPostToMastodon)
+        else if (BuildParameters.ShouldPostToMastodon)
         {
-            SendMessageToMastodon(string.Format(formattedMessage, messageArguments));
+            SendMessageToMastodon(Context, string.Format(formattedMessage, messageArguments));
         }
         else
         {
-            Warning("Unable to send Mastodon message. CanPostToMastodon: {0}, ShouldPostToMastodon: {1}", BuildParameters.CanPostToMastodon, BuildParameters.ShouldPostToMastodon);
+            Warning("Unable to send Mastodon message. ShouldPostToMastodon: {1}", BuildParameters.ShouldPostToMastodon);
         }
     }
     else
@@ -180,13 +188,13 @@ BuildParameters.Tasks.SendNotificationsTask = Task("Send-Notifications")
             Warning("Would have sent the following to Slack:");
             Information(formattedMessage, messageArguments);
         }
-        else if (BuildParameters.CanPostToSlack && BuildParameters.ShouldPostToSlack)
+        else if (BuildParameters.ShouldPostToSlack)
         {
-            SendMessageToSlackChannel(string.Format(formattedMessage, messageArguments));
+            SendMessageToSlackChannel(Context, string.Format(formattedMessage, messageArguments));
         }
         else
         {
-            Warning("Unable to send Slack message. CanPostToSlack: {0}, ShouldPostToSlack: {1}", BuildParameters.CanPostToSlack, BuildParameters.ShouldPostToSlack);
+            Warning("Unable to send Slack message. ShouldPostToSlack: {1}", BuildParameters.ShouldPostToSlack);
         }
     }
     else
@@ -204,13 +212,13 @@ BuildParameters.Tasks.SendNotificationsTask = Task("Send-Notifications")
             Warning("Would have sent the following to Twitter:");
             Information(formattedMessage, messageArguments);
         }
-        else if (BuildParameters.CanPostToTwitter && BuildParameters.ShouldPostToTwitter)
+        else if (BuildParameters.ShouldPostToTwitter)
         {
-            SendMessageToTwitter(string.Format(formattedMessage, messageArguments));
+            SendMessageToTwitter(Context, string.Format(formattedMessage, messageArguments));
         }
         else
         {
-            Warning("Unable to send Twitter message. CanPostToTwitter: {0}, ShouldPostToTwitter: {1}", BuildParameters.CanPostToTwitter, BuildParameters.ShouldPostToTwitter);
+            Warning("Unable to send Twitter message. ShouldPostToTwitter: {1}", BuildParameters.ShouldPostToTwitter);
         }
     }
     else
