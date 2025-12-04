@@ -211,6 +211,8 @@ public static class ToolSettings
         var vsWhereProductSettings = new VSWhereProductSettings
         {
             Version = versionRange,
+            ReturnProperty = null,
+            ArgumentCustomization = args => args.Append("-find MSBuild/**/bin/MSBuild.exe")
         };
 
         if (!string.IsNullOrEmpty(versionRange))
@@ -231,7 +233,9 @@ public static class ToolSettings
 
         var vsWhereLegacySettings = new VSWhereLegacySettings
         {
-            Version = versionRange
+            Version = versionRange,
+            ReturnProperty = null,
+            ArgumentCustomization = args => args.Append("-find MSBuild/**/bin/MSBuild.exe")
         };
 
         if (!string.IsNullOrEmpty(versionRange))
