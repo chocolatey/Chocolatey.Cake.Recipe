@@ -36,13 +36,13 @@ And if you need to use a specific version of the package, you can use something 
 
 ### Local Development
 
-The easiest way to do local development of this package is to load the latest released version from NuGet, and exclude the cake files you're iterating.
+The easiest way to do local development of this package is to load the latest released version from NuGet, and include only the `version.cake` file. Then load all of the local cake files. The `version.cake` file is a file that is generated during the build, and contains required information.
 
-For example, to work with the `sign.cake` file, your `recipe.cake` file might include:
+For example, if this repository is checked out to `C:\code\Chocolatey.Cake.Recipe`, you could use the following to build from it:
 
 ```
-#load nuget:?package`Chocolatey.Cake.Recipe&Version=0.30.1&Exclude=/**/sign.cake
-#load local:?path=C:/code/Chocolatey.Cake.Recipe/Chocolatey.Cake.Recipe/Content/sign.cake
+#load nuget:?package`Chocolatey.Cake.Recipe&Version=0.30.1&Include=/**/version.cake
+#load local:?path=C:/code/Chocolatey.Cake.Recipe/Chocolatey.Cake.Recipe/Content/*.cake
 ```
 
 *NOTE:* This method only applies to cake files. Any other files included with the package (like PowerShell files) will need to be copied into your repository's working copy of Chocolatey.Cake.Recipe.
