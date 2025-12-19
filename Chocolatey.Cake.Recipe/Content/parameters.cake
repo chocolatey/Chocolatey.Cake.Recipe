@@ -37,46 +37,6 @@ public static class BuildParameters
     public static IBuildProvider BuildProvider { get; private set; }
     public static Cake.Core.Configuration.ICakeConfiguration CakeConfiguration { get; private set; }
 
-    public static bool CanPostToDiscord
-    {
-        get
-        {
-            return !string.IsNullOrEmpty(BuildParameters.Discord.WebHookUrl) &&
-                !string.IsNullOrEmpty(BuildParameters.Discord.UserName) &&
-                !string.IsNullOrEmpty(BuildParameters.Discord.AvatarUrl);
-        }
-    }
-
-    public static bool CanPostToMastodon
-    {
-        get
-        {
-            return !string.IsNullOrEmpty(BuildParameters.Mastodon.Token) &&
-                !string.IsNullOrEmpty(BuildParameters.Mastodon.HostName);
-        }
-    }
-
-    public static bool CanPostToSlack
-    {
-        get
-        {
-            return !string.IsNullOrEmpty(BuildParameters.Slack.WebHookUrl) &&
-                !string.IsNullOrEmpty(BuildParameters.Slack.Channel);
-        }
-    }
-
-    public static bool CanPostToTwitter
-    {
-        get
-        {
-            return !string.IsNullOrEmpty(BuildParameters.Twitter.ConsumerKey) &&
-                !string.IsNullOrEmpty(BuildParameters.Twitter.ConsumerSecret) &&
-                !string.IsNullOrEmpty(BuildParameters.Twitter.AccessToken) &&
-                !string.IsNullOrEmpty(BuildParameters.Twitter.AccessTokenSecret);
-        }
-    }
-
-    public static bool CanRunGitReleaseManager { get { return !string.IsNullOrEmpty(BuildParameters.GitReleaseManager.Token); } }
     public static string CertificateAlgorithm { get; private set; }
     public static string CertificateFilePath { get; private set; }
     public static string CertificatePassword { get; private set; }
@@ -85,14 +45,9 @@ public static class BuildParameters
     public static string ChocolateyNupkgGlobbingPattern { get; private set; }
     public static string ChocolateyNuspecGlobbingPattern { get; private set; }
     public static string Configuration { get; private set; }
-    public static DependencyCheckDbCredentials DependencyCheckDb { get; private set; }
-    public static string DependencyCheckDbDriverName { get; private set; }
-    public static string DependencyCheckNvdApiKey { get; private set; }
     public static string DeploymentEnvironment { get; private set; }
     public static string DevelopBranchName { get; private set; }
-    public static DiscordCredentials Discord { get; private set; }
     public static Func<BuildVersion, object[]> DiscordMessageArguments { get; private set; }
-    public static DockerCredentials DockerCredentials { get; private set; }
     public static bool ForceContinuousIntegration { get; private set; }
     public static FilePath FullReleaseNotesFilePath { get; private set; }
     public static Func<FilePathCollection> GetFilesToObfuscate { get; private set; }
@@ -103,7 +58,6 @@ public static class BuildParameters
     public static Func<FilePathCollection> GetProjectsToPack { get; private set; }
     public static Func<FilePathCollection> GetScriptsToVerify { get; private set; }
     public static Func<FilePathCollection> GetScriptsToSign { get; private set; }
-    public static GitReleaseManagerCredentials GitReleaseManager { get; private set; }
     public static string IntegrationTestAssemblyFilePattern { get; private set; }
     public static string IntegrationTestAssemblyProjectPattern { get; private set; }
     public static FilePath IntegrationTestScriptPath { get; private set; }
@@ -112,7 +66,6 @@ public static class BuildParameters
     public static bool IsPullRequest { get; private set; }
     public static bool IsTagged { get; private set; }
     public static string MasterBranchName { get; private set; }
-    public static MastodonCredentials Mastodon { get; private set; }
     public static Func<BuildVersion, object[]> MastodonMessageArguments { get; private set; }
     public static FilePath MilestoneReleaseNotesFilePath { get; private set; }
     public static bool MsiUsedWithinNupkg { get; private set; }
@@ -160,7 +113,6 @@ public static class BuildParameters
     public static bool ShouldReportUnitTestResults { get; private set; }
     public static bool ShouldRunAnalyze { get; private set; }
     public static bool ShouldRunChocolatey { get; private set; }
-    public static bool ShouldRunDependencyCheck { get; private set; }
     public static bool ShouldRunDocker { get; private set; }
     public static bool ShouldRunDotNetFormat { get; private set; }
     public static bool ShouldRunDotNetPack { get; private set; }
@@ -181,7 +133,6 @@ public static class BuildParameters
     public static bool ShouldRunPSScriptAnalyzer { get; private set; }
     public static bool ShouldStrongNameOutputAssemblies { get; private set; }
     public static bool ShouldStrongNameSignDependentAssemblies { get; private set; }
-    public static SlackCredentials Slack { get; private set; }
     public static Func<BuildVersion, object[]> SlackMessageArguments { get; private set; }
     public static DirectoryPath SolutionDirectoryPath { get; private set; }
     public static FilePath SolutionFilePath { get; private set; }
@@ -196,11 +147,9 @@ public static class BuildParameters
     public static DirectoryPath TestDirectoryPath { get; private set; }
     public static string TestExecutionType { get; private set; }
     public static string Title { get; private set; }
-    public static TransifexCredentials Transifex { get; private set; }
     public static TransifexMode TransifexPullMode { get; private set; }
     public static int TransifexPullPercentage { get; private set; }
     public static bool TreatWarningsAsErrors { get; set; }
-    public static TwitterCredentials Twitter { get; private set; }
     public static Func<BuildVersion, object[]> TwitterMessageArguments { get; private set; }
     public static string UnitTestAssemblyFilePattern { get; private set; }
     public static string UnitTestAssemblyProjectPattern { get; private set; }
@@ -240,7 +189,6 @@ public static class BuildParameters
         context.Information("ChocolateyNupkgGlobbingPattern: {0}", ChocolateyNupkgGlobbingPattern);
         context.Information("ChocolateyNuspecGlobbingPattern: {0}", ChocolateyNuspecGlobbingPattern);
         context.Information("Configuration: {0}", Configuration);
-        context.Information("DependencyCheckDbDriverName: {0}", BuildParameters.DependencyCheckDbDriverName);
         context.Information("ForceContinuousIntegration: {0}", ForceContinuousIntegration);
         context.Information("IntegrationTestAssemblyFilePattern: {0}", IntegrationTestAssemblyFilePattern);
         context.Information("IntegrationTestAssemblyProjectPattern: {0}", IntegrationTestAssemblyProjectPattern);
@@ -296,7 +244,6 @@ public static class BuildParameters
         context.Information("ShouldReportUnitTestResults: {0}", BuildParameters.ShouldReportUnitTestResults);
         context.Information("ShouldRunAnalyze: {0}", BuildParameters.ShouldRunAnalyze);
         context.Information("ShouldRunChocolatey: {0}", BuildParameters.ShouldRunChocolatey);
-        context.Information("ShouldRunDependencyCheck: {0}", BuildParameters.ShouldRunDependencyCheck);
         context.Information("ShouldRunDocker: {0}", BuildParameters.ShouldRunDocker);
         context.Information("ShouldRunDotNetFormat: {0}", BuildParameters.ShouldRunDotNetFormat);
         context.Information("ShouldRunDotNetPack: {0}", BuildParameters.ShouldRunDotNetPack);
@@ -349,7 +296,6 @@ public static class BuildParameters
         string certificateSubjectName = null,
         string chocolateyNupkgGlobbingPattern = "/**/*.nupkg",
         string chocolateyNuspecGlobbingPattern = "/**/*.nuspec",
-        string dependencyCheckDbDriverName = null,
         string developBranchName = "develop",
         Func<BuildVersion, object[]> discordMessageArguments = null,
         FilePath fullReleaseNotesFilePath = null,
@@ -410,7 +356,6 @@ public static class BuildParameters
         bool shouldReportUnitTestResults = true,
         bool shouldRunAnalyze = true,
         bool shouldRunChocolatey = true,
-        bool shouldRunDependencyCheck = false,
         bool shouldRunDocker = true,
         bool shouldRunDotNetFormat = true,
         bool shouldRunDotNetPack = false,
@@ -483,12 +428,7 @@ public static class BuildParameters
         ChocolateyNupkgGlobbingPattern = chocolateyNupkgGlobbingPattern;
         ChocolateyNuspecGlobbingPattern = chocolateyNuspecGlobbingPattern;
         Configuration = context.Argument("configuration", "Release");
-        DependencyCheckDb = GetDependencyCheckDbCredentials(context);
-        DependencyCheckDbDriverName = dependencyCheckDbDriverName ?? context.EnvironmentVariable(Environment.DependencyCheckDbDriverNameVariable) ?? "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-        DependencyCheckNvdApiKey = GetDependencyCheckNvdCredentials(context).ApiKey;
-        Discord = GetDiscordCredentials(context);
         DiscordMessageArguments = discordMessageArguments ?? _defaultNotificationArguments;
-        DockerCredentials = GetDockerCredentials(context);
         DeploymentEnvironment = context.Argument("environment", "Release");
         DevelopBranchName = developBranchName;
         ForceContinuousIntegration = context.Argument("forceContinuousIntegration", false);
@@ -501,7 +441,6 @@ public static class BuildParameters
         GetProjectsToPack = getProjectsToPack;
         GetScriptsToVerify = getScriptsToVerify;
         GetScriptsToSign = getScriptsToSign;
-        GitReleaseManager = GetGitReleaseManagerCredentials(context);
         IntegrationTestAssemblyFilePattern = integrationTestAssemblyFilePattern ?? "/**/*[tT]ests.[iI]ntegration.dll";
         IntegrationTestAssemblyProjectPattern = integrationTestAssemblyProjectPattern ?? "/**/*[tT]ests.[iI]ntegration.csproj";
         IntegrationTestScriptPath = integrationTestScriptPath ?? context.MakeAbsolute((FilePath)"test.cake");
@@ -509,7 +448,6 @@ public static class BuildParameters
         IsPullRequest = BuildProvider.PullRequest.IsPullRequest;
         IsTagged = BuildProvider.Repository.Tag.IsTag;
         MasterBranchName = masterBranchName;
-        Mastodon = GetMastodonCredentials(context);
         MastodonMessageArguments = mastodonMessageArguments ?? _defaultNotificationArguments;
         MilestoneReleaseNotesFilePath = milestoneReleaseNotesFilePath ?? RootDirectoryPath.CombineWithFilePath("CHANGELOG.md");
         MsiUsedWithinNupkg = msiUsedWithinNupkg;
@@ -680,13 +618,6 @@ public static class BuildParameters
             ShouldRunChocolatey = context.Argument<bool>("shouldRunChocolatey");
         }
 
-        ShouldRunDependencyCheck = shouldRunDependencyCheck;
-
-        if (context.HasArgument("shouldRunDependencyCheck"))
-        {
-            ShouldRunDependencyCheck = context.Argument<bool>("shouldRunDependencyCheck");
-        }
-
         ShouldRunDocker = shouldRunDocker;
 
         if (context.HasArgument("shouldRunDocker"))
@@ -827,12 +758,10 @@ public static class BuildParameters
             ShouldStrongNameSignDependentAssemblies = context.Argument<bool>("shouldStrongNameSignDependentAssemblies");
         }
 
-        Slack = GetSlackCredentials(context);
         SlackMessageArguments = slackMessageArguments ?? _defaultNotificationArguments;
         SolutionDirectoryPath = solutionDirectoryPath ?? sourceDirectoryPath.Combine(title);
         SolutionFilePath = solutionFilePath ?? sourceDirectoryPath.CombineWithFilePath(title + ".sln");
         SonarQubeId = sonarQubeId ?? context.EnvironmentVariable(Environment.SonarQubeIdVariable) ?? RootDirectoryPath.GetDirectoryName().ToLower();
-        SonarQubeToken = GetSonarQubeCredentials(context).Token;
         SonarQubeUrl = sonarQubeUrl ?? context.EnvironmentVariable(Environment.SonarQubeUrlVariable) ?? null;
         SourceDirectoryPath = sourceDirectoryPath;
         StrongNameDependentAssembliesInputPath = strongNameDependentAssembliesInputPath ?? sourceDirectoryPath.Combine("packages").FullPath;
@@ -840,11 +769,9 @@ public static class BuildParameters
         TestDirectoryPath = testDirectoryPath ?? sourceDirectoryPath;
         TestExecutionType = context.Argument("testExecutionType", "unit").ToLowerInvariant();
         Title = title;
-        Transifex = GetTransifexCredentials(context);
         TransifexPullMode = transifexPullMode;
         TransifexPullPercentage = transifexPullPercentage;
         TreatWarningsAsErrors = treatWarningsAsErrors;
-        Twitter = GetTwitterCredentials(context);
         TwitterMessageArguments = twitterMessageArguments ?? _defaultNotificationArguments;
         UnitTestAssemblyFilePattern = unitTestAssemblyFilePattern ?? "/**/*.[tT]ests/**/*.[tT]ests.dll";
         UnitTestAssemblyProjectPattern = unitTestAssemblyProjectPattern ?? "/**/*.[tT]ests/**/*.[tT]ests.csproj";

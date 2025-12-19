@@ -26,8 +26,6 @@ public static class ToolSettings
     public static string XBuildPlatformTarget { get; private set; }
     public static FilePath EazfuscatorToolLocation { get; private set; }
     public static string AmazonLambdaGlobalTool { get; private set; }
-    public static string DependencyCheckTool { get; private set; }
-    public static bool DependencyCheckDisableYarnAudit { get; private set; }
     public static string DotNetFormatGlobalTool { get; private set; }
     public static string GitVersionGlobalTool { get; private set; }
     public static string GitVersionTool { get; private set; }
@@ -55,7 +53,6 @@ public static class ToolSettings
 
     public static void SetToolPreprocessorDirectives(
         string amazonLambdaGlobalTool = "#tool dotnet:?package=amazon.lambda.tools&version=5.4.5",
-        string dependencyCheckTool = "#tool nuget:?package=DependencyCheck.Runner.Tool&version=3.2.1&include=./**/dependency-check.sh&include=./**/dependency-check.bat",
         string dotNetFormatGlobalTool = "#tool dotnet:?package=dotnet-format&version=5.1.250801",
         string gitVersionGlobalTool = "#tool dotnet:?package=GitVersion.Tool&version=5.10.1",
         string gitVersionTool = "#tool nuget:?package=GitVersion.CommandLine&version=5.10.1",
@@ -77,7 +74,6 @@ public static class ToolSettings
     )
     {
         AmazonLambdaGlobalTool = amazonLambdaGlobalTool;
-        DependencyCheckTool = dependencyCheckTool;
         DotNetFormatGlobalTool = dotNetFormatGlobalTool;
         GitVersionGlobalTool = gitVersionGlobalTool;
         GitVersionTool = gitVersionTool;
@@ -110,8 +106,7 @@ public static class ToolSettings
         List<string> scriptAnalyzerExcludePaths = null,
         string testCoverageExcludeByAttribute = null,
         string testCoverageExcludeByFile = null,
-        string testCoverageFilter = null,
-        bool dependencyCheckDisableYarnAudit = false
+        string testCoverageFilter = null
     )
     {
         context.Information("Setting up tools...");
@@ -126,13 +121,6 @@ public static class ToolSettings
         TestCoverageExcludeByAttribute = testCoverageExcludeByAttribute ?? "*.ExcludeFromCodeCoverage*";
         TestCoverageExcludeByFile = testCoverageExcludeByFile ?? "*/*Designer.cs;*/*.g.cs;*/*.g.i.cs";
         TestCoverageFilter = testCoverageFilter ?? string.Format("+[{0}*]* +[{1}*]* -[*.tests]* -[*.Tests]*", BuildParameters.Title, BuildParameters.Title.ToLowerInvariant());
-
-        DependencyCheckDisableYarnAudit = dependencyCheckDisableYarnAudit;
-        
-        if (context.HasArgument("dependencyCheckDisableYarnAudit"))
-        {
-            DependencyCheckDisableYarnAudit = context.Argument<bool>("dependencyCheckDisableYarnAudit");
-        }
 
         // We only use MSBuild when running on Windows. Elsewhere, we use XBuild when required. As a result,
         // we only need to detect the correct version of MSBuild when running on WIndows, and when it hasn't

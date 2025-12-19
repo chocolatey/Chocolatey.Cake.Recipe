@@ -18,7 +18,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #addin nuget:?package=Cake.Coverlet&version=2.5.4
-#addin nuget:?package=Cake.DependencyCheck&version=1.2.0
 #addin nuget:?package=Cake.Discord&version=0.2.1
 #addin nuget:?package=Cake.Docker&version=1.0.0
 #addin nuget:?package=Cake.Eazfuscator.Net&version=0.1.0
@@ -37,6 +36,7 @@
 #addin nuget:?package=Cake.Mastodon&version=1.0.0
 #addin nuget:?package=Cake.Npm&version=0.16.0
 #addin nuget:?package=Cake.PowerShell&version=0.4.8
+#addin nuget:?package=Cake.Prompt&version=1.0.15
 #addin nuget:?package=Cake.ReSharperReports&version=0.10.0
 #addin nuget:?package=Cake.Slack&version=0.13.0
 #addin nuget:?package=Cake.Sonar&version=1.1.26

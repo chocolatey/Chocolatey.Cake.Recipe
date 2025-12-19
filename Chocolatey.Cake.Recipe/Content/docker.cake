@@ -14,14 +14,15 @@
 // limitations under the License.
 
 BuildParameters.Tasks.DockerLogin = Task("DockerLogin")
-    .WithCriteria(() => BuildParameters.DockerCredentials.HasCredentials, "Skipping because Docker Credentials were not provided.")
     .WithCriteria(() => BuildParameters.ShouldRunDocker, "Skipping because running Docker tasks is not enabled")
-    .Does(() => 
+    .Does(() =>
 {
+    var dockerCredentials = DockerCredentials.FetchCredentials(Context);
+
     DockerLogin(
-        BuildParameters.DockerCredentials.User,
-        BuildParameters.DockerCredentials.Password,
-        BuildParameters.DockerCredentials.Server
+        dockerCredentials.User,
+        dockerCredentials.Password,
+        dockerCredentials.Server
     );
 });
 
@@ -52,7 +53,6 @@ BuildParameters.Tasks.DockerBuild = Task("DockerBuild")
 
 BuildParameters.Tasks.DockerPush = Task("DockerPush")
     .WithCriteria(() => BuildParameters.IsTagged && BuildParameters.Version.MajorMinorPatch == BuildParameters.Version.FullSemVersion, "Skipping because this isn't a tagged full release build.")
-    .WithCriteria(() => BuildParameters.DockerCredentials.HasCredentials, "Skipping because Docker Credentials were not provided.")
     .WithCriteria(() => BuildParameters.ShouldRunDocker, "Skipping because running Docker tasks is not enabled")
     .IsDependentOn("DockerLogin")
     .IsDependentOn("DockerBuild")
@@ -67,7 +67,6 @@ BuildParameters.Tasks.DockerPush = Task("DockerPush")
 
 BuildParameters.Tasks.DockerTagAsLatest = Task("DockerTagAsLatest")
     .WithCriteria(() => BuildParameters.BranchType == BranchType.Master && BuildParameters.IsTagged && BuildParameters.Version.MajorMinorPatch == BuildParameters.Version.FullSemVersion, "Skipping because this isn't a tagged full release build.")
-    .WithCriteria(() => BuildParameters.DockerCredentials.HasCredentials, "Skipping because Docker Credentials were not provided.")
     .WithCriteria(() => BuildParameters.ShouldRunDocker, "Skipping because running Docker tasks is not enabled")
     .IsDependentOn("DockerLogin")
     .IsDependentOn("DockerBuild")
@@ -96,7 +95,6 @@ BuildParameters.Tasks.Docker = Task("Docker")
 
 BuildParameters.Tasks.DockerManifest = Task("DockerManifest")
     .WithCriteria(() => BuildParameters.IsTagged && BuildParameters.Version.MajorMinorPatch == BuildParameters.Version.FullSemVersion, "Skipping because this isn't a tagged full release build.")
-    .WithCriteria(() => BuildParameters.DockerCredentials.HasCredentials, "Skipping because Docker Credentials were not provided.")
     .WithCriteria(() => BuildParameters.ShouldRunDocker, "Skipping because running Docker tasks is not enabled")
     .IsDependentOn("DockerLogin")
     .Does(() =>
