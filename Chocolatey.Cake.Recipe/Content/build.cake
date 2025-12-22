@@ -275,7 +275,7 @@ public void CopyBuildOutput()
         Information("IsVS2017ProjectFormat: {0}", parsedProject.IsVS2017ProjectFormat);
         Information("IsFrameworkTestProject: {0}", parsedProject.IsFrameworkTestProject());
         Information("IsTestProject: {0}", parsedProject.IsTestProject());
-        Information("IXUnitTestProject: {0}", parsedProject.IsXUnitTestProject());
+        Information("IsXUnitTestProject: {0}", parsedProject.IsXUnitTestProject());
         Information("IsNUnitTestProject: {0}", parsedProject.IsNUnitTestProject());
         Information("IsWebApplication: {0}", parsedProject.IsWebApplication());
         Information("IsAwsLambdaProject: {0}", isAwsLambdaProject);
