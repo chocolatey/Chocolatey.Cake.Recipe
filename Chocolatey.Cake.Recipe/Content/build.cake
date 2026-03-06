@@ -38,6 +38,7 @@ Setup<BuildData>(context =>
         BuildParameters.SetBuildVersion(
             BuildVersion.CalculatingSemanticVersion(
                 context: Context,
+                buildSystem: BuildSystem,
                 preReleaseLabelFilePath: BuildParameters.PreReleaseLabelFilePath
             )
         );
