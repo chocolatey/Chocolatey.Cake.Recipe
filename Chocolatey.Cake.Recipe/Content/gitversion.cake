@@ -257,7 +257,7 @@ public class BuildVersion
             {
                 assemblyInfoSettings.CustomAttributes = new List<AssemblyInfoCustomAttribute>();
 
-                if (BuildParameters.ShouldStrongNameOutputAssemblies)
+                if (BuildParameters.ShouldStrongNameOutputAssemblies && !BuildParameters.IsDotNetBuild)
                 {
                     var assemblyKeyFileAttribute = new AssemblyInfoCustomAttribute
                     {
