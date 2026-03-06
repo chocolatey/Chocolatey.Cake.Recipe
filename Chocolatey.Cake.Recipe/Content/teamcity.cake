@@ -39,10 +39,11 @@ public class TeamCityTagInfo : ITagInfo
 
         if (exitCode == 0)
         {
-            if (redirectedStandardOutput.Count() != 0)
+            var outputLines = redirectedStandardOutput.ToList();
+            if (outputLines.Count != 0)
             {
                 IsTag = true;
-                Name = redirectedStandardOutput.FirstOrDefault();
+                Name = outputLines.FirstOrDefault();
             }
         }
     }
