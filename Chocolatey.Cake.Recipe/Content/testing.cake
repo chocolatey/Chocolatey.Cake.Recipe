@@ -187,15 +187,6 @@ BuildParameters.Tasks.DotNetTestTask = Task("DotNetTest")
                                 .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion)
                                 .WithProperty("Copyright", BuildParameters.ProductCopyright);
 
-        if (BuildParameters.BuildAgentOperatingSystem != PlatformFamily.Windows)
-        {
-            var frameworkPathOverride = new FilePath(typeof(object).Assembly.Location).GetDirectory().FullPath + "/";
-
-            // Use FrameworkPathOverride when not running on Windows.
-            Information("Restore will use FrameworkPathOverride={0} since not building on Windows.", frameworkPathOverride);
-            msBuildSettings.WithProperty("FrameworkPathOverride", frameworkPathOverride);
-        }
-
         var projectsToTest = new FilePathCollection();
 
         if (BuildParameters.TestExecutionType == "unit")
