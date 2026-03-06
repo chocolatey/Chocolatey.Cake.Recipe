@@ -26,6 +26,7 @@ public class BuildVersion
 
     public static BuildVersion CalculatingSemanticVersion(
         ICakeContext context,
+        BuildSystem buildSystem,
         string preReleaseLabelFilePath)
     {
         if (context == null)
@@ -174,12 +175,35 @@ public class BuildVersion
                                 BuildParameters.BuildCounter != "-1" ? string.Format("-{0}", BuildParameters.BuildCounter) : string.Empty);
             informationalVersion = string.Format("{0}-{1}{2}-{3}", majorMinorPatch, prerelease, buildDate, sha);
             context.Information("There is no tag.");
+
+            if (buildSystem.IsRunningOnTeamCity)
+            {
+                // use the asserted package version for the build number in TeamCity
+                buildSystem.TeamCity.SetBuildNumber(packageVersion);
+            }
         }
         else
         {
-            packageVersion = semVersion;
-            informationalVersion = semVersion;
-            context.Information("There is a tag.");
+            var tag = BuildParameters.BuildProvider.Repository.Tag.Name;
+            packageVersion = tag;
+            informationalVersion = tag;
+            semVersion = tag;
+            fullSemVersion = tag;
+
+            var match = System.Text.RegularExpressions.Regex.Match(tag, @"^(\d+\.\d+\.\d+)");
+            majorMinorPatch = match.Groups[1].Value;
+
+            milestone = majorMinorPatch;
+            fileVersion = string.Format("{0}.0", milestone);
+
+            context.Information("There is a tag: '{0}'", tag);
+
+            if (buildSystem.IsRunningOnTeamCity)
+            {
+                // Since running of GitVersion may have set the TeamCity build number
+                // to an incorrect version, let's set it again, just to make sure.
+                buildSystem.TeamCity.SetBuildNumber(tag);
+            }
         }
 
         GenerateSolutionVersionFile(context, fileVersion, informationalVersion);
@@ -192,12 +216,6 @@ public class BuildVersion
         context.Information("Calculated Package Version: {0}", packageVersion);
         context.Information("Calculated Informational Version: {0}", informationalVersion);
         context.Information("Calculate Full Sem Version: {0}", fullSemVersion);
-
-        if (context.BuildSystem().IsRunningOnTeamCity)
-        {
-            // use the asserted package version for the build number in TeamCity
-            context.BuildSystem().TeamCity.SetBuildNumber(packageVersion);
-        }
 
         return new BuildVersion
         {
