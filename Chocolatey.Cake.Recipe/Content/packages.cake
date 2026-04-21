@@ -300,6 +300,7 @@ public void PushChocolateyPackages(ICakeContext context, bool isRelease, List<Pa
 
                     // Push the package.
                     context.ChocolateyPush(nupkgFile, chocolateyPushSettings);
+                    BuildParameters.PublishProvider.AddArtifact(nupkgFile);
                 }
             }
             else
@@ -364,6 +365,7 @@ public void PushNuGetPackages(ICakeContext context, bool isRelease, List<Package
 
                     // Push the package.
                     context.NuGetPush(nupkgFile, nugetPushSettings);
+                    BuildParameters.PublishProvider.AddArtifact(nupkgFile);
                 }
             }
             else

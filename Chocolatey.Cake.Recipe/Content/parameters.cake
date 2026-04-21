@@ -35,6 +35,7 @@ public static class BuildParameters
     public static PlatformFamily BuildAgentOperatingSystem { get; private set; }
     public static string BuildCounter { get; private set; }
     public static IBuildProvider BuildProvider { get; private set; }
+    public static IPublishProvider PublishProvider { get; private set; }
     public static Cake.Core.Configuration.ICakeConfiguration CakeConfiguration { get; private set; }
 
     public static string CertificateAlgorithm { get; private set; }
@@ -109,6 +110,7 @@ public static class BuildParameters
     public static bool ShouldPublishAwsLambdas { get; private set; }
     public static bool ShouldPublishPreReleasePackages { get; private set; }
     public static bool ShouldPublishReleasePackages { get; private set; }
+    public static bool ShouldPublishPublicArtifacts { get; private set; }
     public static bool ShouldReportCodeCoverageMetrics { get; private set; }
     public static bool ShouldReportUnitTestResults { get; private set; }
     public static bool ShouldRunAnalyze { get; private set; }
@@ -207,6 +209,7 @@ public static class BuildParameters
         context.Information("ProductComVisible: {0}", ProductComVisible);
         context.Information("ProductClsCompliant: {0}", ProductClsCompliant);
         context.Information("ProductCompany: {0}", ProductCompany);
+        context.Information("PublishProvider: {0}", PublishProvider.Name);
 
         if (ProductCustomAttributes != null)
         {
@@ -239,6 +242,7 @@ public static class BuildParameters
         context.Information("ShouldPostToTwitter: {0}", BuildParameters.ShouldPostToTwitter);
         context.Information("ShouldPublishAwsLambdas: {0}", BuildParameters.ShouldPublishAwsLambdas);
         context.Information("ShouldPublishPreReleasePackages: {0}", BuildParameters.ShouldPublishPreReleasePackages);
+        context.Information("ShouldPublishPublicArtifacts: {0}", BuildParameters.ShouldPublishPublicArtifacts);
         context.Information("ShouldPublishReleasePackages: {0}", BuildParameters.ShouldPublishReleasePackages);
         context.Information("ShouldReportCodeCoverageMetrics: {0}", BuildParameters.ShouldReportCodeCoverageMetrics);
         context.Information("ShouldReportUnitTestResults: {0}", BuildParameters.ShouldReportUnitTestResults);
@@ -376,6 +380,7 @@ public static class BuildParameters
         bool shouldRunPSScriptAnalyzer = true,
         bool shouldStrongNameOutputAssemblies = true,
         bool shouldStrongNameSignDependentAssemblies = true,
+        bool shouldPublishPublicArtifacts = true,
         Func<BuildVersion, object[]> slackMessageArguments = null,
         DirectoryPath solutionDirectoryPath = null,
         FilePath solutionFilePath = null,
@@ -389,7 +394,8 @@ public static class BuildParameters
         Func<BuildVersion, object[]> twitterMessageArguments = null,
         string unitTestAssemblyFilePattern = null,
         string unitTestAssemblyProjectPattern = null,
-        bool useChocolateyGuiStrongNameKey = false
+        bool useChocolateyGuiStrongNameKey = false,
+        PublishProviderType publishProvider = PublishProviderType.None
         )
     {
         if (context == null)
@@ -472,6 +478,7 @@ public static class BuildParameters
         ResharperSettingsFileName = resharperSettingsFileName ?? string.Format("{0}.sln.DotSettings", title);
         RestorePackagesDirectory = restorePackagesDirectory;
         ShouldAuthenticodeSignMsis = shouldAuthenticodeSignMsis;
+        PublishProvider = GetPublishProvider(context, publishProvider);
 
         if (context.HasArgument("shouldAuthenticodeSignMsis"))
         {
@@ -756,6 +763,13 @@ public static class BuildParameters
         if (context.HasArgument("shouldStrongNameSignDependentAssemblies"))
         {
             ShouldStrongNameSignDependentAssemblies = context.Argument<bool>("shouldStrongNameSignDependentAssemblies");
+        }
+
+        ShouldPublishPublicArtifacts = shouldPublishPublicArtifacts;
+
+        if (context.HasArgument("shouldPublishPublicArtifacts"))
+        {
+            ShouldPublishPublicArtifacts = context.Argument<bool>("shouldPublishPublicArtifacts");
         }
 
         SlackMessageArguments = slackMessageArguments ?? _defaultNotificationArguments;

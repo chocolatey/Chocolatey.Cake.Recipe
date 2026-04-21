@@ -237,6 +237,7 @@ BuildParameters.Tasks.SignMsisTask = Task("Sign-Msis")
             if (FileExists(msiToSign))
             {
                 BuildParameters.BuildProvider.UploadArtifact(msiToSign);
+                BuildParameters.PublishProvider.AddArtifact(msiToSign);
             }
         }
     }

@@ -50,6 +50,9 @@
 #addin nuget:?package=Cake.Issues.PullRequests&version=0.7.0
 #addin nuget:?package=Cake.Issues.PullRequests.AppVeyor&version=0.7.0
 
+// Not really an addin, but needed to be able to query for GitHub releases
+#addin nuget:?package=Octokit&version=14.0.0
+
 Action<string, IDictionary<string, string>> RequireAddin = (code, envVars) => {
     var script = MakeAbsolute(File(string.Format("./{0}.cake", Guid.NewGuid())));
     try

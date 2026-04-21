@@ -484,11 +484,13 @@ BuildParameters.Tasks.DefaultTask = Task("Default")
 BuildParameters.Tasks.ContinuousIntegrationTask = Task("CI")
     .IsDependentOn("Publish-PreRelease-Packages")
     .IsDependentOn("Publish-Release-Packages")
+    .IsDependentOn("Publish-Public-Artifacts")
     .IsDependentOn("Publish-AWS-Lambdas")
     .Finally(() =>
 {
     if (publishingError)
     {
+        Error("Detected publishing error, throwing additional exception.");
         throw new Exception("An error occurred during the publishing of " + BuildParameters.Title + ".  All publishing tasks have been attempted.");
     }
 });
