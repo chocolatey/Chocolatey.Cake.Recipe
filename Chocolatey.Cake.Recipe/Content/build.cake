@@ -225,9 +225,9 @@ public void CopyBuildOutput()
             continue;
         }
 
-        if (parsedProject.OutputPath == null || parsedProject.RootNameSpace == null || parsedProject.OutputType == null)
+        if (parsedProject.OutputPaths == null || parsedProject.OutputPaths.Length == 0 || parsedProject.RootNameSpace == null || parsedProject.OutputType == null)
         {
-            Information("OutputPath: {0}", parsedProject.OutputPath);
+            Information("OutputPaths: Null Or Empty");
             Information("RootNameSpace: {0}", parsedProject.RootNameSpace);
             Information("OutputType: {0}", parsedProject.OutputType);
             throw new Exception(string.Format("Unable to parse project file correctly: {0}", project.Path));
@@ -358,67 +358,64 @@ public void CopyBuildOutput()
             }
             else
             {
-                CopyFiles(GetFiles(parsedProject.OutputPath.FullPath + "/**/*"), outputFolder, true);
+                CopyFiles(GetFiles(parsedProject.OutputPaths[0].FullPath + "/**/*"), outputFolder, true);
             }
 
             continue;
         }
 
-        if (parsedProject.IsLibrary() && parsedProject.IsXUnitTestProject())
-        {
-            Information("Project has an output type of library and is an xUnit Test Project: {0}", parsedProject.AssemblyName);
-            var outputFolder = BuildParameters.Paths.Directories.PublishedxUnitTests.Combine(parsedProject.AssemblyName);
-            EnsureDirectoryExists(outputFolder);
-            CopyFiles(GetFiles(parsedProject.OutputPath.FullPath + "/**/*"), outputFolder, true);
-            continue;
-        }
-        else if (parsedProject.IsLibrary() && parsedProject.IsNUnitTestProject())
-        {
-            Information("Project has an output type of library and is a NUnit Test Project: {0}", parsedProject.AssemblyName);
-            var outputFolder = BuildParameters.Paths.Directories.PublishedNUnitTests.Combine(parsedProject.AssemblyName);
-            EnsureDirectoryExists(outputFolder);
-            CopyFiles(GetFiles(parsedProject.OutputPath.FullPath + "/**/*"), outputFolder, true);
-            continue;
-        }
-        else
-        {
-            Information("Project has an output type of library: {0}", parsedProject.AssemblyName);
+        CopyLibraryBuildOutput(parsedProject);
+    }
+}
 
-            var outputFolder = BuildParameters.Paths.Directories.PublishedLibraries.Combine(parsedProject.AssemblyName);
+private void CopyLibraryBuildOutput(CustomProjectParserResult parsedProject)
+{
+    DirectoryPath outputFolder = null;
 
-            if (parsedProject.IsVS2017ProjectFormat)
+    if (parsedProject.IsLibrary() && parsedProject.IsXUnitTestProject())
+    {
+        Information("Project has an output type of library and is an xUnit Test Project: {0}", parsedProject.AssemblyName);
+        outputFolder = BuildParameters.Paths.Directories.PublishedxUnitTests.Combine(parsedProject.AssemblyName);
+    }
+    else if (parsedProject.IsLibrary() && parsedProject.IsNUnitTestProject())
+    {
+        Information("Project has an output type of library and is a NUnit Test Project: {0}", parsedProject.AssemblyName);
+        outputFolder = BuildParameters.Paths.Directories.PublishedNUnitTests.Combine(parsedProject.AssemblyName);
+    }
+    else
+    {
+        Information("Project has an output type of library: {0}", parsedProject.AssemblyName);
+        outputFolder = BuildParameters.Paths.Directories.PublishedLibraries.Combine(parsedProject.AssemblyName);
+    }
+
+    if (parsedProject.IsVS2017ProjectFormat)
+    {
+        var msBuildSettings = new DotNetCoreMSBuildSettings()
+                    .WithProperty("Version", BuildParameters.Version.SemVersion)
+                    .WithProperty("AssemblyVersion", BuildParameters.Version.FileVersion)
+                    .WithProperty("FileVersion", BuildParameters.Version.FileVersion)
+                    .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion)
+                    .WithProperty("Copyright", BuildParameters.ProductCopyright);
+        
+        foreach (var targetFramework in parsedProject.NetCore.TargetFrameworks)
+        {
+            Information("Running dotnet publish for {0}...", parsedProject.ProjectFilePath.FullPath);
+
+            DotNetCorePublish(parsedProject.ProjectFilePath.FullPath, new DotNetCorePublishSettings
             {
-                var msBuildSettings = new DotNetCoreMSBuildSettings()
-                            .WithProperty("Version", BuildParameters.Version.SemVersion)
-                            .WithProperty("AssemblyVersion", BuildParameters.Version.FileVersion)
-                            .WithProperty("FileVersion",  BuildParameters.Version.FileVersion)
-                            .WithProperty("AssemblyInformationalVersion", BuildParameters.Version.InformationalVersion)
-                            .WithProperty("Copyright", BuildParameters.ProductCopyright);
-
-                foreach (var targetFramework in parsedProject.NetCore.TargetFrameworks)
-                {
-                    Information("Running dotnet publish for {0}...", project.Path.FullPath);
-
-                    DotNetCorePublish(project.Path.FullPath, new DotNetCorePublishSettings {
-                        OutputDirectory = outputFolder.Combine(targetFramework),
-
-                        Framework = targetFramework,
-                        Configuration = BuildParameters.Configuration,
-                        MSBuildSettings = msBuildSettings,
-                        NoRestore = true,
-                        NoBuild = true
-                    });
-                }
-            }
-            else
-            {
-                EnsureDirectoryExists(outputFolder);
-                Information(parsedProject.OutputPath.FullPath);
-                CopyFiles(GetFiles(parsedProject.OutputPath.FullPath + "/**/*"), outputFolder, true);
-            }
-
-            continue;
+                Framework = targetFramework,
+                Configuration = BuildParameters.Configuration,
+                MSBuildSettings = msBuildSettings,
+                NoRestore = true,
+                NoBuild = true
+            });
         }
+    }
+    else
+    {
+        EnsureDirectoryExists(outputFolder);
+        Information(parsedProject.OutputPaths[0].FullPath);
+        CopyFiles(GetFiles(parsedProject.OutputPaths[0].FullPath + "/**/*"), outputFolder, true);
     }
 }
 
