@@ -31,11 +31,13 @@ public static class BuildParameters
         return arguments;
     };
 
+    private static AggregatePublishProvider _publishProvider = new AggregatePublishProvider();
+
     public static BranchType BranchType { get; private set; }
     public static PlatformFamily BuildAgentOperatingSystem { get; private set; }
     public static string BuildCounter { get; private set; }
     public static IBuildProvider BuildProvider { get; private set; }
-    public static IPublishProvider PublishProvider { get; private set; }
+    public static IPublishProvider PublishProvider => _publishProvider;
     public static Cake.Core.Configuration.ICakeConfiguration CakeConfiguration { get; private set; }
 
     public static string CertificateAlgorithm { get; private set; }
@@ -163,6 +165,43 @@ public static class BuildParameters
         Tasks = new BuildTasks();
     }
 
+    /// <summary>
+    /// Registers the GitHub publish provider for public release artifacts.
+    /// </summary>
+    /// <param name="context">The Cake context.</param>
+    /// <remarks>
+    /// Public artifacts are release assets intended for external consumption, such as files published to GitHub Releases,
+    /// NuGet feeds, or Chocolatey feeds. Calling this method makes GitHub Releases available as a public artifact destination.
+    /// </remarks>
+    public static void AddGitHubPublishProvider(ICakeContext context)
+    {
+        if (context == null)
+        {
+            throw new ArgumentNullException(nameof(context));
+        }
+
+        AddPublishProvider(new GitHubPublishProvider(context));
+    }
+
+    /// <summary>
+    /// Registers a publish provider for public release artifacts.
+    /// </summary>
+    /// <param name="context">The Cake context.</param>
+    /// <param name="publishProvider">The publish provider to register.</param>
+    /// <remarks>
+    /// Use this overload to register custom destinations while keeping artifact selection and publishing coordinated
+    /// through <see cref="BuildParameters.PublishProvider"/>.
+    /// </remarks>
+    public static void AddPublishProvider(IPublishProvider publishProvider)
+    {
+        if (publishProvider == null)
+        {
+            throw new ArgumentNullException(nameof(publishProvider));
+        }
+
+        _publishProvider.AddPublishProvider(publishProvider);
+    }
+
     public static void SetBuildVersion(BuildVersion version)
     {
         Version  = version;
@@ -209,7 +248,6 @@ public static class BuildParameters
         context.Information("ProductComVisible: {0}", ProductComVisible);
         context.Information("ProductClsCompliant: {0}", ProductClsCompliant);
         context.Information("ProductCompany: {0}", ProductCompany);
-        context.Information("PublishProvider: {0}", PublishProvider.Name);
 
         if (ProductCustomAttributes != null)
         {
@@ -288,6 +326,7 @@ public static class BuildParameters
         context.Information("UnitTestAssemblyFilePattern: {0}", UnitTestAssemblyFilePattern);
         context.Information("UnitTestAssemblyProjectPattern: {0}", UnitTestAssemblyProjectPattern);
         context.Information("UseChocolateyGuiStrongNameKey: {0}", UseChocolateyGuiStrongNameKey);
+        context.Information("PublishProvider: {0}", PublishProvider.Name);
 
         context.Information("------------------------------------------------------------------------------------------");
     }
@@ -380,7 +419,6 @@ public static class BuildParameters
         bool shouldRunPSScriptAnalyzer = true,
         bool shouldStrongNameOutputAssemblies = true,
         bool shouldStrongNameSignDependentAssemblies = true,
-        bool shouldPublishPublicArtifacts = true,
         Func<BuildVersion, object[]> slackMessageArguments = null,
         DirectoryPath solutionDirectoryPath = null,
         FilePath solutionFilePath = null,
@@ -395,7 +433,7 @@ public static class BuildParameters
         string unitTestAssemblyFilePattern = null,
         string unitTestAssemblyProjectPattern = null,
         bool useChocolateyGuiStrongNameKey = false,
-        PublishProviderType publishProvider = PublishProviderType.None
+        bool shouldPublishPublicArtifacts = true
         )
     {
         if (context == null)
@@ -478,7 +516,6 @@ public static class BuildParameters
         ResharperSettingsFileName = resharperSettingsFileName ?? string.Format("{0}.sln.DotSettings", title);
         RestorePackagesDirectory = restorePackagesDirectory;
         ShouldAuthenticodeSignMsis = shouldAuthenticodeSignMsis;
-        PublishProvider = GetPublishProvider(context, publishProvider);
 
         if (context.HasArgument("shouldAuthenticodeSignMsis"))
         {

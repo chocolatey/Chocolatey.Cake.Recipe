@@ -200,7 +200,7 @@ BuildParameters.Tasks.SignMsisTask = Task("Sign-Msis")
     .WithCriteria(() => BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows, "Skipping due to not running on Windows")
     .WithCriteria(() => (!string.IsNullOrWhiteSpace(BuildParameters.CertificateFilePath) && FileExists(BuildParameters.CertificateFilePath)) || BuildSystem.IsRunningOnTeamCity, "Skipping because unable to find certificate, and not running on TeamCity")
     .WithCriteria(() => BuildParameters.ShouldAuthenticodeSignMsis, "Skipping since authenticode signing of msi's has been disabled")
-    .Does(() =>
+    .Does(async () =>
 {
     if (BuildParameters.GetMsisToSign != null)
     {
@@ -237,7 +237,9 @@ BuildParameters.Tasks.SignMsisTask = Task("Sign-Msis")
             if (FileExists(msiToSign))
             {
                 BuildParameters.BuildProvider.UploadArtifact(msiToSign);
-                BuildParameters.PublishProvider.AddArtifact(msiToSign);
+                // Add the signed MSI to the list of artifacts to be published.
+                // NOTE: We do this here to ensure that only the signed MSI is published, and not the unsigned one.
+                await BuildParameters.PublishProvider.AddArtifactAsync(ArtifactType.Other, msiToSign);
             }
         }
     }

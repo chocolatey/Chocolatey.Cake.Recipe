@@ -300,7 +300,6 @@ public void PushChocolateyPackages(ICakeContext context, bool isRelease, List<Pa
 
                     // Push the package.
                     context.ChocolateyPush(nupkgFile, chocolateyPushSettings);
-                    BuildParameters.PublishProvider.AddArtifact(nupkgFile);
                 }
             }
             else
@@ -365,7 +364,6 @@ public void PushNuGetPackages(ICakeContext context, bool isRelease, List<Package
 
                     // Push the package.
                     context.NuGetPush(nupkgFile, nugetPushSettings);
-                    BuildParameters.PublishProvider.AddArtifact(nupkgFile);
                 }
             }
             else
@@ -382,14 +380,20 @@ public void PushNuGetPackages(ICakeContext context, bool isRelease, List<Package
 
 BuildParameters.Tasks.PackageTask = Task("Package")
     .IsDependentOn("Export-Release-Notes")
-    .Does(() => {
+    .Does(async () => {
         foreach (var nuGetPackage in GetFiles(BuildParameters.Paths.Directories.NuGetPackages + BuildParameters.NuGetNupkgGlobbingPattern))
         {
+            // Upload the NuGet package to the build provider for internal storage.
             BuildParameters.BuildProvider.UploadArtifact(nuGetPackage);
+            // Add the NuGet package to the publish provider for later publishing.
+            await BuildParameters.PublishProvider.AddArtifactAsync(ArtifactType.NuGetPackage, nuGetPackage);
         }
 
         foreach (var chocolateyPackage in GetFiles(BuildParameters.Paths.Directories.ChocolateyPackages + BuildParameters.ChocolateyNupkgGlobbingPattern))
         {
+            // Upload the Chocolatey package to the build provider for internal storage.
             BuildParameters.BuildProvider.UploadArtifact(chocolateyPackage);
+            // Add the Chocolatey package to the publish provider for later publishing.
+            await BuildParameters.PublishProvider.AddArtifactAsync(ArtifactType.ChocolateyPackage, chocolateyPackage);
         }
 });
