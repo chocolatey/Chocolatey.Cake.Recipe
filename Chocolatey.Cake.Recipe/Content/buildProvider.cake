@@ -79,6 +79,7 @@ public enum BuildProviderType
 {
     TeamCity,
     GitHubActions,
+    GitLabCI,
     Local
 }
 
@@ -94,6 +95,12 @@ public static IBuildProvider GetBuildProvider(ICakeContext context, BuildSystem 
     {
         context.Information("Using GitHub Action Provider...");
         return new GitHubActionBuildProvider(context);
+    }
+
+    if (buildSystem.IsRunningOnGitLabCI)
+    {
+        context.Information("Using GitLab CI Provider...");
+        return new GitLabCIBuildProvider(context);
     }
 
     // always fallback to Local Build
