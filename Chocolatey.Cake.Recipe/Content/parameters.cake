@@ -55,6 +55,7 @@ public static class BuildParameters
     public static Func<List<ILMergeConfig>> GetILMergeConfigs { get; private set; }
     public static Func<List<PSScriptAnalyzerSettings>> GetPSScriptAnalyzerSettings { get; private set; }
     public static Func<FilePathCollection> GetMsisToSign { get; private set; }
+    public static Func<FilePathCollection> GetFilesToSubmitToVirusTotal { get; private set; }
     public static Func<FilePathCollection> GetProjectsToPack { get; private set; }
     public static Func<FilePathCollection> GetScriptsToVerify { get; private set; }
     public static Func<FilePathCollection> GetScriptsToSign { get; private set; }
@@ -133,6 +134,7 @@ public static class BuildParameters
     public static bool ShouldRunPSScriptAnalyzer { get; private set; }
     public static bool ShouldStrongNameOutputAssemblies { get; private set; }
     public static bool ShouldStrongNameSignDependentAssemblies { get; private set; }
+    public static bool ShouldSubmitToVirusTotal { get; private set; }
     public static Func<BuildVersion, object[]> SlackMessageArguments { get; private set; }
     public static DirectoryPath SolutionDirectoryPath { get; private set; }
     public static FilePath SolutionFilePath { get; private set; }
@@ -264,6 +266,7 @@ public static class BuildParameters
         context.Information("ShouldRunPSScriptAnalyzer: {0}", BuildParameters.ShouldRunPSScriptAnalyzer);
         context.Information("ShouldStrongNameOutputAssemblies: {0}", BuildParameters.ShouldStrongNameOutputAssemblies);
         context.Information("ShouldStrongNameSignDependentAssemblies: {0}", BuildParameters.ShouldStrongNameSignDependentAssemblies);
+        context.Information("ShouldSubmitToVirusTotal: {0}", BuildParameters.ShouldSubmitToVirusTotal);
         context.Information("SolutionDirectoryPath: {0}", context.MakeAbsolute((DirectoryPath)SolutionDirectoryPath));
         context.Information("SolutionFilePath: {0}", context.MakeAbsolute((FilePath)SolutionFilePath));
         context.Information("SonarQubeId: {0}", BuildParameters.SonarQubeId);
@@ -304,6 +307,7 @@ public static class BuildParameters
         Func<List<ILMergeConfig>> getILMergeConfigs = null,
         Func<List<PSScriptAnalyzerSettings>> getPSScriptAnalyzerSettings = null,
         Func<FilePathCollection> getMsisToSign = null,
+        Func<FilePathCollection> getFilesToSubmitToVirusTotal = null,
         Func<FilePathCollection> getProjectsToPack = null,
         Func<FilePathCollection> getScriptsToVerify = null,
         Func<FilePathCollection> getScriptsToSign = null,
@@ -376,6 +380,7 @@ public static class BuildParameters
         bool shouldRunPSScriptAnalyzer = true,
         bool shouldStrongNameOutputAssemblies = true,
         bool shouldStrongNameSignDependentAssemblies = true,
+        bool shouldSubmitToVirusTotal = true,
         Func<BuildVersion, object[]> slackMessageArguments = null,
         DirectoryPath solutionDirectoryPath = null,
         FilePath solutionFilePath = null,
@@ -438,6 +443,7 @@ public static class BuildParameters
         GetILMergeConfigs = getILMergeConfigs;
         GetPSScriptAnalyzerSettings = getPSScriptAnalyzerSettings;
         GetMsisToSign = getMsisToSign;
+        GetFilesToSubmitToVirusTotal = getFilesToSubmitToVirusTotal;
         GetProjectsToPack = getProjectsToPack;
         GetScriptsToVerify = getScriptsToVerify;
         GetScriptsToSign = getScriptsToSign;
@@ -756,6 +762,13 @@ public static class BuildParameters
         if (context.HasArgument("shouldStrongNameSignDependentAssemblies"))
         {
             ShouldStrongNameSignDependentAssemblies = context.Argument<bool>("shouldStrongNameSignDependentAssemblies");
+        }
+
+        ShouldSubmitToVirusTotal = shouldSubmitToVirusTotal;
+
+        if (context.HasArgument("shouldSubmitToVirusTotal"))
+        {
+            ShouldSubmitToVirusTotal = context.Argument<bool>("shouldSubmitToVirusTotal");
         }
 
         SlackMessageArguments = slackMessageArguments ?? _defaultNotificationArguments;
