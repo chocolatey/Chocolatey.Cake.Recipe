@@ -100,6 +100,9 @@ public class BuildTasks
     // ILMerge Tasks
     public CakeTaskBuilder ILMergeTask { get; set; }
 
+    // VirusTotal Tasks
+    public CakeTaskBuilder SubmitToVirusTotalTask { get; set; }
+
     // Notification Tasks
     public CakeTaskBuilder SendNotificationsTask { get; set; }
 }
