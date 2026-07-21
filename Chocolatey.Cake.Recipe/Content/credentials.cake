@@ -285,6 +285,31 @@ public class SonarQubeCredentials
     }
 }
 
+public class VirusTotalCredentials
+{
+    public string ApiKey { get; private set; }
+
+    public static VirusTotalCredentials FetchCredentials(ICakeContext context)
+    {
+        var apiKey = context.EnvironmentVariable(Environment.VirusTotalApiKeyVariable);
+
+        if (string.IsNullOrWhiteSpace(apiKey) && BuildParameters.IsLocalBuild)
+        {
+            context.Warning("The required API Key for submitting files to VirusTotal has not been provided.");
+            context.Warning("In future, this can be set using the {0} environment variable.", Environment.VirusTotalApiKeyVariable);
+
+            apiKey = context.Prompt("Enter API Key for VirusTotal:");
+        }
+
+        return new VirusTotalCredentials(apiKey);
+    }
+
+    public VirusTotalCredentials(string apiKey)
+    {
+        ApiKey = apiKey;
+    }
+}
+
 public class DockerCredentials
 {
     public string Server { get; private set; }

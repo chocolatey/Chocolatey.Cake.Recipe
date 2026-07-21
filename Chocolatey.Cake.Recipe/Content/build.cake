@@ -550,6 +550,8 @@ public class Builder
         BuildParameters.Tasks.PackageTask.IsDependentOn("Analyze");
         BuildParameters.Tasks.PackageTask.IsDependentOn("Create-Chocolatey-Packages");
         BuildParameters.Tasks.PackageTask.IsDependentOn("Create-NuGet-Packages");
+        BuildParameters.Tasks.SubmitToVirusTotalTask.IsDependentOn("Package");
+        BuildParameters.Tasks.ContinuousIntegrationTask.IsDependentOn("Submit-To-VirusTotal");
         BuildParameters.Tasks.CreateChocolateyPackagesTask.IsDependentOn("Configuration-Builder");
         BuildParameters.Tasks.CreateChocolateyPackagesTask.IsDependentOn("Obfuscate-Assemblies");
         BuildParameters.Tasks.CreateChocolateyPackagesTask.IsDependentOn("Sign-Assemblies");

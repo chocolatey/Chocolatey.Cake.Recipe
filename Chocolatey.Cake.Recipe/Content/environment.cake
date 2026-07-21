@@ -35,6 +35,7 @@ public static class Environment
     public static string DockerUserVariable { get; private set; }
     public static string DockerPasswordVariable { get; private set; }
     public static string DockerServerVariable { get; private set; }
+    public static string VirusTotalApiKeyVariable { get; private set; }
 
     public static void SetVariableNames(
         string defaultPushSourceUrlVariable = null,
@@ -56,7 +57,8 @@ public static class Environment
         string sonarQubeUrlVariable = null,
         string dockerUserVariable = null,
         string dockerPasswordVariable = null,
-        string dockerServerVariable = null)
+        string dockerServerVariable = null,
+        string virusTotalApiKeyVariable = null)
     {
         DefaultPushSourceUrlVariable = defaultPushSourceUrlVariable ?? "NUGETDEVPUSH_SOURCE";
         DiscordWebHookUrlVariable = discordWebHookUrlVariable ?? "DISCORD_WEBHOOKURL";
@@ -78,5 +80,6 @@ public static class Environment
         DockerUserVariable = dockerUserVariable ?? "DOCKER_USER";
         DockerPasswordVariable = dockerPasswordVariable ?? "DOCKER_PASSWORD";
         DockerServerVariable = dockerServerVariable ?? "DOCKER_SERVER";
+        VirusTotalApiKeyVariable = virusTotalApiKeyVariable ?? "VIRUSTOTAL_API_KEY";
     }
 }
