@@ -31,10 +31,13 @@ public static class BuildParameters
         return arguments;
     };
 
+    private static AggregatePublishProvider _publishProvider = new AggregatePublishProvider();
+
     public static BranchType BranchType { get; private set; }
     public static PlatformFamily BuildAgentOperatingSystem { get; private set; }
     public static string BuildCounter { get; private set; }
     public static IBuildProvider BuildProvider { get; private set; }
+    public static IPublishProvider PublishProvider => _publishProvider;
     public static Cake.Core.Configuration.ICakeConfiguration CakeConfiguration { get; private set; }
 
     public static string CertificateAlgorithm { get; private set; }
@@ -109,6 +112,7 @@ public static class BuildParameters
     public static bool ShouldPublishAwsLambdas { get; private set; }
     public static bool ShouldPublishPreReleasePackages { get; private set; }
     public static bool ShouldPublishReleasePackages { get; private set; }
+    public static bool ShouldPublishPublicArtifacts { get; private set; }
     public static bool ShouldReportCodeCoverageMetrics { get; private set; }
     public static bool ShouldReportUnitTestResults { get; private set; }
     public static bool ShouldRunAnalyze { get; private set; }
@@ -159,6 +163,43 @@ public static class BuildParameters
     static BuildParameters()
     {
         Tasks = new BuildTasks();
+    }
+
+    /// <summary>
+    /// Registers the GitHub publish provider for public release artifacts.
+    /// </summary>
+    /// <param name="context">The Cake context.</param>
+    /// <remarks>
+    /// Public artifacts are release assets intended for external consumption, such as files published to GitHub Releases,
+    /// NuGet feeds, or Chocolatey feeds. Calling this method makes GitHub Releases available as a public artifact destination.
+    /// </remarks>
+    public static void AddGitHubPublishProvider(ICakeContext context)
+    {
+        if (context == null)
+        {
+            throw new ArgumentNullException(nameof(context));
+        }
+
+        AddPublishProvider(new GitHubPublishProvider(context));
+    }
+
+    /// <summary>
+    /// Registers a publish provider for public release artifacts.
+    /// </summary>
+    /// <param name="context">The Cake context.</param>
+    /// <param name="publishProvider">The publish provider to register.</param>
+    /// <remarks>
+    /// Use this overload to register custom destinations while keeping artifact selection and publishing coordinated
+    /// through <see cref="BuildParameters.PublishProvider"/>.
+    /// </remarks>
+    public static void AddPublishProvider(IPublishProvider publishProvider)
+    {
+        if (publishProvider == null)
+        {
+            throw new ArgumentNullException(nameof(publishProvider));
+        }
+
+        _publishProvider.AddPublishProvider(publishProvider);
     }
 
     public static void SetBuildVersion(BuildVersion version)
@@ -239,6 +280,7 @@ public static class BuildParameters
         context.Information("ShouldPostToTwitter: {0}", BuildParameters.ShouldPostToTwitter);
         context.Information("ShouldPublishAwsLambdas: {0}", BuildParameters.ShouldPublishAwsLambdas);
         context.Information("ShouldPublishPreReleasePackages: {0}", BuildParameters.ShouldPublishPreReleasePackages);
+        context.Information("ShouldPublishPublicArtifacts: {0}", BuildParameters.ShouldPublishPublicArtifacts);
         context.Information("ShouldPublishReleasePackages: {0}", BuildParameters.ShouldPublishReleasePackages);
         context.Information("ShouldReportCodeCoverageMetrics: {0}", BuildParameters.ShouldReportCodeCoverageMetrics);
         context.Information("ShouldReportUnitTestResults: {0}", BuildParameters.ShouldReportUnitTestResults);
@@ -284,6 +326,7 @@ public static class BuildParameters
         context.Information("UnitTestAssemblyFilePattern: {0}", UnitTestAssemblyFilePattern);
         context.Information("UnitTestAssemblyProjectPattern: {0}", UnitTestAssemblyProjectPattern);
         context.Information("UseChocolateyGuiStrongNameKey: {0}", UseChocolateyGuiStrongNameKey);
+        context.Information("PublishProvider: {0}", PublishProvider.Name);
 
         context.Information("------------------------------------------------------------------------------------------");
     }
@@ -389,7 +432,8 @@ public static class BuildParameters
         Func<BuildVersion, object[]> twitterMessageArguments = null,
         string unitTestAssemblyFilePattern = null,
         string unitTestAssemblyProjectPattern = null,
-        bool useChocolateyGuiStrongNameKey = false
+        bool useChocolateyGuiStrongNameKey = false,
+        bool shouldPublishPublicArtifacts = true
         )
     {
         if (context == null)
@@ -756,6 +800,13 @@ public static class BuildParameters
         if (context.HasArgument("shouldStrongNameSignDependentAssemblies"))
         {
             ShouldStrongNameSignDependentAssemblies = context.Argument<bool>("shouldStrongNameSignDependentAssemblies");
+        }
+
+        ShouldPublishPublicArtifacts = shouldPublishPublicArtifacts;
+
+        if (context.HasArgument("shouldPublishPublicArtifacts"))
+        {
+            ShouldPublishPublicArtifacts = context.Argument<bool>("shouldPublishPublicArtifacts");
         }
 
         SlackMessageArguments = slackMessageArguments ?? _defaultNotificationArguments;

@@ -18,7 +18,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 Action<string, Action> RequireTool = (tool, action) => {
-    var script = MakeAbsolute(File(string.Format("./{0}.cake", Guid.NewGuid())));
+    RequireToolEx(Context, tool, (context) => action());
+};
+
+static void RequireToolEx(this ICakeContext context, string tool, Action<ICakeContext> action)
+{
+    var script = context.MakeAbsolute(context.File(string.Format("./{0}.cake", Guid.NewGuid())));
     try
     {
         var arguments = new Dictionary<string, string>();
@@ -32,7 +37,7 @@ Action<string, Action> RequireTool = (tool, action) => {
         }
 
         System.IO.File.WriteAllText(script.FullPath, tool);
-        CakeExecuteScript(script,
+        context.CakeExecuteScript(script,
             new CakeSettings
             {
                 Arguments = arguments
@@ -40,14 +45,14 @@ Action<string, Action> RequireTool = (tool, action) => {
     }
     finally
     {
-        if (FileExists(script))
+        if (context.FileExists(script))
         {
-            DeleteFile(script);
+            context.DeleteFile(script);
         }
     }
 
-    action();
-};
+    action(context);
+}
 
 Action<string, string, Action> RequirePSModule = (module, requiredVersion, action) => {
     var powerShellModuleInstallationScript = GetFiles("./tools/Chocolatey.Cake.Recipe*/Content/install-module.ps1").FirstOrDefault();

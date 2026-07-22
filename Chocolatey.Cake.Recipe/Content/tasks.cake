@@ -60,6 +60,7 @@ public class BuildTasks
     public CakeTaskBuilder DotNetPackTask { get; set; }
     public CakeTaskBuilder PublishPreReleasePackagesTask { get; set; }
     public CakeTaskBuilder PublishReleasePackagesTask { get; set; }
+    public CakeTaskBuilder PublishPublicArtifactsTask { get; set; }
     public CakeTaskBuilder PublishAwsLambdasTask { get; set; }
 
     // Testing Tasks
