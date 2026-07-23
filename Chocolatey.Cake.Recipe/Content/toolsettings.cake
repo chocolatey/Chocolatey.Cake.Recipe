@@ -55,7 +55,7 @@ public static class ToolSettings
         string amazonLambdaGlobalTool = "#tool dotnet:?package=amazon.lambda.tools&version=5.4.5",
         string dotNetFormatGlobalTool = "#tool dotnet:?package=dotnet-format&version=5.1.250801",
         string gitVersionGlobalTool = "#tool dotnet:?package=GitVersion.Tool&version=5.10.1",
-        string gitVersionTool = "#tool nuget:?package=GitVersion.CommandLine&version=5.10.1",
+        string gitVersionTool = "#tool nuget:?package=GitVersion.CommandLine&version=5.12.0",
         string gitReleaseManagerGlobalTool = "#tool dotnet:?package=GitReleaseManager.Tool&version=0.20.0",
         string gitReleaseManagerTool = "#tool nuget:?package=GitReleaseManager&version=0.20.0",
         string ilMergeTool = "#tool nuget:?package=ilmerge&version=3.0.41",
