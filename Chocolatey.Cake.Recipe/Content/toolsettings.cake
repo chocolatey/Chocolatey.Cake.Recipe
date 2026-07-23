@@ -59,7 +59,7 @@ public static class ToolSettings
         string gitReleaseManagerGlobalTool = "#tool dotnet:?package=GitReleaseManager.Tool&version=0.20.0",
         string gitReleaseManagerTool = "#tool nuget:?package=GitReleaseManager&version=0.20.0",
         string ilMergeTool = "#tool nuget:?package=ilmerge&version=3.0.41",
-        string msbuildExtensionPackTool = "#tool nuget:?package=MSBuild.Extension.Pack&version=1.9.0",
+        string msbuildExtensionPackTool = "#tool nuget:?package=MSBuild.Extension.Pack&version=1.9.1",
         string nunitTool = "#tool nuget:?package=NUnit.ConsoleRunner&version=3.10.0",
         string openCoverTool = "#tool nuget:?package=OpenCover&version=4.7.1221",
         string reportGeneratorGlobalTool = "#tool dotnet:?package=dotnet-reportgenerator-globaltool&version=4.8.5",
