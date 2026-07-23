@@ -65,6 +65,7 @@ public static class BuildParameters
     public static bool IsLocalBuild { get; private set; }
     public static bool IsPullRequest { get; private set; }
     public static bool IsTagged { get; private set; }
+    public static bool IsOriginalRepository { get; private set; }
     public static string MasterBranchName { get; private set; }
     public static Func<BuildVersion, object[]> MastodonMessageArguments { get; private set; }
     public static FilePath MilestoneReleaseNotesFilePath { get; private set; }
@@ -195,6 +196,7 @@ public static class BuildParameters
         context.Information("IsLocalBuild: {0}", IsLocalBuild);
         context.Information("IsPullRequest: {0}", IsPullRequest);
         context.Information("IsTagged: {0}", IsTagged);
+        context.Information("IsOriginalRepository: {0}", IsOriginalRepository);
         context.Information("NuGetNupkgGlobbingPattern: {0}", NuGetNupkgGlobbingPattern);
         context.Information("NuGetNuspecGlobbingPattern: {0}", NuGetNuspecGlobbingPattern);
         context.Information("NuGetSources: {0}", string.Join(", ", NuGetSources));
@@ -447,6 +449,16 @@ public static class BuildParameters
         IsLocalBuild = buildSystem.IsLocalBuild;
         IsPullRequest = BuildProvider.PullRequest.IsPullRequest;
         IsTagged = BuildProvider.Repository.Tag.IsTag;
+        // Some information in TeamCity isn't directly accessible, so we need to go hunting for it! The BuildProperties is
+        // a dictionary of all of the properties contained within a file on disk on the build agent.
+        var buildProperties = BuildProvider.Build.BuildProperties;
+        var vcsRootUrl = string.Empty;
+        if(buildProperties.ContainsKey("vcsroot.url"))
+        {
+            vcsRootUrl = buildProperties["vcsrooot.url"];
+        }
+        // This is a check to see whether the URL matches with something like "chocolatey/choco.git"
+        IsOriginalRepository = vcsRootUrl.EndsWith(string.Concat(RepositoryOwner, "/", RepositoryName, ".git"), StringComparison.OrdinalIgnoreCase);
         MasterBranchName = masterBranchName;
         MastodonMessageArguments = mastodonMessageArguments ?? _defaultNotificationArguments;
         MilestoneReleaseNotesFilePath = milestoneReleaseNotesFilePath ?? RootDirectoryPath.CombineWithFilePath("CHANGELOG.md");
