@@ -47,7 +47,9 @@ Your `recipe.cake` file might include:
 
 This picks up all of your local cake changes at once, without having to list each file you're iterating on. Adjust the local path to wherever you've cloned this repository.
 
-Rather than editing the `#load` directives by hand, you can use the `Set-LocalDevelopment.ps1` script in the root of this repository to toggle a `recipe.cake` in and out of local development mode. It derives the local path from its own location, so there is nothing to hard-code, and it works regardless of which version of the package the `recipe.cake` is pinned to:
+*IMPORTANT:* If you have also built this repository, the `Generate-Version-File` task will have created a `Content/version.cake`. The `*.cake` glob above would then load it in addition to the copy included from the package, and the build fails with a duplicate `BuildMetaData` definition. Delete the generated `Content/version.cake` before building the consuming project (it regenerates the next time you build this repository).
+
+Rather than editing the `#load` directives by hand, you can use the `Set-LocalDevelopment.ps1` script in the root of this repository to toggle a `recipe.cake` in and out of local development mode. It derives the local path from its own location, so there is nothing to hard-code, it works regardless of which version of the package the `recipe.cake` is pinned to, and it removes the generated `Content/version.cake` for you so the duplicate above can't happen:
 
 ```
 # Point a consuming repository's recipe.cake at this local checkout
