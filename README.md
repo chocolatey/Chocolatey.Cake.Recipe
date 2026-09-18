@@ -36,12 +36,35 @@ And if you need to use a specific version of the package, you can use something 
 
 ### Local Development
 
-The easiest way to do local development of this package is to load the latest released version from NuGet, and exclude the cake files you're iterating.
+The easiest way to do local development of this package is to load every cake file from your local checkout, while pulling only the generated `version.cake` from the released NuGet package. `version.cake` is generated at build time and won't exist in your working copy, so it still needs to come from the package.
 
-For example, to work with the `sign.cake` file, your `recipe.cake` file might include:
+Your `recipe.cake` file might include:
 
 ```
-#load nuget:?package`Chocolatey.Cake.Recipe&Version=0.30.1&Exclude=/**/sign.cake
+#load nuget:?package=Chocolatey.Cake.Recipe&version=0.32.0&Include=/**/version.cake
+#load local:?path=C:/code/Chocolatey.Cake.Recipe/Chocolatey.Cake.Recipe/Content/*.cake
+```
+
+This picks up all of your local cake changes at once, without having to list each file you're iterating on. Adjust the local path to wherever you've cloned this repository.
+
+*IMPORTANT:* If you have also built this repository, the `Generate-Version-File` task will have created a `Content/version.cake`. The `*.cake` glob above would then load it in addition to the copy included from the package, and the build fails with a duplicate `BuildMetaData` definition. Delete the generated `Content/version.cake` before building the consuming project (it regenerates the next time you build this repository).
+
+Rather than editing the `#load` directives by hand, you can use the `Set-LocalDevelopment.ps1` script in the root of this repository to toggle a `recipe.cake` in and out of local development mode. It derives the local path from its own location, so there is nothing to hard-code, it works regardless of which version of the package the `recipe.cake` is pinned to, and it removes the generated `Content/version.cake` for you so the duplicate above can't happen:
+
+```
+# Point a consuming repository's recipe.cake at this local checkout
+./Set-LocalDevelopment.ps1 ../choco/recipe.cake
+
+# Run it again to restore the original released package reference
+./Set-LocalDevelopment.ps1 ../choco/recipe.cake
+```
+
+Pass `-Mode Enable` or `-Mode Disable` if you'd rather be explicit than toggle.
+
+If you'd rather iterate on a single file while keeping everything else on the released version, you can instead exclude just that file and load your local copy of it. For example, to work with `sign.cake`:
+
+```
+#load nuget:?package=Chocolatey.Cake.Recipe&version=0.32.0&Exclude=/**/sign.cake
 #load local:?path=C:/code/Chocolatey.Cake.Recipe/Chocolatey.Cake.Recipe/Content/sign.cake
 ```
 
