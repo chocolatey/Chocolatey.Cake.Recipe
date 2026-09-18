@@ -15,3 +15,11 @@
 
 #module nuget:?package=Cake.BuildSystems.Module&version=0.3.1
 #module nuget:?package=Cake.DotNetTool.Module&version=0.4.0
+
+// Required so that the "#tool choco:" pre-processor directive can be
+// used to install Chocolatey packages, for example the vt-cli package
+// used by the Submit-To-VirusTotal task. A module has to exist on disk
+// before Cake runs, so unlike a tool it can't be installed on demand,
+// and therefore has to be declared here rather than being pulled in only
+// by the builds which need it.
+#module nuget:?package=Cake.Chocolatey.Module&version=0.3.0
