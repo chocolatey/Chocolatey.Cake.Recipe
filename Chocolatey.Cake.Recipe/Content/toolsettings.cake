@@ -72,7 +72,7 @@ public static class ToolSettings
         string strongNameSignerTool = "#tool nuget:?package=Brutal.Dev.StrongNameSigner&version=2.6.0",
         string virusTotalTool = "#tool choco:?package=vt-cli&version=1.3.0",
         string wixTool = "#tool nuget:?package=WiX&version=3.11.2",
-        string xunitTool = "#tool nuget:?package=xunit.runner.console&version=2.4.1"
+        string xunitTool = "#tool nuget:?package=xunit.runner.console&version=2.9.3"
     )
     {
         AmazonLambdaGlobalTool = amazonLambdaGlobalTool;
