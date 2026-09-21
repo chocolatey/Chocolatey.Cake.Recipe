@@ -34,7 +34,7 @@
 #addin nuget:?package=Cake.Json&version=4.0.0
 #addin nuget:?package=Cake.Kudu&version=0.8.0
 #addin nuget:?package=Cake.Mastodon&version=1.0.0
-#addin nuget:?package=Cake.Npm&version=0.16.0
+#addin nuget:?package=Cake.Npm&version=0.17.0
 #addin nuget:?package=Cake.PowerShell&version=0.4.8
 #addin nuget:?package=Cake.Prompt&version=1.0.15
 #addin nuget:?package=Cake.ReSharperReports&version=0.10.0
