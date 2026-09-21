@@ -128,9 +128,11 @@ public class GitHubActionBuildInfo : IBuildInfo
     public GitHubActionBuildInfo(ICakeContext context)
     {
         Number = context.BuildSystem().GitHubActions.Environment.Workflow.RunNumber.ToString();
+        BuildProperties = new Dictionary<string, string>();
     }
 
     public string Number { get; }
+    public Dictionary<string, string> BuildProperties { get; }
 }
 
 public class GitHubActionBuildProvider : IBuildProvider
