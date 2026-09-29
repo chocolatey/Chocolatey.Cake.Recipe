@@ -48,6 +48,8 @@ public static class BuildParameters
     public static string DeploymentEnvironment { get; private set; }
     public static string DevelopBranchName { get; private set; }
     public static Func<BuildVersion, object[]> DiscordMessageArguments { get; private set; }
+    public static string DockerImageVersion { get; private set; }
+    public static string DockerInternalRegistry { get; private set; }
     public static bool ForceContinuousIntegration { get; private set; }
     public static FilePath FullReleaseNotesFilePath { get; private set; }
     public static Func<FilePathCollection> GetFilesToObfuscate { get; private set; }
@@ -191,6 +193,8 @@ public static class BuildParameters
         context.Information("ChocolateyNupkgGlobbingPattern: {0}", ChocolateyNupkgGlobbingPattern);
         context.Information("ChocolateyNuspecGlobbingPattern: {0}", ChocolateyNuspecGlobbingPattern);
         context.Information("Configuration: {0}", Configuration);
+        context.Information("DockerImageVersion: {0}", DockerImageVersion);
+        context.Information("DockerInternalRegistry: {0}", DockerInternalRegistry);
         context.Information("ForceContinuousIntegration: {0}", ForceContinuousIntegration);
         context.Information("IntegrationTestAssemblyFilePattern: {0}", IntegrationTestAssemblyFilePattern);
         context.Information("IntegrationTestAssemblyProjectPattern: {0}", IntegrationTestAssemblyProjectPattern);
@@ -301,6 +305,7 @@ public static class BuildParameters
         string chocolateyNuspecGlobbingPattern = "/**/*.nuspec",
         string developBranchName = "develop",
         Func<BuildVersion, object[]> discordMessageArguments = null,
+        string dockerInternalRegistry = null,
         FilePath fullReleaseNotesFilePath = null,
         Func<FilePathCollection> getFilesToObfuscate = null,
         Func<FilePathCollection> getFilesToSign = null,
@@ -436,6 +441,7 @@ public static class BuildParameters
         DiscordMessageArguments = discordMessageArguments ?? _defaultNotificationArguments;
         DeploymentEnvironment = context.Argument("environment", "Release");
         DevelopBranchName = developBranchName;
+        DockerImageVersion = context.Argument("dockerImageVersion", string.Empty);
         ForceContinuousIntegration = context.Argument("forceContinuousIntegration", false);
         FullReleaseNotesFilePath = fullReleaseNotesFilePath ?? RootDirectoryPath.CombineWithFilePath("ReleaseNotes.md");
         GetFilesToObfuscate = getFilesToObfuscate;
@@ -629,6 +635,13 @@ public static class BuildParameters
         if (context.HasArgument("shouldRunDocker"))
         {
             ShouldRunDocker = context.Argument<bool>("shouldRunDocker");
+        }
+
+        DockerInternalRegistry = dockerInternalRegistry;
+
+        if (context.HasArgument("dockerInternalRegistry"))
+        {
+            DockerInternalRegistry = context.Argument<string>("dockerInternalRegistry");
         }
 
         ShouldRunDotNetFormat = shouldRunDotNetFormat;

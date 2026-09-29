@@ -318,30 +318,27 @@ public class DockerCredentials
 
     public static DockerCredentials FetchCredentials(ICakeContext context)
     {
-        var user = context.EnvironmentVariable(Environment.DockerUserVariable);
+        var user = context.EnvironmentVariable(Environment.DockerInternalUserVariable);
 
         if (string.IsNullOrEmpty(user) && BuildParameters.IsLocalBuild)
         {
-            context.Warning("The required User for using Docker has not been provided.");
-            context.Warning("In future, this can be set using the {0} environment variable.", Environment.DockerUserVariable);
+            context.Warning("The required User for using the internal Docker registry has not been provided.");
+            context.Warning("In future, this can be set using the {0} environment variable.", Environment.DockerInternalUserVariable);
 
-            user = context.Prompt("Enter User for Docker:");
+            user = context.Prompt("Enter User for the internal Docker registry:");
         }
 
-        var password = context.EnvironmentVariable(Environment.DockerPasswordVariable);
+        var password = context.EnvironmentVariable(Environment.DockerInternalPasswordVariable);
 
         if (string.IsNullOrEmpty(password) && BuildParameters.IsLocalBuild)
         {
-            context.Warning("The required Password for using Docker has not been provided.");
-            context.Warning("In future, this can be set using the {0} environment variable.", Environment.DockerPasswordVariable);
+            context.Warning("The required Password for using the internal Docker registry has not been provided.");
+            context.Warning("In future, this can be set using the {0} environment variable.", Environment.DockerInternalPasswordVariable);
 
-            password = context.Prompt("Enter Password for Docker:");
+            password = context.Prompt("Enter Password for the internal Docker registry:");
         }
 
-        // This is not a required value
-        var server = context.EnvironmentVariable(Environment.DockerServerVariable);
-
-        return new DockerCredentials(user, password, server);
+        return new DockerCredentials(user, password, BuildParameters.DockerInternalRegistry);
     }
 
     public DockerCredentials(string user, string password, string server = null)

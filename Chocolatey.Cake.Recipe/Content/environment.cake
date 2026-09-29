@@ -32,9 +32,8 @@ public static class Environment
     public static string SonarQubeTokenVariable { get; private set; }
     public static string SonarQubeIdVariable { get; private set; }
     public static string SonarQubeUrlVariable { get; private set; }
-    public static string DockerUserVariable { get; private set; }
-    public static string DockerPasswordVariable { get; private set; }
-    public static string DockerServerVariable { get; private set; }
+    public static string DockerInternalUserVariable { get; private set; }
+    public static string DockerInternalPasswordVariable { get; private set; }
     public static string VirusTotalApiKeyVariable { get; private set; }
 
     public static void SetVariableNames(
@@ -55,9 +54,8 @@ public static class Environment
         string sonarQubeTokenVariable = null,
         string sonarQubeIdVariable = null,
         string sonarQubeUrlVariable = null,
-        string dockerUserVariable = null,
-        string dockerPasswordVariable = null,
-        string dockerServerVariable = null,
+        string dockerInternalUserVariable = null,
+        string dockerInternalPasswordVariable = null,
         string virusTotalApiKeyVariable = null)
     {
         DefaultPushSourceUrlVariable = defaultPushSourceUrlVariable ?? "NUGETDEVPUSH_SOURCE";
@@ -77,9 +75,8 @@ public static class Environment
         SonarQubeTokenVariable = sonarQubeTokenVariable ?? "SONARQUBE_TOKEN";
         SonarQubeIdVariable = sonarQubeIdVariable ?? "SONARQUBE_ID";
         SonarQubeUrlVariable = sonarQubeUrlVariable ?? "SONARQUBE_URL";
-        DockerUserVariable = dockerUserVariable ?? "DOCKER_USER";
-        DockerPasswordVariable = dockerPasswordVariable ?? "DOCKER_PASSWORD";
-        DockerServerVariable = dockerServerVariable ?? "DOCKER_SERVER";
+        DockerInternalUserVariable = dockerInternalUserVariable ?? "DOCKER_INTERNAL_USER";
+        DockerInternalPasswordVariable = dockerInternalPasswordVariable ?? "DOCKER_INTERNAL_PASSWORD";
         VirusTotalApiKeyVariable = virusTotalApiKeyVariable ?? "VIRUSTOTAL_API_KEY";
     }
 }

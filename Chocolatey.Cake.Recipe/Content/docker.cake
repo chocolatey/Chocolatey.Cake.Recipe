@@ -13,8 +13,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+public bool ShouldPushToDockerInternalRegistry()
+{
+    // Every build of a long-lived branch is pushed, so that images can be tested before they are released.
+    return BuildParameters.ShouldRunDocker &&
+        !string.IsNullOrEmpty(BuildParameters.DockerInternalRegistry) &&
+        (BuildParameters.IsTagged ||
+            BuildParameters.BranchType == BranchType.Develop ||
+            BuildParameters.BranchType == BranchType.Master ||
+            BuildParameters.BranchType == BranchType.Release ||
+            BuildParameters.BranchType == BranchType.HotFix ||
+            BuildParameters.BranchType == BranchType.Support);
+}
+
+public string GetDockerImageName(string tagSuffix)
+{
+    // The Windows and Linux images are built by separate CI builds, each with their own build counter, so the
+    // version can be passed in to make sure that both builds use the same tag.
+    var imageVersion = string.IsNullOrEmpty(BuildParameters.DockerImageVersion)
+        ? BuildParameters.Version.PackageVersion
+        : BuildParameters.DockerImageVersion;
+
+    // Without an internal registry, the image name has no registry prefix, and the image is only built locally.
+    var registryPrefix = string.IsNullOrEmpty(BuildParameters.DockerInternalRegistry)
+        ? string.Empty
+        : string.Format("{0}/", BuildParameters.DockerInternalRegistry.TrimEnd('/'));
+
+    // For example: registry.example.com:5000/chocolatey/choco:2.6.0-alpha-20260917-123-linux
+    return string.Format("{0}{1}/{2}:{3}{4}", registryPrefix, BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, imageVersion, tagSuffix);
+}
+
 BuildParameters.Tasks.DockerLogin = Task("DockerLogin")
-    .WithCriteria(() => BuildParameters.ShouldRunDocker, "Skipping because running Docker tasks is not enabled")
+    .WithCriteria(() => ShouldPushToDockerInternalRegistry(), "Skipping because this build isn't pushed to the internal Docker registry")
     .Does(() =>
 {
     var dockerCredentials = DockerCredentials.FetchCredentials(Context);
@@ -34,7 +64,7 @@ BuildParameters.Tasks.DockerBuild = Task("DockerBuild")
 
     var dockerBuildSettings = new DockerImageBuildSettings();
     dockerBuildSettings.Tag = new string[] {
-        string.Format("{0}/{1}:v{2}-{3}", BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, BuildParameters.Version.MajorMinorPatch, platform)
+        GetDockerImageName(string.Format("-{0}", platform))
     };
     dockerBuildSettings.File = string.Format("docker/Dockerfile.{0}", platform);
 
@@ -52,8 +82,7 @@ BuildParameters.Tasks.DockerBuild = Task("DockerBuild")
 });
 
 BuildParameters.Tasks.DockerPush = Task("DockerPush")
-    .WithCriteria(() => BuildParameters.IsTagged && BuildParameters.Version.MajorMinorPatch == BuildParameters.Version.FullSemVersion, "Skipping because this isn't a tagged full release build.")
-    .WithCriteria(() => BuildParameters.ShouldRunDocker, "Skipping because running Docker tasks is not enabled")
+    .WithCriteria(() => ShouldPushToDockerInternalRegistry(), "Skipping because this build isn't pushed to the internal Docker registry")
     .IsDependentOn("DockerLogin")
     .IsDependentOn("DockerBuild")
     .Does(() =>
@@ -61,28 +90,7 @@ BuildParameters.Tasks.DockerPush = Task("DockerPush")
     var platform = BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows ? "windows" : "linux";
 
     DockerPush(
-        string.Format("{0}/{1}:v{2}-{3}", BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, BuildParameters.Version.MajorMinorPatch, platform)
-    );
-});
-
-BuildParameters.Tasks.DockerTagAsLatest = Task("DockerTagAsLatest")
-    .WithCriteria(() => BuildParameters.BranchType == BranchType.Master && BuildParameters.IsTagged && BuildParameters.Version.MajorMinorPatch == BuildParameters.Version.FullSemVersion, "Skipping because this isn't a tagged full release build.")
-    .WithCriteria(() => BuildParameters.ShouldRunDocker, "Skipping because running Docker tasks is not enabled")
-    .IsDependentOn("DockerLogin")
-    .IsDependentOn("DockerBuild")
-    .IsDependentOn("DockerPush")
-    .Does(() =>
-{
-    var platform = BuildParameters.BuildAgentOperatingSystem == PlatformFamily.Windows ? "windows" : "linux";
-    var latestPlatformTag = string.Format("{0}/{1}:latest-{2}", BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, platform);
-
-    DockerTag(
-        string.Format("{0}/{1}:v{2}-{3}", BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, BuildParameters.Version.MajorMinorPatch, platform),
-        latestPlatformTag
-    );
-
-    DockerPush(
-        latestPlatformTag
+        GetDockerImageName(string.Format("-{0}", platform))
     );
 });
 
@@ -90,19 +98,15 @@ BuildParameters.Tasks.Docker = Task("Docker")
     .IsDependentOn("DockerLogin")
     .IsDependentOn("DockerBuild")
     .IsDependentOn("DockerPush")
-    .IsDependentOn("DockerTagAsLatest")
     .WithCriteria(() => BuildParameters.ShouldRunDocker, "Skipping because running Docker tasks is not enabled");
 
 BuildParameters.Tasks.DockerManifest = Task("DockerManifest")
-    .WithCriteria(() => BuildParameters.IsTagged && BuildParameters.Version.MajorMinorPatch == BuildParameters.Version.FullSemVersion, "Skipping because this isn't a tagged full release build.")
-    .WithCriteria(() => BuildParameters.ShouldRunDocker, "Skipping because running Docker tasks is not enabled")
+    .WithCriteria(() => ShouldPushToDockerInternalRegistry(), "Skipping because this build isn't pushed to the internal Docker registry")
     .IsDependentOn("DockerLogin")
     .Does(() =>
 {
     // Note: This will fail if one of the expected tags are not available, so it's important to ensure other builds have completed.
-
-    // Create the version manifest
-    var manifestListName = string.Format("{0}/{1}:v{2}", BuildParameters.RepositoryOwner, BuildParameters.RepositoryName, BuildParameters.Version.MajorMinorPatch);
+    var manifestListName = GetDockerImageName(string.Empty);
 
     DockerManifestCreate(
         manifestListName,
@@ -113,17 +117,4 @@ BuildParameters.Tasks.DockerManifest = Task("DockerManifest")
     );
 
     DockerManifestPush(manifestListName);
-
-    // Create the latest manifest only if this is the master branch.
-    if (BuildParameters.BranchType == BranchType.Master) {
-        DockerManifestCreate(
-            string.Format("{0}/{1}:latest", BuildParameters.RepositoryOwner, BuildParameters.RepositoryName),
-            string.Format("{0}/{1}:latest-windows", BuildParameters.RepositoryOwner, BuildParameters.RepositoryName),
-            new string[] {
-                string.Format("{0}/{1}:latest-linux", BuildParameters.RepositoryOwner, BuildParameters.RepositoryName)
-            }
-        );
-
-        DockerManifestPush(string.Format("{0}/{1}:latest", BuildParameters.RepositoryOwner, BuildParameters.RepositoryName));
-    }
 });
