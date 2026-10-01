@@ -94,29 +94,19 @@ BuildParameters.Tasks.CreateIssuesReportTask = Task("CreateIssuesReport")
 BuildParameters.Tasks.DotNetFormatCheckTask = Task("Run-DotNetFormatCheck")
     .WithCriteria(() => BuildParameters.ShouldRunDotNetFormat, "Skipping because DotNetFormat has been disabled")
     .WithCriteria(() => BuildParameters.ShouldRunAnalyze, "Skipping because running analysis tasks is not enabled")
-    .Does(() => RequireTool(ToolSettings.DotNetFormatGlobalTool, () =>
+    .Does(() =>
     {
-        var dotNetFormatTool = Context.Tools.Resolve("dotnet-format.exe");
-        if (dotNetFormatTool == null)
-        {
-            dotNetFormatTool = Context.Tools.Resolve("dotnet-format");
-        }
-
-        StartProcess(dotNetFormatTool, new ProcessSettings{ Arguments = string.Format("{0} --report {1} --check --no-restore", MakeAbsolute(BuildParameters.SolutionFilePath), MakeAbsolute(BuildParameters.Paths.Files.DotNetFormatOutputFilePath)) });
-    })
+        // dotnet format ships in the .NET SDK since .NET 6 - no standalone tool to install.
+        StartProcess("dotnet", new ProcessSettings{ Arguments = string.Format("format {0} --report {1} --verify-no-changes --no-restore", MakeAbsolute(BuildParameters.SolutionFilePath), MakeAbsolute(BuildParameters.Paths.Files.DotNetFormatOutputFilePath)) });
+    }
 );
 
 BuildParameters.Tasks.DotNetFormatTask = Task("Run-DotNetFormat")
-    .Does(() => RequireTool(ToolSettings.DotNetFormatGlobalTool, () =>
+    .Does(() =>
     {
-        var dotNetFormatTool = Context.Tools.Resolve("dotnet-format.exe");
-        if (dotNetFormatTool == null)
-        {
-            dotNetFormatTool = Context.Tools.Resolve("dotnet-format");
-        }
-
-        StartProcess(dotNetFormatTool, new ProcessSettings{ Arguments = string.Format("{0} --report {1} --no-restore", MakeAbsolute(BuildParameters.SolutionFilePath), MakeAbsolute(BuildParameters.Paths.Files.DotNetFormatOutputFilePath)) });
-    })
+        // dotnet format ships in the .NET SDK since .NET 6 - no standalone tool to install.
+        StartProcess("dotnet", new ProcessSettings{ Arguments = string.Format("format {0} --report {1} --no-restore", MakeAbsolute(BuildParameters.SolutionFilePath), MakeAbsolute(BuildParameters.Paths.Files.DotNetFormatOutputFilePath)) });
+    }
 );
 
 BuildParameters.Tasks.AnalyzeTask = Task("Analyze")

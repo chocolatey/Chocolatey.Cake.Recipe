@@ -26,7 +26,6 @@ public static class ToolSettings
     public static string XBuildPlatformTarget { get; private set; }
     public static FilePath EazfuscatorToolLocation { get; private set; }
     public static string AmazonLambdaGlobalTool { get; private set; }
-    public static string DotNetFormatGlobalTool { get; private set; }
     public static string GitVersionGlobalTool { get; private set; }
     public static string GitVersionTool { get; private set; }
     public static string GitReleaseManagerGlobalTool { get; private set; }
@@ -54,7 +53,6 @@ public static class ToolSettings
 
     public static void SetToolPreprocessorDirectives(
         string amazonLambdaGlobalTool = "#tool dotnet:?package=amazon.lambda.tools&version=5.4.5",
-        string dotNetFormatGlobalTool = "#tool dotnet:?package=dotnet-format&version=5.1.250801",
         string gitVersionGlobalTool = "#tool dotnet:?package=GitVersion.Tool&version=5.10.1",
         string gitVersionTool = "#tool nuget:?package=GitVersion.CommandLine&version=5.10.1",
         string gitReleaseManagerGlobalTool = "#tool dotnet:?package=GitReleaseManager.Tool&version=0.20.0",
@@ -76,7 +74,6 @@ public static class ToolSettings
     )
     {
         AmazonLambdaGlobalTool = amazonLambdaGlobalTool;
-        DotNetFormatGlobalTool = dotNetFormatGlobalTool;
         GitVersionGlobalTool = gitVersionGlobalTool;
         GitVersionTool = gitVersionTool;
         GitReleaseManagerGlobalTool = gitReleaseManagerGlobalTool;

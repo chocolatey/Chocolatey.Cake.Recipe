@@ -467,6 +467,12 @@ BuildParameters.Tasks.GenerateLocalCoverageReportTask = Task("Generate-FriendlyC
                 settings.ToolPath = Context.Tools.Resolve("reportgenerator");
             }
 
+            // Source generators don't write their .g.cs output to disk, so the merged coverage
+            // data references files that don't exist on disk. Filter them out here, since the
+            // merge path does not honour TestCoverageExcludeByFile/-Attribute the way the
+            // per-project coverlet output does.
+            settings.ArgumentCustomization = args => args.Append("-filefilters:-**/*.g.cs");
+
             ReportGenerator(coverageFiles, BuildParameters.Paths.Directories.TestCoverage, settings);
 
             var reportGeneratorFiles = GetFiles(BuildParameters.Paths.Directories.TestCoverage + "/*.html")
