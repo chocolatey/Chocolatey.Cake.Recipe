@@ -55,7 +55,7 @@ public class TeamCityTagInfo : ITagInfo
 
 public class TeamCityRepositoryInfo : IRepositoryInfo
 {
-    public TeamCityRepositoryInfo(ITeamCityProvider teamCity, ICakeContext context)
+    public TeamCityRepositoryInfo(ITeamCityProvider teamCity, ICakeContext context, string masterBranchName)
     {
         Name = teamCity.Environment.Build.BuildConfName;
 
@@ -81,37 +81,7 @@ public class TeamCityRepositoryInfo : IRepositoryInfo
                 }
                 else if (tempName.StartsWith(tagPrefix))
                 {
-                    var gitTool = context.Tools.Resolve("git");
-                    if (gitTool == null)
-                    {
-                        gitTool = context.Tools.Resolve("git.exe");
-                    }
-
-                    if (gitTool != null)
-                    {
-                        IEnumerable<string> redirectedStandardOutput;
-                        IEnumerable<string> redirectedError;
-
-                        var exitCode = context.StartProcess(
-                            gitTool,
-                            new ProcessSettings {
-                                Arguments = "branch -r --contains " + tempName,
-                                RedirectStandardOutput = true,
-                                RedirectStandardError = true,
-                            },
-                            out redirectedStandardOutput,
-                            out redirectedError
-                        );
-
-                        if (exitCode == 0)
-                        {
-                            var lines = redirectedStandardOutput.ToList();
-                            if (lines.Count != 0)
-                            {
-                                tempName = lines[0].TrimStart(new []{ ' ', '*' }).Replace("origin/", string.Empty);
-                            }
-                        }
-                    }
+                    tempName = GetBranchContainingTag(context, tempName, masterBranchName);
                 }
                 else if (tempName.IndexOf('/') >= 0)
                 {
@@ -154,11 +124,11 @@ public class TeamCityBuildInfo : IBuildInfo
 
 public class TeamCityBuildProvider : IBuildProvider
 {
-    public TeamCityBuildProvider(ITeamCityProvider teamCity, ICakeContext context)
+    public TeamCityBuildProvider(ITeamCityProvider teamCity, ICakeContext context, string masterBranchName)
     {
         Build = new TeamCityBuildInfo(teamCity);
         PullRequest = new TeamCityPullRequestInfo(teamCity);
-        Repository = new TeamCityRepositoryInfo(teamCity, context);
+        Repository = new TeamCityRepositoryInfo(teamCity, context, masterBranchName);
 
         _teamCity = teamCity;
         _context = context;

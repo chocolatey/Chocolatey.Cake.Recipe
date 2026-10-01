@@ -424,7 +424,7 @@ public static class BuildParameters
 
         // These properties are used to define other values, so have to be set first, which is why
         // they are not in alphabetical order like the others.
-        BuildProvider = GetBuildProvider(context, buildSystem);
+        BuildProvider = GetBuildProvider(context, buildSystem, masterBranchName);
         RootDirectoryPath = rootDirectoryPath ?? context.MakeAbsolute(context.Environment.WorkingDirectory);
 
         BuildAgentOperatingSystem = context.Environment.Platform.Family;

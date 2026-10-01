@@ -37,7 +37,7 @@ public class GitLabCITagInfo : ITagInfo
 
 public class GitLabCIRepositoryInfo : IRepositoryInfo
 {
-    public GitLabCIRepositoryInfo(ICakeContext context)
+    public GitLabCIRepositoryInfo(ICakeContext context, string masterBranchName)
     {
         // CI_PROJECT_PATH is "namespace/project", matching the "owner/repo" style
         // that the GitHub Actions provider reports.
@@ -61,7 +61,7 @@ public class GitLabCIRepositoryInfo : IRepositoryInfo
                 var tag = context.EnvironmentVariable("CI_COMMIT_TAG");
                 if (!string.IsNullOrEmpty(tag))
                 {
-                    branch = GetBranchContainingTag(context, tag);
+                    branch = GetBranchContainingTag(context, tag, masterBranchName);
                 }
                 else
                 {
@@ -75,51 +75,6 @@ public class GitLabCIRepositoryInfo : IRepositoryInfo
         }
 
         Tag = new GitLabCITagInfo(context);
-    }
-
-    private static string GetBranchContainingTag(ICakeContext context, string tag)
-    {
-        // Requires remote-tracking branches (refs/remotes/origin/*) to be present.
-        // GitLab's default tag-pipeline clone does NOT create them, so the CI job
-        // must fetch them first, e.g.:
-        //   git fetch origin "+refs/heads/*:refs/remotes/origin/*"
-        // Without that, `git branch -r --contains` finds nothing and we fall back
-        // to the tag name below.
-        var gitTool = context.Tools.Resolve("git");
-        if (gitTool == null)
-        {
-            gitTool = context.Tools.Resolve("git.exe");
-        }
-
-        if (gitTool == null)
-        {
-            return tag;
-        }
-
-        IEnumerable<string> redirectedStandardOutput;
-        IEnumerable<string> redirectedError;
-
-        var exitCode = context.StartProcess(
-            gitTool,
-            new ProcessSettings {
-                Arguments = "branch -r --contains " + tag,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-            },
-            out redirectedStandardOutput,
-            out redirectedError
-        );
-
-        if (exitCode == 0)
-        {
-            var lines = redirectedStandardOutput.ToList();
-            if (lines.Count != 0)
-            {
-                return lines[0].TrimStart(new []{ ' ', '*' }).Replace("origin/", string.Empty);
-            }
-        }
-
-        return tag;
     }
 
     public string Branch { get; }
@@ -161,11 +116,11 @@ public class GitLabCIBuildProvider : IBuildProvider
 {
     private readonly ICakeContext _context;
 
-    public GitLabCIBuildProvider(ICakeContext context)
+    public GitLabCIBuildProvider(ICakeContext context, string masterBranchName)
     {
         Build = new GitLabCIBuildInfo(context);
         PullRequest = new GitLabCIPullRequestInfo(context);
-        Repository = new GitLabCIRepositoryInfo(context);
+        Repository = new GitLabCIRepositoryInfo(context, masterBranchName);
 
         _context = context;
     }

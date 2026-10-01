@@ -36,7 +36,7 @@ public class GitHubActionTagInfo : ITagInfo
 
 public class GitHubActionRepositoryInfo : IRepositoryInfo
 {
-    public GitHubActionRepositoryInfo(ICakeContext context)
+    public GitHubActionRepositoryInfo(ICakeContext context, string masterBranchName)
     {
         Name = context.BuildSystem().GitHubActions.Environment.Workflow.Repository;
         var baseRef = context.BuildSystem().GitHubActions.Environment.Workflow.BaseRef;
@@ -59,37 +59,7 @@ public class GitHubActionRepositoryInfo : IRepositoryInfo
                 }
                 else if (tempName.StartsWith(tagPrefix))
                 {
-                    var gitTool = context.Tools.Resolve("git");
-                    if (gitTool == null)
-                    {
-                        gitTool = context.Tools.Resolve("git.exe");
-                    }
-
-                    if (gitTool != null)
-                    {
-                        IEnumerable<string> redirectedStandardOutput;
-                        IEnumerable<string> redirectedError;
-
-                        var exitCode = context.StartProcess(
-                            gitTool,
-                            new ProcessSettings {
-                                Arguments = "branch -r --contains " + tempName,
-                                RedirectStandardOutput = true,
-                                RedirectStandardError = true,
-                            },
-                            out redirectedStandardOutput,
-                            out redirectedError
-                        );
-
-                        if (exitCode == 0)
-                        {
-                            var lines = redirectedStandardOutput.ToList();
-                            if (lines.Count != 0)
-                            {
-                                tempName = lines[0].TrimStart(new []{ ' ', '*' }).Replace("origin/", string.Empty);
-                            }
-                        }
-                    }
+                    tempName = GetBranchContainingTag(context, tempName, masterBranchName);
                 }
                 else if (tempName.IndexOf('/') >= 0)
                 {
@@ -137,11 +107,11 @@ public class GitHubActionBuildProvider : IBuildProvider
 {
     private readonly ICakeContext _context;
 
-    public GitHubActionBuildProvider(ICakeContext context)
+    public GitHubActionBuildProvider(ICakeContext context, string masterBranchName)
     {
         Build = new GitHubActionBuildInfo(context);
         PullRequest = new GitHubActionPullRequestInfo(context);
-        Repository = new GitHubActionRepositoryInfo(context);
+        Repository = new GitHubActionRepositoryInfo(context, masterBranchName);
 
         _context = context;
     }
